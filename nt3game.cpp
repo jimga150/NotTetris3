@@ -83,7 +83,7 @@ NT3Game::~NT3Game()
     printf("Average framerate was %f ms\n", de_facto_rate);
 
     if (this->world) delete world;
-    //if (this->contactlistener) delete contactlistener;
+    if (this->contactlistener) delete contactlistener;
     delete this->m_device;
 }
 
