@@ -63,6 +63,7 @@
 
 #include "Box2D/Box2D.h"
 
+#include "openglwindow.h"
 #include "nt3contactlistener.h"
 
 enum tetris_piece_enum{
@@ -85,7 +86,7 @@ enum wall_enum{
     num_walls
 };
 
-class NT3Game : public QOpenGLWindow, protected QOpenGLFunctions
+class NT3Game : public OpenGLWindow
 {
     Q_OBJECT
 public:
@@ -93,12 +94,10 @@ public:
     ~NT3Game() override;
 
 
-    void setAnimating(bool animating);
-
-    void render(QPainter& painter);
+    void render(QPainter& painter) override;
 
 
-    void doGameFrame();
+    void doGameStep() override;
 
     void drawBodyTo(QPainter* painter, b2Body *body);
 
@@ -169,29 +168,12 @@ public:
     std::vector<QPixmap> piece_images;
     std::vector<QRect> piece_rects;
 
-#ifdef TIME_FRAMES
-    QElapsedTimer frameTimer;
-    std::vector<long long> frame_times;
-#endif
-
 protected:
-    bool event(QEvent *event) override;
-
-    void exposeEvent(QExposeEvent *event) override;
-
     void resizeEvent(QResizeEvent* event) override;
 
     void keyPressEvent(QKeyEvent* ev) override;
 
-    bool m_animating = false;
-
-    QOpenGLContext *m_context = nullptr;
-    QOpenGLPaintDevice *m_device = nullptr;
-
-public slots:
-    void renderLater();
-    void renderNow();
-
+    void keyReleaseEvent(QKeyEvent* ev) override;
 
 };
 
