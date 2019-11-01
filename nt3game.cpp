@@ -190,9 +190,10 @@ void NT3Game::renderNow()
     printf("Buffer took %lld ms\n", timer.elapsed());
 #endif
 
-    if (this->m_animating)
+    if (this->m_animating){
         this->gameFrame();
         this->renderLater();
+    }
 }
 
 void NT3Game::render()
