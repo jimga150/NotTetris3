@@ -21,6 +21,13 @@ OpenGLWindow::~OpenGLWindow(){
     delete this->m_device;
 }
 
+void OpenGLWindow::setAnimating(bool animating){
+    this->m_animating = animating;
+
+    if (animating)
+        this->renderLater();
+}
+
 bool OpenGLWindow::event(QEvent *event){
     switch (event->type()) {
     case QEvent::UpdateRequest:
@@ -36,13 +43,6 @@ void OpenGLWindow::exposeEvent(QExposeEvent *event){
 
     if (this->isExposed())
         this->renderNow();
-}
-
-void OpenGLWindow::setAnimating(bool animating){
-    this->m_animating = animating;
-
-    if (animating)
-        this->renderLater();
 }
 
 void OpenGLWindow::renderLater(){
