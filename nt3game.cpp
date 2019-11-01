@@ -60,8 +60,8 @@ NT3Game::NT3Game()
 
     b2Vec2 gravity(0.0f, 4*9.8f);
     this->world = new b2World(gravity);
-    //this->contactlistener = new NT3ContactListener;
-    //this->world->SetContactListener(this->contactlistener);
+    this->contactlistener = new NT3ContactListener;
+    this->world->SetContactListener(this->contactlistener);
 
     this->initializeTetrisPieceDefs();
 

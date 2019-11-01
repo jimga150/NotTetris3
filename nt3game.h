@@ -59,6 +59,8 @@
 
 #include "Box2D/Box2D.h"
 
+#include "nt3contactlistener.h"
+
 enum tetris_piece_enum{
     I = 0, //Long skinny piece
     O, //2x2 square
@@ -115,7 +117,7 @@ public:
     std::vector<std::vector<b2PolygonShape>> tetrisShapes;
 
     b2World* world = nullptr;
-    //NT3ContactListener* contactlistener = nullptr;
+    NT3ContactListener* contactlistener = nullptr;
     std::vector<b2Body*> bodies;
 
     b2Body* groundBody = nullptr;
