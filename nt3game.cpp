@@ -247,7 +247,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
                 this->graphics_field.x() + body->GetPosition().x*this->graphicsscale,
                 this->graphics_field.y() + body->GetPosition().y*this->graphicsscale
                 );
-    painter->rotate(body->GetAngle()*180.0/M_PI);
+    painter->rotate(body->GetAngle()*rad_to_deg);
 
     for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
         switch(f->GetType()){

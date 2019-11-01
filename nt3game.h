@@ -101,6 +101,7 @@ public:
 
 
     const int millis_per_second = 1000;
+    const double rad_to_deg = 180.0/M_PI;
 
     double fps;
     float32 timeStep;
