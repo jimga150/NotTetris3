@@ -175,6 +175,8 @@ protected:
 
     void resizeEvent(QResizeEvent* event) override;
 
+    void keyPressEvent(QKeyEvent* ev) override;
+
     bool m_animating = false;
 
     QOpenGLContext *m_context = nullptr;

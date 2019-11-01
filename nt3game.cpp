@@ -139,6 +139,10 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->scaled_tetris_field.setHeight(static_cast<int>(this->tetris_field.height()*this->graphicsscale));
 }
 
+void NT3Game::keyPressEvent(QKeyEvent* ev){
+    printf("Key pressed: %d\n", ev->key());
+}
+
 
 void NT3Game::setAnimating(bool animating)
 {
