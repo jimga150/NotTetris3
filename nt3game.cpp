@@ -223,8 +223,8 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
             QPainterPath path;
             path.moveTo(
                         static_cast<double>(shape.m_vertices[0].x),
-                        static_cast<double>(shape.m_vertices[0].y)
-                        );
+                    static_cast<double>(shape.m_vertices[0].y) //I HATE this indentation. Why, Qt?
+                    );
             for (int i = 1; i < shape.m_count; i++){
                 path.lineTo(
                             static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
