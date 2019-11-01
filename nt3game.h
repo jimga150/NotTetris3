@@ -122,10 +122,6 @@ public:
     b2Body* thingy = nullptr;
 
 
-    float32 side_length = 8;
-
-    const int max_shapes_per_piece = 2;
-
     const double aspect_ratio = 10.0/9.0;
 
     const int game_field_width = 82;
@@ -133,12 +129,18 @@ public:
     const int game_height = 144;
 
     const int tetris_rows = 18;
-    const double tetris_cols = 10.25;
+    const int tetris_cols = 10;
 
-    const QRect game_field = QRect(14, 0, tetris_cols*side_length, tetris_rows*side_length); //TODO: add fudge width
-    QRect graphics_field = QRect(14, 0, tetris_cols*side_length, tetris_rows*side_length);
+    float32 side_length = game_height*1.0f/tetris_rows;
+
+    const QRect game_field = QRect(14, 0, game_field_width, game_height); //TODO: add fudge width
+    QRect graphics_field = QRect(14, 0, game_field_width, game_height);
 
     double graphicsscale = 1;
+
+
+    const int max_shapes_per_piece = 2;
+
 
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);

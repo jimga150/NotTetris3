@@ -121,6 +121,7 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     } else { //screen is relatively taller than app, or it's the same ratio
         this->graphicsscale = width*1.0/this->game_width;
     }
+
     this->graphics_field.setX(this->game_field.x()*this->graphicsscale);
     this->graphics_field.setY(this->game_field.y()*this->graphicsscale);
     this->graphics_field.setWidth(this->game_field.width()*this->graphicsscale);
@@ -357,17 +358,17 @@ void NT3Game::initializeWalls(){
     edgeBodyDef.position.Set(0, 0);
 
     b2EdgeShape edge;
-    edge.Set(b2Vec2(0, side_length*tetris_rows), b2Vec2(side_length*tetris_cols, side_length*tetris_rows));
+    edge.Set(b2Vec2(0, game_height), b2Vec2(game_field_width, game_height));
 
     this->groundBody = world->CreateBody(&edgeBodyDef);
     this->groundBody->CreateFixture(&edge, 0.0f);
 
-    edge.Set(b2Vec2(0, 0), b2Vec2(0, side_length*tetris_rows));
+    edge.Set(b2Vec2(0, 0), b2Vec2(0, game_height));
 
     b2Body* leftEdge = world->CreateBody(&edgeBodyDef);
     leftEdge->CreateFixture(&edge, 0.0f);
 
-    edge.Set(b2Vec2(side_length*tetris_cols, 0), b2Vec2(side_length*tetris_cols, side_length*tetris_rows));
+    edge.Set(b2Vec2(game_field_width, 0), b2Vec2(game_field_width, game_height));
 
     b2Body* rightEdge = world->CreateBody(&edgeBodyDef);
     rightEdge->CreateFixture(&edge, 0.0f);
