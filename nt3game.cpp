@@ -299,7 +299,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.type = b2_dynamicBody;
     this->tetrisBodyDef.allowSleep = true;
     this->tetrisBodyDef.awake = true;
-    this->tetrisBodyDef.position.Set(this->game_field.width()/2, 64);
+    this->tetrisBodyDef.position.Set(this->game_field.width()/2, -this->side_length*2);
 
     for (int i = 0; i < num_tetris_pieces; i++){
         std::vector<b2PolygonShape> polyshapevect;
