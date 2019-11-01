@@ -104,7 +104,7 @@ public:
     const double rad_to_deg = 180.0/M_PI;
 
     double fps;
-    float32 timeStep;
+    double timeStep;
     double framerate; //seconds
 
 
@@ -136,7 +136,7 @@ public:
     const int tetris_rows = 18;
     const int tetris_cols = 10;
 
-    float32 side_length = game_height*1.0f/tetris_rows;
+    float32 side_length = static_cast<float32>(game_height*1.0/tetris_rows);
 
     const QRect game_field = QRect(14, 0, game_field_width, game_height); //TODO: add fudge width
     QRect graphics_field = QRect(14, 0, game_field_width, game_height);
@@ -144,7 +144,7 @@ public:
     double graphicsscale = 1;
 
 
-    const int max_shapes_per_piece = 2;
+    const uint32 max_shapes_per_piece = 2;
 
     QRandomGenerator rng = QRandomGenerator::securelySeeded();
 

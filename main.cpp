@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
     QScreen* screen = QGuiApplication::primaryScreen();
     window.fps = screen->refreshRate();
-    window.framerate = 1.0f / window.fps;
+    window.framerate = 1.0/window.fps;
     window.timeStep = window.framerate; //seconds
     printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
 
@@ -76,10 +76,10 @@ int main(int argc, char **argv)
 
     if (screen_width*1.0/screen_height > window.aspect_ratio){ //screen is relatively wider than the app
         //this->setFixedSize(h*aspect_ratio, h);
-        int window_width = screen_height*window.aspect_ratio;
+        int window_width = static_cast<int>(screen_height*window.aspect_ratio);
         window.setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
     } else { //screen is relatively taller than app, or it's the same ratio
-        int window_height = screen_width*1.0/window.aspect_ratio;
+        int window_height = static_cast<int>(screen_width*1.0/window.aspect_ratio);
         window.setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
 

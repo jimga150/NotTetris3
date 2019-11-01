@@ -125,10 +125,10 @@ void NT3Game::resizeEvent(QResizeEvent* event){
         this->graphicsscale = width*1.0/this->game_width;
     }
 
-    this->graphics_field.setX(this->game_field.x()*this->graphicsscale);
-    this->graphics_field.setY(this->game_field.y()*this->graphicsscale);
-    this->graphics_field.setWidth(this->game_field.width()*this->graphicsscale);
-    this->graphics_field.setHeight(this->game_field.height()*this->graphicsscale);
+    this->graphics_field.setX(static_cast<int>(this->game_field.x()*this->graphicsscale));
+    this->graphics_field.setY(static_cast<int>(this->game_field.y()*this->graphicsscale));
+    this->graphics_field.setWidth(static_cast<int>(this->game_field.width()*this->graphicsscale));
+    this->graphics_field.setHeight(static_cast<int>(this->game_field.height()*this->graphicsscale));
 }
 
 
@@ -217,8 +217,8 @@ void NT3Game::render()
     painter.drawPixmap(
                 0,
                 0,
-                this->game_width*this->graphicsscale,
-                this->game_height*this->graphicsscale,
+                this->width(),
+                this->height(),
                 this->gamebackground
                 );
 
@@ -234,7 +234,7 @@ void NT3Game::render()
 
 
 void NT3Game::gameFrame(){
-    world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
+    world->Step(static_cast<float32>(this->timeStep), this->velocityIterations, this->positionIterations);
 
     if (this->contactlistener->hasCurrentPieceCollided()){
         this->makeNewTetrisPiece();
@@ -245,46 +245,65 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
     painter->save();
     painter->translate(
-                this->graphics_field.x() + body->GetPosition().x*this->graphicsscale,
-                this->graphics_field.y() + body->GetPosition().y*this->graphicsscale
+                this->graphics_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
+                this->graphics_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
                 );
-    painter->rotate(body->GetAngle()*rad_to_deg);
+    painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
 
     for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
         switch(f->GetType()){
         case b2Shape::e_polygon:{
-            b2PolygonShape shape = *(b2PolygonShape*)f->GetShape();
+            b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
             int numpoints = shape.m_count;
-            QPointF points[numpoints];
+            std::vector<QPointF> points;
             for (int i = 0; i < numpoints; i++){
-                points[i] = QPointF(shape.m_vertices[i].x*this->graphicsscale, shape.m_vertices[i].y*this->graphicsscale);
+                points.push_back(
+                            QPointF(
+                                static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
+                                static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                                )
+                            );
                 //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
             }
-            painter->drawPolygon(points, numpoints);
+            painter->drawPolygon(&points[0], numpoints);
         }
             break;
         case b2Shape::e_circle:{
-            b2CircleShape shape = *(b2CircleShape*)f->GetShape();
-            QPointF center(shape.m_p.x*this->graphicsscale, shape.m_p.y*this->graphicsscale);
-            painter->drawEllipse(center, shape.m_radius*this->graphicsscale, shape.m_radius*this->graphicsscale);
+            b2CircleShape shape = *static_cast<b2CircleShape*>(f->GetShape());
+            QPointF center(
+                        static_cast<double>(shape.m_p.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_p.y)*this->graphicsscale
+                        );
+            double radius = static_cast<double>(shape.m_radius);
+            radius *= this->graphicsscale;
+            painter->drawEllipse(center, radius, radius);
         }
             break;
         case b2Shape::e_edge:{
-            b2EdgeShape shape = *(b2EdgeShape*)f->GetShape();
-            painter->drawLine(
-                        shape.m_vertex1.x*this->graphicsscale,
-                        shape.m_vertex1.y*this->graphicsscale,
-                        shape.m_vertex2.x*this->graphicsscale,
-                        shape.m_vertex2.y*this->graphicsscale
+            b2EdgeShape shape = *static_cast<b2EdgeShape*>(f->GetShape());
+            QPointF p1 = QPointF(
+                        static_cast<double>(shape.m_vertex1.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_vertex1.y)*this->graphicsscale
                         );
+            QPointF p2 = QPointF(
+                        static_cast<double>(shape.m_vertex2.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_vertex2.y)*this->graphicsscale
+                        );
+            painter->drawLine(p1, p2);
         }
             break;
         case b2Shape::e_chain:{
-            b2ChainShape shape = *(b2ChainShape*)f->GetShape();
+            b2ChainShape shape = *static_cast<b2ChainShape*>(f->GetShape());
             QPainterPath path;
-            path.moveTo(shape.m_vertices[0].x, shape.m_vertices[0].y);
+            path.moveTo(
+                        static_cast<double>(shape.m_vertices[0].x),
+                        static_cast<double>(shape.m_vertices[0].y)
+                        );
             for (int i = 1; i < shape.m_count; i++){
-                path.lineTo(shape.m_vertices[i].x*this->graphicsscale, shape.m_vertices[i].y*this->graphicsscale);
+                path.lineTo(
+                            static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
+                            static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                            );
             }
             painter->drawPath(path);
         }
@@ -315,7 +334,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.type = b2_dynamicBody;
     this->tetrisBodyDef.allowSleep = true;
     this->tetrisBodyDef.awake = true;
-    this->tetrisBodyDef.position.Set(this->game_field.width()/2, -this->side_length*2);
+    this->tetrisBodyDef.position.Set(static_cast<float32>(this->game_field.width()/2), -this->side_length*2);
 
     for (int i = 0; i < num_tetris_pieces; i++){
         std::vector<b2PolygonShape> polyshapevect;
@@ -357,9 +376,9 @@ void NT3Game::initializeTetrisPieceDefs(){
 
     b2FixtureDef fixture_template;
     std::vector<b2FixtureDef> fixture_vector_template;
-    for (int t = 0; t < this->tetrisShapes.size(); t++){
+    for (uint32 t = 0; t < this->tetrisShapes.size(); t++){
         this->tetrisFixtures.push_back(fixture_vector_template);
-        for (int s = 0; s < this->max_shapes_per_piece; s++){
+        for (uint32 s = 0; s < this->max_shapes_per_piece; s++){
             if (this->tetrisShapes.at(t).size() == s) break;
             this->tetrisFixtures.at(t).push_back(fixture_template);
             this->tetrisFixtures.at(t).at(s).shape = &this->tetrisShapes.at(t).at(s);
