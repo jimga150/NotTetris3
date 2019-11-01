@@ -56,6 +56,7 @@ NT3Game::NT3Game()
 
     if (this->gamebackground.isNull()){
         printf("Couldnt find image at %s!\n", this->gamebackground_path.toUtf8().constData());
+        return;
     }
 
     b2Vec2 gravity(0.0f, 4*9.8f);
