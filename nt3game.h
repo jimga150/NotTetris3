@@ -144,6 +144,9 @@ public:
 
     double graphicsscale = 1;
 
+    int scaled_game_width = game_width;
+    int scaled_game_height = game_height;
+
 
     const uint32 max_shapes_per_piece = 2;
 

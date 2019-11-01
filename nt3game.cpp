@@ -129,6 +129,9 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->graphics_field.setY(static_cast<int>(this->game_field.y()*this->graphicsscale));
     this->graphics_field.setWidth(static_cast<int>(this->game_field.width()*this->graphicsscale));
     this->graphics_field.setHeight(static_cast<int>(this->game_field.height()*this->graphicsscale));
+
+    this->scaled_game_width = static_cast<int>(this->game_width*this->graphicsscale);
+    this->scaled_game_height = static_cast<int>(this->game_height*this->graphicsscale);
 }
 
 
@@ -212,13 +215,7 @@ void NT3Game::render(QPainter& painter)
 {
     painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.drawPixmap(
-                0,
-                0,
-                this->width(),
-                this->height(),
-                this->gamebackground
-                );
+    painter.drawPixmap(0, 0, this->scaled_game_width, this->scaled_game_height, this->gamebackground);
 
     painter.setPen(Qt::SolidLine);
     painter.setBrush(QColor(0, 0, 0));
