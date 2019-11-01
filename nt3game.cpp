@@ -120,18 +120,20 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     int height = newSize.height();
 
     if (width*1.0/height > aspect_ratio){ //screen is relatively wider than the app
-        this->graphicsscale = height*1.0/this->game_height;
+        this->graphicsscale = height*1.0/this->ui_field.height();
     } else { //screen is relatively taller than app, or it's the same ratio
-        this->graphicsscale = width*1.0/this->game_width;
+        this->graphicsscale = width*1.0/this->ui_field.width();
     }
 
-    this->graphics_field.setX(static_cast<int>(this->game_field.x()*this->graphicsscale));
-    this->graphics_field.setY(static_cast<int>(this->game_field.y()*this->graphicsscale));
-    this->graphics_field.setWidth(static_cast<int>(this->game_field.width()*this->graphicsscale));
-    this->graphics_field.setHeight(static_cast<int>(this->game_field.height()*this->graphicsscale));
+    this->scaled_ui_field.setX(static_cast<int>(this->ui_field.x()*this->graphicsscale));
+    this->scaled_ui_field.setY(static_cast<int>(this->ui_field.y()*this->graphicsscale));
+    this->scaled_ui_field.setWidth(static_cast<int>(this->ui_field.width()*this->graphicsscale));
+    this->scaled_ui_field.setHeight(static_cast<int>(this->ui_field.height()*this->graphicsscale));
 
-    this->scaled_game_width = static_cast<int>(this->game_width*this->graphicsscale);
-    this->scaled_game_height = static_cast<int>(this->game_height*this->graphicsscale);
+    this->scaled_tetris_field.setX(static_cast<int>(this->tetris_field.x()*this->graphicsscale));
+    this->scaled_tetris_field.setY(static_cast<int>(this->tetris_field.y()*this->graphicsscale));
+    this->scaled_tetris_field.setWidth(static_cast<int>(this->tetris_field.width()*this->graphicsscale));
+    this->scaled_tetris_field.setHeight(static_cast<int>(this->tetris_field.height()*this->graphicsscale));
 }
 
 
@@ -215,7 +217,7 @@ void NT3Game::render(QPainter& painter)
 {
     painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.drawPixmap(0, 0, this->scaled_game_width, this->scaled_game_height, this->gamebackground);
+    painter.drawPixmap(0, 0, this->scaled_ui_field.width(), this->scaled_ui_field.height(), this->gamebackground);
 
     painter.setPen(Qt::SolidLine);
     painter.setBrush(QColor(0, 0, 0));
@@ -238,8 +240,8 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
     painter->save();
     painter->translate(
-                this->graphics_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
-                this->graphics_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
+                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
+                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
                 );
     painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
 
@@ -327,7 +329,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.type = b2_dynamicBody;
     this->tetrisBodyDef.allowSleep = true;
     this->tetrisBodyDef.awake = true;
-    this->tetrisBodyDef.position.Set(static_cast<float32>(this->game_field.width()/2), -this->side_length*2);
+    this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
 
     for (int i = 0; i < num_tetris_pieces; i++){
         std::vector<b2PolygonShape> polyshapevect;
@@ -386,17 +388,17 @@ void NT3Game::initializeWalls(){
     edgeBodyDef.position.Set(0, 0);
 
     b2EdgeShape edge;
-    edge.Set(b2Vec2(0, game_height), b2Vec2(game_field_width, game_height));
+    edge.Set(b2Vec2(0, tetris_field.height()), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->groundBody = world->CreateBody(&edgeBodyDef);
     this->groundBody->CreateFixture(&edge, 0.0f);
 
-    edge.Set(b2Vec2(0, 0), b2Vec2(0, game_height));
+    edge.Set(b2Vec2(0, 0), b2Vec2(0, tetris_field.height()));
 
     this->leftWall = world->CreateBody(&edgeBodyDef);
     this->leftWall->CreateFixture(&edge, 0.0f);
 
-    edge.Set(b2Vec2(game_field_width, 0), b2Vec2(game_field_width, game_height));
+    edge.Set(b2Vec2(tetris_field.width(), 0), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->rightWall = world->CreateBody(&edgeBodyDef);
     this->rightWall->CreateFixture(&edge, 0.0f);

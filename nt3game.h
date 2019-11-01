@@ -128,24 +128,19 @@ public:
 
 
     const double aspect_ratio = 10.0/9.0;
-    const int game_field_x_offset_px = 14;
-
-    const int game_field_width = 82;
-    const int game_width = 160;
-    const int game_height = 144;
 
     const int tetris_rows = 18;
     const int tetris_cols = 10;
 
-    float32 side_length = static_cast<float32>(game_height*1.0/tetris_rows);
+    const QRect tetris_field = QRect(14, 0, 82, 144);
+    QRect scaled_tetris_field = tetris_field;
 
-    const QRect game_field = QRect(game_field_x_offset_px, 0, game_field_width, game_height); //TODO: add fudge width
-    QRect graphics_field = game_field;
+    float32 side_length = static_cast<float32>(tetris_field.height()*1.0/tetris_rows);
+
+    const QRect ui_field = QRect(0, tetris_field.y(), 160, tetris_field.height());
+    QRect scaled_ui_field = ui_field;
 
     double graphicsscale = 1;
-
-    int scaled_game_width = game_width;
-    int scaled_game_height = game_height;
 
 
     const uint32 max_shapes_per_piece = 2;
