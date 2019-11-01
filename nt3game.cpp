@@ -69,6 +69,8 @@ NT3Game::NT3Game()
 
     this->makeTetrisPiece(T);
 
+    this->makeNewTetrisPiece();
+
 #ifdef TIME_FRAMES
     this->frameTimer.start();
 #endif
@@ -233,7 +235,7 @@ void NT3Game::gameFrame(){
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
 
     if (this->contactlistener->hasCurrentPieceCollided()){
-        this->makeTetrisPiece(static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces)));
+        this->makeNewTetrisPiece();
     }
 }
 
@@ -293,9 +295,13 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
     painter->restore();
 }
 
-void NT3Game::makeTetrisPiece(tetris_piece_enum type){
+void NT3Game::makeNewTetrisPiece(){
+
+    tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
     this->currentPiece->ApplyTorque(3000000, true);
+
     for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
     }

@@ -97,7 +97,7 @@ public:
 
     void initializeWalls();
 
-    void makeTetrisPiece(tetris_piece_enum type);
+    void makeNewTetrisPiece();
 
 
     const int millis_per_second = 1000;
