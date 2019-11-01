@@ -128,6 +128,7 @@ public:
 
 
     const double aspect_ratio = 10.0/9.0;
+    const int game_field_x_offset_px = 14;
 
     const int game_field_width = 82;
     const int game_width = 160;
@@ -138,8 +139,8 @@ public:
 
     float32 side_length = static_cast<float32>(game_height*1.0/tetris_rows);
 
-    const QRect game_field = QRect(14, 0, game_field_width, game_height); //TODO: add fudge width
-    QRect graphics_field = QRect(14, 0, game_field_width, game_height);
+    const QRect game_field = QRect(game_field_x_offset_px, 0, game_field_width, game_height); //TODO: add fudge width
+    QRect graphics_field = game_field;
 
     double graphicsscale = 1;
 
