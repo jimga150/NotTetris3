@@ -238,6 +238,8 @@ void NT3Game::doGameFrame(){
     world->Step(static_cast<float32>(this->timeStep), this->velocityIterations, this->positionIterations);
 
     if (this->contactlistener->hasCurrentPieceCollided()){
+        this->currentPiece->SetGravityScale(1);
+
         this->makeNewTetrisPiece();
     }
 }
@@ -340,13 +342,16 @@ void NT3Game::makeNewTetrisPiece(){
     tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
 
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
-    this->currentPiece->ApplyTorque(3000000, true);
+    //this->currentPiece->ApplyTorque(3000000, true);
 
     for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
     }
     this->contactlistener->currentPiece = this->currentPiece;
     this->bodytypes.insert(this->currentPiece, type);
+
+    this->currentPiece->SetGravityScale(0);
+    this->currentPiece->SetLinearVelocity(b2Vec2(0, 50));
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
