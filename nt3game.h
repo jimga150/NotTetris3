@@ -50,11 +50,13 @@
 
 #include <QOpenGLWindow>
 #include <QOpenGLFunctions>
-#include <QElapsedTimer>
 #include <QOpenGLContext>
 #include <QOpenGLPaintDevice>
+
 #include <QPainter>
 #include <QResizeEvent>
+
+#include <QElapsedTimer>
 #include <QtMath>
 
 #include "Box2D/Box2D.h"
@@ -72,12 +74,6 @@ enum tetris_piece_enum{
 
     num_tetris_pieces
 };
-
-QT_BEGIN_NAMESPACE
-class QPainter;
-class QOpenGLContext;
-class QOpenGLPaintDevice;
-QT_END_NAMESPACE
 
 class NT3Game : public QOpenGLWindow, protected QOpenGLFunctions
 {
