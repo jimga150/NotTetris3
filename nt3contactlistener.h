@@ -17,6 +17,13 @@ public:
     void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
     void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 
+    bool hasCurrentPieceCollided();
+
+    b2Body* currentPiece = nullptr;
+
+private:
+    bool currentPieceCollided = false;
+
 signals:
 
 public slots:
