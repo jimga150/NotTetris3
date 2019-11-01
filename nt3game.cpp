@@ -140,7 +140,36 @@ void NT3Game::resizeEvent(QResizeEvent* event){
 }
 
 void NT3Game::keyPressEvent(QKeyEvent* ev){
-    printf("Key pressed: %d\n", ev->key());
+    printf("Key pressed: %s\n", ev->text().toUtf8().constData());
+    fflush(stdout);
+
+    switch(ev->key()){
+    case Qt::Key_Z:
+        if (this->currentPiece->GetAngularVelocity() < 3){
+            this->currentPiece->ApplyTorque(3000000, true);
+        }
+        break;
+    case Qt::Key_X:
+        if (this->currentPiece->GetAngularVelocity() < -3){
+            this->currentPiece->ApplyTorque(-3000000, true);
+        }
+        break;
+    case Qt::Key_Up:
+        //do nothing
+        break;
+    case Qt::Key_Down:
+
+        break;
+    case Qt::Key_Left:
+        this->currentPiece->ApplyForce(b2Vec2(-700000, 0), this->currentPiece->GetWorldCenter(), true);
+        break;
+    case Qt::Key_Right:
+        this->currentPiece->ApplyForce(b2Vec2(700000, 0), this->currentPiece->GetWorldCenter(), true);
+        break;
+    case Qt::Key_Space:
+
+        break;
+    }
 }
 
 
