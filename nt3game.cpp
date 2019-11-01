@@ -209,7 +209,7 @@ void NT3Game::renderNow()
 #endif
 
     if (this->m_animating){
-        this->gameFrame();
+        this->doGameFrame();
         this->renderLater();
     }
 }
@@ -229,7 +229,7 @@ void NT3Game::render(QPainter& painter)
 }
 
 
-void NT3Game::gameFrame(){
+void NT3Game::doGameFrame(){
     world->Step(static_cast<float32>(this->timeStep), this->velocityIterations, this->positionIterations);
 
     if (this->contactlistener->hasCurrentPieceCollided()){

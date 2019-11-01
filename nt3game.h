@@ -89,7 +89,7 @@ public:
     void render(QPainter& painter);
 
 
-    void gameFrame();
+    void doGameFrame();
 
     void drawBodyTo(QPainter* painter, b2Body *body);
 
