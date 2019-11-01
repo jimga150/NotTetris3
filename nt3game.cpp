@@ -225,11 +225,11 @@ void NT3Game::render(QPainter& painter)
 
     painter.setPen(Qt::SolidLine);
     painter.setPen(QColor(255, 0, 0));
-    painter.setBrush(QColor(0, 0, 0));
+    painter.setBrush(Qt::NoBrush);
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        //this->drawBodyTo(&painter, b);
         this->drawTetrisPiece(&painter, b);
+        //this->drawBodyTo(&painter, b);
     }
 }
 
