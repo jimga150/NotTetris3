@@ -6,7 +6,6 @@
         <file>graphics/pieces/4.png</file>
         <file>graphics/pieces/5.png</file>
         <file>graphics/pieces/6.png</file>
-        <file>graphics/pieces/7.png</file>
         <file>graphics/versus/luigicry1.png</file>
         <file>graphics/versus/luigicry2.png</file>
         <file>graphics/versus/luigiidle.png</file>
@@ -74,5 +73,6 @@
         <file>sounds/titlemusic.ogg</file>
         <file>sounds/turn.ogg</file>
         <file>graphics/gameafield.png</file>
+        <file>graphics/pieces/0.png</file>
     </qresource>
 </RCC>

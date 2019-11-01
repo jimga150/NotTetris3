@@ -66,6 +66,8 @@ NT3Game::NT3Game()
 
     this->initializeTetrisPieceDefs();
 
+    this->initializeTetrisPieceImages();
+
     this->initializeWalls();
 
     this->contactlistener->exceptions.push_back(this->leftWall);
@@ -202,6 +204,7 @@ void NT3Game::renderNow()
     printf("Render took %lld ms\n", timer.elapsed());
     timer.restart();
 #endif
+
     this->m_context->swapBuffers(this);
 
 #ifdef TIME_BUFFER
@@ -221,10 +224,12 @@ void NT3Game::render(QPainter& painter)
     painter.drawPixmap(0, 0, this->scaled_ui_field.width(), this->scaled_ui_field.height(), this->gamebackground);
 
     painter.setPen(Qt::SolidLine);
+    painter.setPen(QColor(255, 0, 0));
     painter.setBrush(QColor(0, 0, 0));
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        this->drawBodyTo(&painter, b);
+        //this->drawBodyTo(&painter, b);
+        this->drawTetrisPiece(&painter, b);
     }
 }
 
@@ -312,6 +317,24 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
     painter->restore();
 }
 
+void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
+
+    tetris_piece_enum piece = this->bodytypes.value(piece_body, I);
+
+    painter->save();
+
+    painter->translate(
+                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->graphicsscale,
+                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->graphicsscale
+                );
+    painter->scale(this->graphicsscale, this->graphicsscale);
+    painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
+
+    painter->drawPixmap(this->piece_rects.at(piece), this->piece_images.at(piece));
+
+    painter->restore();
+}
+
 void NT3Game::makeNewTetrisPiece(){
 
     tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
@@ -323,6 +346,7 @@ void NT3Game::makeNewTetrisPiece(){
         this->currentPiece->CreateFixture(&f);
     }
     this->contactlistener->currentPiece = this->currentPiece;
+    this->bodytypes.insert(this->currentPiece, type);
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
@@ -332,7 +356,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.awake = true;
     this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
 
-    for (int i = 0; i < num_tetris_pieces; i++){
+    for (uint8 i = 0; i < num_tetris_pieces; i++){
         std::vector<b2PolygonShape> polyshapevect;
         this->tetrisShapes.push_back(polyshapevect);
     }
@@ -380,6 +404,35 @@ void NT3Game::initializeTetrisPieceDefs(){
             this->tetrisFixtures.at(t).at(s).shape = &this->tetrisShapes.at(t).at(s);
             this->tetrisFixtures.at(t).at(s).density = 10.0f;
             this->tetrisFixtures.at(t).at(s).friction = 0.3f;
+        }
+    }
+}
+
+void NT3Game::initializeTetrisPieceImages(){
+    int side_length = static_cast<int>(this->side_length);
+    for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
+        QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
+        this->piece_images.push_back(QPixmap(path));
+
+        switch(piece){
+        case I:
+            this->piece_rects.push_back(QRect(-2*side_length, -side_length/2, 4*side_length, side_length));
+            break;
+        case O:
+            this->piece_rects.push_back(QRect(-side_length, -side_length, 2*side_length, 2*side_length));
+            break;
+        case G:
+        case L:
+        case T:
+            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            break;
+        case Z:
+        case S:
+            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            break;
+        default:
+            fprintf(stderr, "Piece not defined: %u\n", piece);
+            break;
         }
     }
 }

@@ -59,6 +59,7 @@
 #include <QElapsedTimer>
 #include <QtMath>
 #include <QRandomGenerator>
+#include <QHash>
 
 #include "Box2D/Box2D.h"
 
@@ -93,7 +94,11 @@ public:
 
     void drawBodyTo(QPainter* painter, b2Body *body);
 
+    void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
+
     void initializeTetrisPieceDefs();
+
+    void initializeTetrisPieceImages();
 
     void initializeWalls();
 
@@ -125,6 +130,7 @@ public:
     b2Body* rightWall = nullptr;
 
     b2Body* currentPiece = nullptr;
+    QHash<b2Body*, tetris_piece_enum> bodytypes;
 
 
     const double aspect_ratio = 10.0/9.0;
@@ -153,6 +159,9 @@ public:
 
     QString gameafield_path = ":/resources/graphics/gameafield.png";
     QPixmap gameafield = QPixmap(gameafield_path);
+
+    std::vector<QPixmap> piece_images;
+    std::vector<QRect> piece_rects;
 
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
