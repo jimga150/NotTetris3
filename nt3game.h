@@ -107,8 +107,6 @@ public:
     float32 timeStep;
     double framerate; //seconds
 
-    std::vector<long long> frame_times;
-
 
     int32 velocityIterations = 6;
     int32 positionIterations = 2;
@@ -159,6 +157,7 @@ public:
 
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
+    std::vector<long long> frame_times;
 #endif
 
 protected:
