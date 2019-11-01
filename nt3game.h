@@ -58,6 +58,7 @@
 
 #include <QElapsedTimer>
 #include <QtMath>
+#include <QRandomGenerator>
 
 #include "Box2D/Box2D.h"
 
@@ -88,13 +89,15 @@ public:
     void render();
 
 
+    void gameFrame();
+
     void drawBodyTo(QPainter* painter, b2Body *body);
 
     void initializeTetrisPieceDefs();
 
     void initializeWalls();
 
-    b2Body* makeTetrisPiece(tetris_piece_enum type);
+    void makeTetrisPiece(tetris_piece_enum type);
 
 
     const int millis_per_second = 1000;
@@ -119,7 +122,7 @@ public:
     std::vector<b2Body*> bodies;
 
     b2Body* groundBody = nullptr;
-    b2Body* thingy = nullptr;
+    b2Body* currentPiece = nullptr;
 
 
     const double aspect_ratio = 10.0/9.0;
@@ -140,6 +143,8 @@ public:
 
 
     const int max_shapes_per_piece = 2;
+
+    QRandomGenerator rng = QRandomGenerator::securelySeeded();
 
 
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
