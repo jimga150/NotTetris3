@@ -87,11 +87,6 @@ NT3Game::~NT3Game()
     delete this->m_device;
 }
 
-void NT3Game::initialize()
-{
-
-}
-
 void NT3Game::render()
 {
     if (!this->m_device)
@@ -194,7 +189,6 @@ void NT3Game::renderNow()
 
     if (needsInitialize) {
         QOpenGLFunctions::initializeOpenGLFunctions();
-        this->initialize();
     }
 
     this->render();

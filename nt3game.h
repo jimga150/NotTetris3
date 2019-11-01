@@ -86,10 +86,7 @@ public:
     explicit NT3Game();
     ~NT3Game() override;
 
-    void render(QPainter *painter);
     void render();
-
-    void initialize();
 
     void setAnimating(bool animating);
 
