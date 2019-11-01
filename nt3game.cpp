@@ -67,7 +67,8 @@ NT3Game::NT3Game()
 
     this->initializeWalls();
 
-    this->makeTetrisPiece(T);
+    this->contactlistener->exceptions.push_back(this->leftWall);
+    this->contactlistener->exceptions.push_back(this->rightWall);
 
     this->makeNewTetrisPiece();
 
@@ -379,11 +380,11 @@ void NT3Game::initializeWalls(){
 
     edge.Set(b2Vec2(0, 0), b2Vec2(0, game_height));
 
-    b2Body* leftEdge = world->CreateBody(&edgeBodyDef);
-    leftEdge->CreateFixture(&edge, 0.0f);
+    this->leftWall = world->CreateBody(&edgeBodyDef);
+    this->leftWall->CreateFixture(&edge, 0.0f);
 
     edge.Set(b2Vec2(game_field_width, 0), b2Vec2(game_field_width, game_height));
 
-    b2Body* rightEdge = world->CreateBody(&edgeBodyDef);
-    rightEdge->CreateFixture(&edge, 0.0f);
+    this->rightWall = world->CreateBody(&edgeBodyDef);
+    this->rightWall->CreateFixture(&edge, 0.0f);
 }

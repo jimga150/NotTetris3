@@ -20,6 +20,7 @@ public:
     bool hasCurrentPieceCollided();
 
     b2Body* currentPiece = nullptr;
+    std::vector<b2Body*> exceptions;
 
 private:
     bool currentPieceCollided = false;

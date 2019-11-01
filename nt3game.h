@@ -122,6 +122,9 @@ public:
     std::vector<b2Body*> bodies;
 
     b2Body* groundBody = nullptr;
+    b2Body* leftWall = nullptr;
+    b2Body* rightWall = nullptr;
+
     b2Body* currentPiece = nullptr;
 
 
