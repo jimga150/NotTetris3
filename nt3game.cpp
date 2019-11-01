@@ -209,11 +209,6 @@ void NT3Game::render()
     QPainter painter(this->m_device);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.setPen(Qt::SolidLine);
-    //painter.setBrush(QColor(255*qAbs(qSin((i++)/100.0)), 255, 255));
-    //painter.fillRect(100*qAbs(qSin((i*1.0)/100.0)), 200*qAbs(qSin((i)/100.0)), 30, 40, QColor(255*qAbs(qSin((i)/100.0)), 255*qAbs(qCos((i++)/50.0)), 255));
-    //WORKING! Just copy the tetris code in....
-
     painter.drawPixmap(
                 0,
                 0,
