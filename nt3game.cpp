@@ -70,8 +70,8 @@ NT3Game::NT3Game()
 
     this->initializeWalls();
 
-    this->contactlistener->exceptions.push_back(this->leftWall);
-    this->contactlistener->exceptions.push_back(this->rightWall);
+    this->contactlistener->exceptions.push_back(this->walls[LEFTWALL]);
+    this->contactlistener->exceptions.push_back(this->walls[RIGHTWALL]);
 
     this->makeNewTetrisPiece();
 
@@ -325,6 +325,12 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
 void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
+    for (uint i = 0; i < num_walls; i++){
+        if (piece_body == this->walls[i]){
+            return;
+        }
+    }
+
     tetris_piece_enum piece = this->bodytypes.value(piece_body, I);
 
     painter->save();
@@ -453,16 +459,16 @@ void NT3Game::initializeWalls(){
     b2EdgeShape edge;
     edge.Set(b2Vec2(0, tetris_field.height()), b2Vec2(tetris_field.width(), tetris_field.height()));
 
-    this->groundBody = world->CreateBody(&edgeBodyDef);
-    this->groundBody->CreateFixture(&edge, 0.0f);
+    this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
+    this->walls[GROUND]->CreateFixture(&edge, 0.0f);
 
     edge.Set(b2Vec2(0, 0), b2Vec2(0, tetris_field.height()));
 
-    this->leftWall = world->CreateBody(&edgeBodyDef);
-    this->leftWall->CreateFixture(&edge, 0.0f);
+    this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
+    this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
 
     edge.Set(b2Vec2(tetris_field.width(), 0), b2Vec2(tetris_field.width(), tetris_field.height()));
 
-    this->rightWall = world->CreateBody(&edgeBodyDef);
-    this->rightWall->CreateFixture(&edge, 0.0f);
+    this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
+    this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);
 }

@@ -77,6 +77,14 @@ enum tetris_piece_enum{
     num_tetris_pieces
 };
 
+enum wall_enum{
+    GROUND = 0,
+    LEFTWALL,
+    RIGHTWALL,
+
+    num_walls
+};
+
 class NT3Game : public QOpenGLWindow, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -125,9 +133,7 @@ public:
     NT3ContactListener* contactlistener = nullptr;
     std::vector<b2Body*> bodies;
 
-    b2Body* groundBody = nullptr;
-    b2Body* leftWall = nullptr;
-    b2Body* rightWall = nullptr;
+    b2Body* walls[num_walls];
 
     b2Body* currentPiece = nullptr;
     QHash<b2Body*, tetris_piece_enum> bodytypes;
