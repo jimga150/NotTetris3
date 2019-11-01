@@ -82,9 +82,11 @@ public:
     explicit NT3Game();
     ~NT3Game() override;
 
-    void render();
 
     void setAnimating(bool animating);
+
+    void render();
+
 
     void drawBodyTo(QPainter* painter, b2Body *body);
 
@@ -94,6 +96,7 @@ public:
 
     b2Body* makeTetrisPiece(tetris_piece_enum type);
 
+
     const int millis_per_second = 1000;
 
     double fps;
@@ -102,8 +105,10 @@ public:
 
     std::vector<long long> frame_times;
 
+
     int32 velocityIterations = 6;
     int32 positionIterations = 2;
+
 
     b2BodyDef tetrisBodyDef;
     std::vector<std::vector<b2FixtureDef>> tetrisFixtures;
@@ -116,9 +121,10 @@ public:
     b2Body* groundBody = nullptr;
     b2Body* thingy = nullptr;
 
+
     float32 side_length = 8;
 
-    int max_shapes_per_piece = 2;
+    const int max_shapes_per_piece = 2;
 
     const double aspect_ratio = 10.0/9.0;
 
@@ -140,11 +146,9 @@ public:
     QString gameafield_path = ":/resources/graphics/gameafield.png";
     QPixmap gameafield = QPixmap(gameafield_path);
 
+#ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
-
-public slots:
-    void renderLater();
-    void renderNow();
+#endif
 
 protected:
     bool event(QEvent *event) override;
@@ -157,5 +161,11 @@ protected:
 
     QOpenGLContext *m_context = nullptr;
     QOpenGLPaintDevice *m_device = nullptr;
+
+public slots:
+    void renderLater();
+    void renderNow();
+
+
 };
 
