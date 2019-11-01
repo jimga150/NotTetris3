@@ -178,7 +178,19 @@ void NT3Game::renderNow()
         QOpenGLFunctions::initializeOpenGLFunctions();
     }
 
-    this->render();
+    if (!this->m_device)
+        this->m_device = new QOpenGLPaintDevice;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    this->m_device->setSize(this->size() * this->devicePixelRatio());
+    this->m_device->setDevicePixelRatio(this->devicePixelRatio());
+
+    QPainter painter(this->m_device);
+
+    this->render(painter);
+
+    painter.end();
 
 #ifdef TIME_BUFFER
     printf("Render took %lld ms\n", timer.elapsed());
@@ -196,17 +208,8 @@ void NT3Game::renderNow()
     }
 }
 
-void NT3Game::render()
+void NT3Game::render(QPainter& painter)
 {
-    if (!this->m_device)
-        this->m_device = new QOpenGLPaintDevice;
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    this->m_device->setSize(this->size() * this->devicePixelRatio());
-    this->m_device->setDevicePixelRatio(this->devicePixelRatio());
-
-    QPainter painter(this->m_device);
     painter.setRenderHint(QPainter::Antialiasing);
 
     painter.drawPixmap(
@@ -223,8 +226,6 @@ void NT3Game::render()
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         this->drawBodyTo(&painter, b);
     }
-
-    painter.end();
 }
 
 

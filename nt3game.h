@@ -86,7 +86,7 @@ public:
 
     void setAnimating(bool animating);
 
-    void render();
+    void render(QPainter& painter);
 
 
     void gameFrame();
