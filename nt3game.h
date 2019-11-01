@@ -140,6 +140,7 @@ public:
     QString gameafield_path = ":/resources/graphics/gameafield.png";
     QPixmap gameafield = QPixmap(gameafield_path);
 
+    QElapsedTimer frameTimer;
 
 public slots:
     void renderLater();
@@ -156,9 +157,5 @@ protected:
 
     QOpenGLContext *m_context = nullptr;
     QOpenGLPaintDevice *m_device = nullptr;
-
-    QElapsedTimer frameTimer;
-
-    int i = 0;
 };
 
