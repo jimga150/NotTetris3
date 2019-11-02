@@ -163,6 +163,11 @@ void NT3Game::doGameStep(){
     if (this->contactlistener->hasCurrentPieceCollided()){
         this->currentPiece->SetGravityScale(1);
 
+        if (this->currentPiece->GetWorldCenter().y < 0){
+            printf("Game lost!");
+            this->close();
+        }
+
         this->makeNewTetrisPiece();
     }
 }
