@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     window.fps = screen->refreshRate();
     window.framerate = 1.0/window.fps;
     window.timeStep = window.framerate; //seconds
-    printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
+    //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
 
     QRect screenRect = screen->availableGeometry();
     //TODO: use availableGeometryChanged() signal to resize application if needed
