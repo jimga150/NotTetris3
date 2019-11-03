@@ -57,6 +57,16 @@ NT3Game::NT3Game()
         return;
     }
 
+    printf("Side length: %f\n", this->side_length);
+
+    //key-action mappings
+    this->accelDownKey = Qt::Key_Down;
+    this->rotateStateTable.insert(Qt::Key_Z, ROTATECCW);
+    this->rotateStateTable.insert(Qt::Key_X, ROTATECW);
+    this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
+    this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
+
+
     b2Vec2 gravity(0.0f, 4*9.8f);
     this->world = new b2World(gravity);
     this->contactlistener = new NT3ContactListener;
@@ -104,41 +114,107 @@ void NT3Game::resizeEvent(QResizeEvent* event){
 
 void NT3Game::keyPressEvent(QKeyEvent* ev){
     printf("Key pressed: %s\n", ev->text().toUtf8().constData());
-    fflush(stdout);
+    //fflush(stdout);
 
-    switch(ev->key()){
-    case Qt::Key_Z:
-        if (this->currentPiece->GetAngularVelocity() < 3){
-            this->currentPiece->ApplyTorque(3000000, true);
+    int key = ev->key();
+
+    if (this->lateralMovementStateTable.contains(key)){
+        lateral_movement_state_enum requested_direction = this->lateralMovementStateTable.value(key);
+        lateral_movement_state_enum other_direction = requested_direction == MOVERIGHT ? MOVELEFT : MOVERIGHT;
+
+        switch(this->lateralMovementState){
+        case NO_LATERAL_MOVEMENT:
+            this->lateralMovementState = requested_direction;
+            break;
+        case BOTH_DIRECTIONS:
+            //do nothing
+            break;
+        case MOVELEFT:
+        case MOVERIGHT:
+            if (this->lateralMovementState == other_direction){
+                this->lateralMovementState = BOTH_DIRECTIONS;
+            }
+            break;
+        default:
+            fprintf(stderr, "Invalid Lateral Movement state\n");
+            break;
         }
-        break;
-    case Qt::Key_X:
-        if (this->currentPiece->GetAngularVelocity() < -3){
-            this->currentPiece->ApplyTorque(-3000000, true);
+    } else if (this->rotateStateTable.contains(key)){
+        rotate_state_enum requested_rotation = this->rotateStateTable.value(key);
+        rotate_state_enum other_rotation = requested_rotation == ROTATECW ? ROTATECCW : ROTATECW;
+
+        switch(this->rotateState){
+        case NO_ROTATION:
+            this->rotateState = requested_rotation;
+            break;
+        case BOTH_ROTATIONS:
+            //do nothing
+            break;
+        case ROTATECW:
+        case ROTATECCW:
+            if (this->rotateState == other_rotation){
+                this->rotateState = BOTH_ROTATIONS;
+            }
+            break;
+        default:
+            fprintf(stderr, "Invalid Rotation state\n");
+            break;
         }
-        break;
-    case Qt::Key_Up:
-        //do nothing
-        break;
-    case Qt::Key_Down:
-
-        break;
-    case Qt::Key_Left:
-        this->currentPiece->ApplyForce(b2Vec2(-700000, 0), this->currentPiece->GetWorldCenter(), true);
-        break;
-    case Qt::Key_Right:
-        this->currentPiece->ApplyForce(b2Vec2(700000, 0), this->currentPiece->GetWorldCenter(), true);
-        break;
-    case Qt::Key_Space:
-
-        break;
+    } else if (key == this->accelDownKey){
+        this->accelDownState = true;
     }
 }
 
 void NT3Game::keyReleaseEvent(QKeyEvent* ev){
+    printf("Key released: %s\n", ev->text().toUtf8().constData());
+    int key = ev->key();
 
+    if (this->lateralMovementStateTable.contains(key)){
+        lateral_movement_state_enum unrequested_direction = this->lateralMovementStateTable.value(key);
+        lateral_movement_state_enum other_direction = unrequested_direction == MOVERIGHT ? MOVELEFT : MOVERIGHT;
+
+        switch(this->lateralMovementState){
+        case NO_LATERAL_MOVEMENT:
+            //do nothing
+            break;
+        case BOTH_DIRECTIONS:
+            this->lateralMovementState = other_direction;
+            break;
+        case MOVELEFT:
+        case MOVERIGHT:
+            if (this->lateralMovementState == unrequested_direction){
+                this->lateralMovementState = NO_LATERAL_MOVEMENT;
+            }
+            break;
+        default:
+            fprintf(stderr, "Invalid Lateral Movement state\n");
+            break;
+        }
+    } else if (this->rotateStateTable.contains(key)){
+        rotate_state_enum unrequested_rotation = this->rotateStateTable.value(key);
+        rotate_state_enum other_rotation = unrequested_rotation == ROTATECW ? ROTATECCW : ROTATECW;
+
+        switch(this->rotateState){
+        case NO_ROTATION:
+            //do nothing
+            break;
+        case BOTH_ROTATIONS:
+            this->rotateState = other_rotation;
+            break;
+        case ROTATECW:
+        case ROTATECCW:
+            if (this->rotateState == unrequested_rotation){
+                this->rotateState = NO_ROTATION;
+            }
+            break;
+        default:
+            fprintf(stderr, "Invalid Rotation state\n");
+            break;
+        }
+    } else if (key == this->accelDownKey){
+        this->accelDownState = false;
+    }
 }
-
 
 void NT3Game::render(QPainter& painter)
 {
@@ -164,12 +240,83 @@ void NT3Game::doGameStep(){
         this->currentPiece->SetGravityScale(1);
 
         if (this->currentPiece->GetWorldCenter().y < 0){
-            printf("Game lost!");
+            printf("Game lost!\n");
             this->close();
         }
 
         this->makeNewTetrisPiece();
     }
+
+    switch(this->rotateState){
+    case NO_ROTATION:
+    case BOTH_ROTATIONS:
+        //do nothing
+        //printf("Dont rotate\n");
+        break;
+    case ROTATECW:
+        //printf("Rotate CW\n");
+        if (this->currentPiece->GetAngularVelocity() < 3){
+            this->currentPiece->ApplyTorque(3000000, true);
+        }
+        break;
+    case ROTATECCW:
+        //printf("Rotate CCW\n");
+        if (this->currentPiece->GetAngularVelocity() > -3){
+            this->currentPiece->ApplyTorque(-3000000, true);
+        }
+        break;
+    default:
+        fprintf(stderr, "Invalid Rotation state\n");
+        break;
+    }
+
+    b2Vec2 linear_force_vect = b2Vec2(0, 0);
+
+    switch(this->lateralMovementState){
+    case NO_LATERAL_MOVEMENT:
+    case BOTH_DIRECTIONS:
+        //do nothing
+        break;
+    case MOVELEFT:
+        linear_force_vect.x = -700000;
+        break;
+    case MOVERIGHT:
+        linear_force_vect.x = 700000;
+        break;
+    default:
+        fprintf(stderr, "Invalid Lateral Movement state\n");
+        break;
+    }
+
+    if (this->accelDownState || this->currentPiece->GetLinearVelocity().y < 40){
+        linear_force_vect.y = 500000;
+    }
+    this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
+
+    /*switch (this->keyPressState) {
+    case ACCELDOWN:
+        this->currentPiece->ApplyForce(b2Vec2(0, 700000), this->currentPiece->GetWorldCenter(), true);
+        break;
+    case MOVELEFT:
+        this->currentPiece->ApplyForce(b2Vec2(-700000, 0), this->currentPiece->GetWorldCenter(), true);
+        break;
+    case MOVERIGHT:
+        this->currentPiece->ApplyForce(b2Vec2(700000, 0), this->currentPiece->GetWorldCenter(), true);
+        break;
+    case ROTATECCW:
+        if (this->currentPiece->GetAngularVelocity() > -3){
+            this->currentPiece->ApplyTorque(-3000000, true);
+        }
+        break;
+    case ROTATECW:
+        if (this->currentPiece->GetAngularVelocity() < 3){
+            this->currentPiece->ApplyTorque(3000000, true);
+        }
+        break;
+    default:
+
+        break;
+    }*/
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -285,7 +432,8 @@ void NT3Game::makeNewTetrisPiece(){
     this->bodytypes.insert(this->currentPiece, type);
 
     this->currentPiece->SetGravityScale(0);
-    this->currentPiece->SetLinearVelocity(b2Vec2(0, 50));
+    this->currentPiece->SetLinearVelocity(b2Vec2(0, 40));
+    this->currentPiece->SetAngularVelocity(0);
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
@@ -390,9 +538,11 @@ void NT3Game::initializeWalls(){
 
     this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
+    this->walls[LEFTWALL]->GetFixtureList()->SetFriction(0);
 
     edge.Set(b2Vec2(tetris_field.width(), 0), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);
+    this->walls[RIGHTWALL]->GetFixtureList()->SetFriction(0);
 }

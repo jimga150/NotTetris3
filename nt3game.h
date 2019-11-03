@@ -86,6 +86,24 @@ enum wall_enum{
     num_walls
 };
 
+enum rotate_state_enum{
+    NO_ROTATION = 0,
+    ROTATECCW,
+    ROTATECW,
+    BOTH_ROTATIONS,
+
+    num_rotate_states
+};
+
+enum lateral_movement_state_enum{
+    NO_LATERAL_MOVEMENT = 0,
+    MOVELEFT,
+    MOVERIGHT,
+    BOTH_DIRECTIONS,
+
+    num_lateral_movement_states
+};
+
 class NT3Game : public OpenGLWindow
 {
     Q_OBJECT
@@ -118,6 +136,15 @@ public:
     double fps;
     double timeStep;
     double framerate; //seconds
+
+
+    bool accelDownState = false;
+    rotate_state_enum rotateState = NO_ROTATION;
+    lateral_movement_state_enum lateralMovementState = NO_LATERAL_MOVEMENT;
+
+    int accelDownKey;
+    QHash<int, rotate_state_enum> rotateStateTable;
+    QHash<int, lateral_movement_state_enum> lateralMovementStateTable;
 
 
     int32 velocityIterations = 6;
