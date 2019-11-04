@@ -11,11 +11,11 @@
 #include <QElapsedTimer>
 #endif
 
-class OpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
+class OpenGL2DWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
 public:
-    OpenGLWindow();
-    ~OpenGLWindow() override;
+    OpenGL2DWindow();
+    ~OpenGL2DWindow() override;
 
     void setAnimating(bool animating);
 

@@ -68,7 +68,7 @@ SOURCES += \
     main.cpp \
     nt3game.cpp \
     nt3contactlistener.cpp \
-    openglwindow.cpp
+    opengl2dwindow.cpp
 
 HEADERS += \
     Box2D/Box2D.h \
@@ -120,7 +120,7 @@ HEADERS += \
     Box2D/Rope/b2Rope.h \
     nt3game.h \
     nt3contactlistener.h \
-    openglwindow.h
+    opengl2dwindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

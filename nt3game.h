@@ -63,7 +63,7 @@
 
 #include "Box2D/Box2D.h"
 
-#include "openglwindow.h"
+#include "opengl2dwindow.h"
 #include "nt3contactlistener.h"
 
 enum tetris_piece_enum{
@@ -104,7 +104,7 @@ enum lateral_movement_state_enum{
     num_lateral_movement_states
 };
 
-class NT3Game : public OpenGLWindow
+class NT3Game : public OpenGL2DWindow
 {
     Q_OBJECT
 public:

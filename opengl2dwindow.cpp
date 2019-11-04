@@ -1,6 +1,6 @@
-#include "openglwindow.h"
+#include "opengl2dwindow.h"
 
-OpenGLWindow::OpenGLWindow(){
+OpenGL2DWindow::OpenGL2DWindow(){
     this->setSurfaceType(QWindow::OpenGLSurface);
 
 #ifdef TIME_FRAMES
@@ -8,7 +8,7 @@ OpenGLWindow::OpenGLWindow(){
 #endif
 }
 
-OpenGLWindow::~OpenGLWindow(){
+OpenGL2DWindow::~OpenGL2DWindow(){
 #ifdef TIME_FRAMES
     quint64 numframes = this->frame_times.size();
     qint64 totalTime = 0;
@@ -21,14 +21,14 @@ OpenGLWindow::~OpenGLWindow(){
     delete this->m_device;
 }
 
-void OpenGLWindow::setAnimating(bool animating){
+void OpenGL2DWindow::setAnimating(bool animating){
     this->m_animating = animating;
 
     if (animating)
         this->renderLater();
 }
 
-bool OpenGLWindow::event(QEvent *event){
+bool OpenGL2DWindow::event(QEvent *event){
     switch (event->type()) {
     case QEvent::UpdateRequest:
         this->renderNow();
@@ -38,18 +38,18 @@ bool OpenGLWindow::event(QEvent *event){
     }
 }
 
-void OpenGLWindow::exposeEvent(QExposeEvent *event){
+void OpenGL2DWindow::exposeEvent(QExposeEvent *event){
     Q_UNUSED(event)
 
     if (this->isExposed())
         this->renderNow();
 }
 
-void OpenGLWindow::renderLater(){
+void OpenGL2DWindow::renderLater(){
     this->requestUpdate();
 }
 
-void OpenGLWindow::renderNow(){
+void OpenGL2DWindow::renderNow(){
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
     this->frame_times.push_back(elapsed);
@@ -107,15 +107,16 @@ void OpenGLWindow::renderNow(){
 #endif
 
     if (this->m_animating){
-        this->doGameStep(); //TODO
+        this->doGameStep();
         this->renderLater();
     }
 }
 
-void OpenGLWindow::render(QPainter& painter){
+void OpenGL2DWindow::render(QPainter& painter){
     Q_UNUSED(painter)
+    //Override this!
 }
 
-void OpenGLWindow::doGameStep(){
-
+void OpenGL2DWindow::doGameStep(){
+    //Override this!
 }
