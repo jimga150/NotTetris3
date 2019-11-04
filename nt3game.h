@@ -49,17 +49,9 @@
 ****************************************************************************/
 
 #include <QScreen>
-#include <QOpenGLFunctions>
-#include <QOpenGLContext>
-#include <QOpenGLPaintDevice>
-
-#include <QPainter>
 #include <QResizeEvent>
 
-#include <QElapsedTimer>
-#include <QtMath>
 #include <QRandomGenerator>
-#include <QHash>
 
 #include "Box2D/Box2D.h"
 
@@ -106,7 +98,6 @@ enum lateral_movement_state_enum{
 
 class NT3Game : public OpenGL2DWindow
 {
-    Q_OBJECT
 public:
     explicit NT3Game();
     ~NT3Game() override;

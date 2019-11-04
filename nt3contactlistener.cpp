@@ -1,7 +1,6 @@
 #include "nt3contactlistener.h"
 
-NT3ContactListener::NT3ContactListener(QObject *parent) : QObject(parent)
-{
+NT3ContactListener::NT3ContactListener(){
 
 }
 
@@ -29,19 +28,17 @@ void NT3ContactListener::BeginContact(b2Contact* contact){
     }
 }
 
-void NT3ContactListener::EndContact(b2Contact* contact){
-    Q_UNUSED(contact)
-}
+/*void NT3ContactListener::EndContact(b2Contact* contact){
 
-void NT3ContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold){
-    Q_UNUSED(contact)
-    Q_UNUSED(oldManifold)
-}
+}*/
 
-void NT3ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse){
-    Q_UNUSED(contact)
-    Q_UNUSED(impulse)
-}
+/*void NT3ContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold){
+
+}*/
+
+/*void NT3ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse){
+
+}*/
 
 bool NT3ContactListener::hasCurrentPieceCollided(){
     bool ans = this->currentPieceCollided;
