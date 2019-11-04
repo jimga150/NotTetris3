@@ -57,8 +57,6 @@ NT3Game::NT3Game()
         return;
     }
 
-    printf("Side length: %f\n", this->side_length);
-
     //key-action mappings
     this->accelDownKey = Qt::Key_Down;
     this->rotateStateTable.insert(Qt::Key_Z, ROTATECCW);
@@ -113,7 +111,7 @@ void NT3Game::resizeEvent(QResizeEvent* event){
 }
 
 void NT3Game::keyPressEvent(QKeyEvent* ev){
-    printf("Key pressed: %s\n", ev->text().toUtf8().constData());
+    //printf("Key pressed: %s\n", ev->text().toUtf8().constData());
     //fflush(stdout);
 
     int key = ev->key();
@@ -166,7 +164,8 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
 }
 
 void NT3Game::keyReleaseEvent(QKeyEvent* ev){
-    printf("Key released: %s\n", ev->text().toUtf8().constData());
+    //printf("Key released: %s\n", ev->text().toUtf8().constData());
+
     int key = ev->key();
 
     if (this->lateralMovementStateTable.contains(key)){
@@ -292,31 +291,6 @@ void NT3Game::doGameStep(){
         linear_force_vect.y = 500000;
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
-
-    /*switch (this->keyPressState) {
-    case ACCELDOWN:
-        this->currentPiece->ApplyForce(b2Vec2(0, 700000), this->currentPiece->GetWorldCenter(), true);
-        break;
-    case MOVELEFT:
-        this->currentPiece->ApplyForce(b2Vec2(-700000, 0), this->currentPiece->GetWorldCenter(), true);
-        break;
-    case MOVERIGHT:
-        this->currentPiece->ApplyForce(b2Vec2(700000, 0), this->currentPiece->GetWorldCenter(), true);
-        break;
-    case ROTATECCW:
-        if (this->currentPiece->GetAngularVelocity() > -3){
-            this->currentPiece->ApplyTorque(-3000000, true);
-        }
-        break;
-    case ROTATECW:
-        if (this->currentPiece->GetAngularVelocity() < 3){
-            this->currentPiece->ApplyTorque(3000000, true);
-        }
-        break;
-    default:
-
-        break;
-    }*/
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -423,7 +397,6 @@ void NT3Game::makeNewTetrisPiece(){
     tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
 
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
-    //this->currentPiece->ApplyTorque(3000000, true);
 
     for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
