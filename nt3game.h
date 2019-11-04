@@ -189,6 +189,24 @@ public:
 
 
     //physics constants
+    float32 density = 1.0f/900.0f;
+
+    float32 g = 15.625f*side_length;
+
+    float32 wmax = 3.0f;
+    float32 torque = 35*side_length;
+
+    float32 lateral_force = 4.375f*side_length;
+
+    float32 downward_force = 2.5f*side_length;
+    float32 upward_correcting_force = 4*side_length;
+
+    float32 downward_velocity_max = 15.625f*side_length;
+    float32 downward_velocity_regular = 3.125f*side_length;
+
+    float32 friction_k = 0.5; //Box2D uses the same k for static and dynamic friction, unfortunately
+
+
     //piece params
     const uint32 max_shapes_per_piece = 2;
 

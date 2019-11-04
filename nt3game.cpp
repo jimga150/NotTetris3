@@ -254,14 +254,14 @@ void NT3Game::doGameStep(){
         break;
     case ROTATECW:
         //printf("Rotate CW\n");
-        if (this->currentPiece->GetAngularVelocity() < 3){
-            this->currentPiece->ApplyTorque(3000000, true);
+        if (this->currentPiece->GetAngularVelocity() < this->wmax){
+            this->currentPiece->ApplyTorque(this->torque, true);
         }
         break;
     case ROTATECCW:
         //printf("Rotate CCW\n");
-        if (this->currentPiece->GetAngularVelocity() > -3){
-            this->currentPiece->ApplyTorque(-3000000, true);
+        if (this->currentPiece->GetAngularVelocity() > -this->wmax){
+            this->currentPiece->ApplyTorque(-this->torque, true);
         }
         break;
     default:
@@ -277,18 +277,20 @@ void NT3Game::doGameStep(){
         //do nothing
         break;
     case MOVELEFT:
-        linear_force_vect.x = -700000;
+        linear_force_vect.x = -this->lateral_force;
         break;
     case MOVERIGHT:
-        linear_force_vect.x = 700000;
+        linear_force_vect.x = this->lateral_force;
         break;
     default:
         fprintf(stderr, "Invalid Lateral Movement state\n");
         break;
     }
 
-    if (this->accelDownState || this->currentPiece->GetLinearVelocity().y < 40){
-        linear_force_vect.y = 500000;
+    if (this->accelDownState || this->currentPiece->GetLinearVelocity().y < this->downward_velocity_regular){
+        linear_force_vect.y = this->downward_force;
+    } else {
+        linear_force_vect.y = -this->upward_correcting_force;
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
 }
@@ -405,8 +407,9 @@ void NT3Game::makeNewTetrisPiece(){
     this->bodytypes.insert(this->currentPiece, type);
 
     this->currentPiece->SetGravityScale(0);
-    this->currentPiece->SetLinearVelocity(b2Vec2(0, 40));
+    this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
     this->currentPiece->SetAngularVelocity(0);
+    this->currentPiece->SetLinearDamping(0);
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
@@ -462,8 +465,8 @@ void NT3Game::initializeTetrisPieceDefs(){
             if (this->tetrisShapes.at(t).size() == s) break;
             this->tetrisFixtures.at(t).push_back(fixture_template);
             this->tetrisFixtures.at(t).at(s).shape = &this->tetrisShapes.at(t).at(s);
-            this->tetrisFixtures.at(t).at(s).density = 10.0f;
-            this->tetrisFixtures.at(t).at(s).friction = 0.3f;
+            this->tetrisFixtures.at(t).at(s).density = this->density;
+            this->tetrisFixtures.at(t).at(s).friction = this->friction_k;
         }
     }
 }
