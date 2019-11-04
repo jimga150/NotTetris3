@@ -223,6 +223,8 @@ public:
 
 
     //resources
+    QColor debug_line_color = QColor(255, 0, 0);
+
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);
 

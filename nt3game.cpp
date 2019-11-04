@@ -222,7 +222,7 @@ void NT3Game::render(QPainter& painter)
     painter.drawPixmap(0, 0, this->scaled_ui_field.width(), this->scaled_ui_field.height(), this->gamebackground);
 
     painter.setPen(Qt::SolidLine);
-    painter.setPen(QColor(255, 0, 0));
+    painter.setPen(this->debug_line_color);
     painter.setBrush(Qt::NoBrush);
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
