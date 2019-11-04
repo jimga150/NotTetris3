@@ -130,14 +130,18 @@ public:
     void makeNewTetrisPiece();
 
 
+    //constants
     const int millis_per_second = 1000;
     const double rad_to_deg = 180.0/M_PI;
 
+
+    //calculated timings
     double fps;
     double timeStep;
     double framerate; //seconds
 
 
+    //input states/params
     bool accelDownState = false;
     rotate_state_enum rotateState = NO_ROTATION;
     lateral_movement_state_enum lateralMovementState = NO_LATERAL_MOVEMENT;
@@ -147,10 +151,12 @@ public:
     QHash<int, lateral_movement_state_enum> lateralMovementStateTable;
 
 
+    //Box2d params
     int32 velocityIterations = 6;
     int32 positionIterations = 2;
 
 
+    //Box2d data
     b2BodyDef tetrisBodyDef;
     std::vector<std::vector<b2FixtureDef>> tetrisFixtures;
     std::vector<std::vector<b2PolygonShape>> tetrisShapes;
@@ -165,6 +171,7 @@ public:
     QHash<b2Body*, tetris_piece_enum> bodytypes;
 
 
+    //physical properties of graphics and world
     const double aspect_ratio = 10.0/9.0;
 
     const int tetris_rows = 18;
@@ -181,11 +188,14 @@ public:
     double graphicsscale = 1;
 
 
+    //physics constants
+    //piece params
     const uint32 max_shapes_per_piece = 2;
 
     QRandomGenerator rng = QRandomGenerator::securelySeeded();
 
 
+    //resources
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);
 
