@@ -179,6 +179,7 @@ public:
     const QRect ui_field = QRect(0, tetris_field.y(), 160, tetris_field.height());
     QRect scaled_ui_field = ui_field;
 
+    const double min_graphics_scale = 1;
     double graphicsscale = 1;
 
     float32 piece_start_y = -side_length/2;

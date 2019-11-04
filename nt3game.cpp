@@ -112,11 +112,17 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     int width = newSize.width();
     int height = newSize.height();
 
+    bool aspect_ratio_respected = false;
+
     if (width*1.0/height > aspect_ratio){ //screen is relatively wider than the app
         this->graphicsscale = height*1.0/this->ui_field.height();
-    } else { //screen is relatively taller than app, or it's the same ratio
+    } else if (width*1.0/height < aspect_ratio){ //screen is relatively skinnier than app
         this->graphicsscale = width*1.0/this->ui_field.width();
+    } else {
+        aspect_ratio_respected = true;
     }
+
+    this->graphicsscale = qMax(this->min_graphics_scale, this->graphicsscale);
 
     this->scaled_ui_field.setX(static_cast<int>(this->ui_field.x()*this->graphicsscale));
     this->scaled_ui_field.setY(static_cast<int>(this->ui_field.y()*this->graphicsscale));
@@ -127,6 +133,10 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->scaled_tetris_field.setY(static_cast<int>(this->tetris_field.y()*this->graphicsscale));
     this->scaled_tetris_field.setWidth(static_cast<int>(this->tetris_field.width()*this->graphicsscale));
     this->scaled_tetris_field.setHeight(static_cast<int>(this->tetris_field.height()*this->graphicsscale));
+
+    if (!aspect_ratio_respected){
+        this->resize(this->scaled_ui_field.width(), this->scaled_ui_field.height());
+    }
 }
 
 void NT3Game::keyPressEvent(QKeyEvent* ev){
