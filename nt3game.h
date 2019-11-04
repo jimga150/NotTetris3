@@ -208,7 +208,7 @@ public:
     float32 lateral_force = 4.375f*side_length;
 
     float32 downward_force = 2.5f*side_length;
-    float32 upward_correcting_force = 4*side_length;
+    float32 upward_correcting_force = 8*side_length;
 
     float32 downward_velocity_max = 15.625f*side_length;
     float32 downward_velocity_regular = 3.125f*side_length;
