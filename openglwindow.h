@@ -7,6 +7,10 @@
 
 #include <QPainter>
 
+#if defined(TIME_FRAMES) || defined(TIME_BUFFER)
+#include <QElapsedTimer>
+#endif
+
 class OpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
 public:
