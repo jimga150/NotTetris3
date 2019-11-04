@@ -72,8 +72,8 @@ NT3Game::NT3Game()
     }
 
     if (this->gamebackground.isNull()){
-        printf("Couldnt find image at %s!\n", this->gamebackground_path.toUtf8().constData());
-        return;
+        fprintf(stderr, "Resources not present, exiting...\n");
+        this->close();
     }
 
     //key-action mappings
