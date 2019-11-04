@@ -187,11 +187,17 @@ public:
 
     double graphicsscale = 1;
 
+    float32 piece_start_y = -side_length/2;
+
 
     //physics constants
-    float32 density = 1.0f/900.0f;
 
-    float32 g = 15.625f*side_length;
+    const float32 old_g = 500;
+    const float32 old_start_y = -64;
+    const float32 old_game_height = 640;
+    float32 gravity_g = old_g*(-piece_start_y+tetris_field.height())/(-old_start_y+old_game_height);
+
+    float32 density = 1.0f/900.0f;
 
     float32 wmax = 3.0f;
     float32 torque = 35*side_length;
@@ -204,7 +210,10 @@ public:
     float32 downward_velocity_max = 15.625f*side_length;
     float32 downward_velocity_regular = 3.125f*side_length;
 
-    float32 friction_k = 0.5; //Box2D uses the same k for static and dynamic friction, unfortunately
+    float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
+    float32 ground_friction_k = 0.5f;
+
+    float32 restitution = 0.001f;
 
 
     //piece params

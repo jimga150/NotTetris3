@@ -65,7 +65,7 @@ NT3Game::NT3Game()
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 
 
-    b2Vec2 gravity(0.0f, 4*9.8f);
+    b2Vec2 gravity(0.0f, this->gravity_g);//4*9.8f);
     this->world = new b2World(gravity);
     this->contactlistener = new NT3ContactListener;
     this->world->SetContactListener(this->contactlistener);
@@ -466,7 +466,8 @@ void NT3Game::initializeTetrisPieceDefs(){
             this->tetrisFixtures.at(t).push_back(fixture_template);
             this->tetrisFixtures.at(t).at(s).shape = &this->tetrisShapes.at(t).at(s);
             this->tetrisFixtures.at(t).at(s).density = this->density;
-            this->tetrisFixtures.at(t).at(s).friction = this->friction_k;
+            this->tetrisFixtures.at(t).at(s).friction = this->piece_friction_k;
+            this->tetrisFixtures.at(t).at(s).restitution = this->restitution;
         }
     }
 }
@@ -508,7 +509,7 @@ void NT3Game::initializeWalls(){
     edge.Set(b2Vec2(0, tetris_field.height()), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
-    this->walls[GROUND]->CreateFixture(&edge, 0.0f);
+    this->walls[GROUND]->CreateFixture(&edge, 0.0f)->SetFriction(this->ground_friction_k);
 
     edge.Set(b2Vec2(0, 0), b2Vec2(0, tetris_field.height()));
 
