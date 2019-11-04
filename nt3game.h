@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-#include <QOpenGLWindow>
+#include <QScreen>
 #include <QOpenGLFunctions>
 #include <QOpenGLContext>
 #include <QOpenGLPaintDevice>

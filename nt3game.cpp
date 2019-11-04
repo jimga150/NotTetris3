@@ -52,6 +52,25 @@
 
 NT3Game::NT3Game()
 {
+    QScreen* screen = this->screen();
+    this->fps = screen->refreshRate();
+    this->framerate = 1.0/this->fps;
+    this->timeStep = this->framerate; //seconds
+    //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
+
+    QRect screenRect = screen->availableGeometry();
+    int screen_width = screenRect.width();
+    int screen_height = screenRect.height();
+
+    if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
+        //this->setFixedSize(h*aspect_ratio, h);
+        int window_width = static_cast<int>(screen_height*this->aspect_ratio);
+        this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+    } else { //screen is relatively taller than app, or it's the same ratio
+        int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
+        this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
+    }
+
     if (this->gamebackground.isNull()){
         printf("Couldnt find image at %s!\n", this->gamebackground_path.toUtf8().constData());
         return;
@@ -65,7 +84,7 @@ NT3Game::NT3Game()
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 
 
-    b2Vec2 gravity(0.0f, this->gravity_g);//4*9.8f);
+    b2Vec2 gravity(0.0f, this->gravity_g);
     this->world = new b2World(gravity);
     this->contactlistener = new NT3ContactListener;
     this->world->SetContactListener(this->contactlistener);
