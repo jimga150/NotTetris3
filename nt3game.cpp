@@ -257,9 +257,19 @@ void NT3Game::render(QPainter& painter)
     painter.setBrush(Qt::NoBrush);
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        if (this->isAWall(b)) continue;
         this->drawTetrisPiece(&painter, b);
         //this->drawBodyTo(&painter, b);
     }
+}
+
+bool NT3Game::isAWall(b2Body* b){
+    for (uint i = 0; i < num_walls; i++){
+        if (b == this->walls[i]){
+            return true;
+        }
+    }
+    return false;
 }
 
 
@@ -402,12 +412,6 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 }
 
 void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
-
-    for (uint i = 0; i < num_walls; i++){
-        if (piece_body == this->walls[i]){
-            return;
-        }
-    }
 
     tetris_piece_enum piece = this->bodytypes.value(piece_body, I);
 

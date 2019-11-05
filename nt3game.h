@@ -108,6 +108,8 @@ public:
 
     void doGameStep() override;
 
+    bool isAWall(b2Body* b);
+
     void drawBodyTo(QPainter* painter, b2Body *body);
 
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
