@@ -53,7 +53,8 @@ void OpenGL2DWindow::renderNow(){
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
     this->frame_times.push_back(elapsed);
-    printf("Frame  took %lld ms\n", elapsed);
+    const char* suffix = elapsed > this->expected_frame_time ? this->frame_toolong_suffix.data() : this->frame_normal_suffix.data();
+    printf("Frame took %lld ms %s\n", elapsed, suffix);
     this->frameTimer.restart();
 #endif
 
@@ -96,20 +97,24 @@ void OpenGL2DWindow::renderNow(){
     painter.end();
 
 #ifdef TIME_BUFFER
-    printf("Render took %lld ms\n", timer.elapsed());
+    printf("Render: %lld ms\t", timer.elapsed());
     timer.restart();
 #endif
 
     this->m_context->swapBuffers(this);
 
 #ifdef TIME_BUFFER
-    printf("Buffer took %lld ms\n", timer.elapsed());
+    printf("Buffer: %lld ms\t", timer.elapsed());
+    timer.restart();
 #endif
 
     if (this->m_animating){
         this->doGameStep();
         this->renderLater();
     }
+#ifdef TIME_BUFFER
+    printf("Game frame: %lld ms\t", timer.elapsed());
+#endif
 }
 
 void OpenGL2DWindow::render(QPainter& painter){

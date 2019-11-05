@@ -23,6 +23,8 @@ public:
 
     virtual void doGameStep();
 
+    int expected_frame_time = 0;
+
 protected:
     bool event(QEvent *event) override;
 
@@ -36,6 +38,8 @@ protected:
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
     std::vector<long long> frame_times;
+    std::string frame_toolong_suffix = "!!!";
+    std::string frame_normal_suffix = "";
 #endif
 
 public slots:
