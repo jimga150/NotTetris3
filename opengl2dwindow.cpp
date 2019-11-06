@@ -58,13 +58,13 @@ void OpenGL2DWindow::renderNow(){
     this->frameTimer.restart();
 #endif
 
+    if (!this->isExposed())
+        return;
+
 #ifdef TIME_FRAME_COMPS
     QElapsedTimer timer;
     timer.start();
 #endif
-
-    if (!this->isExposed())
-        return;
 
     bool needsInitialize = false;
 
