@@ -7,7 +7,7 @@
 
 #include <QPainter>
 
-#if defined(TIME_FRAMES) || defined(TIME_BUFFER)
+#if defined(TIME_FRAMES) || defined(TIME_FRAME_COMPS)
 #include <QElapsedTimer>
 #endif
 

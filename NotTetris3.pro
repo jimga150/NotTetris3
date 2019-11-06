@@ -16,7 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #DEFINES += TIME_FRAMES
-#DEFINES += TIME_BUFFER
+#DEFINES += TIME_FRAME_COMPS
 
 SOURCES += \
     Box2D/Collision/Shapes/b2ChainShape.cpp \

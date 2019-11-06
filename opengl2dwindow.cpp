@@ -58,7 +58,7 @@ void OpenGL2DWindow::renderNow(){
     this->frameTimer.restart();
 #endif
 
-#ifdef TIME_BUFFER
+#ifdef TIME_FRAME_COMPS
     QElapsedTimer timer;
     timer.start();
 #endif
@@ -90,31 +90,37 @@ void OpenGL2DWindow::renderNow(){
     this->m_device->setSize(this->size() * this->devicePixelRatio());
     this->m_device->setDevicePixelRatio(this->devicePixelRatio());
 
+#ifdef TIME_FRAME_COMPS
+    printf("OpenGL init: %lld ms\t", timer.elapsed());
+    timer.restart();
+#endif
+
     QPainter painter(this->m_device);
 
     this->render(painter);
 
     painter.end();
 
-#ifdef TIME_BUFFER
+#ifdef TIME_FRAME_COMPS
     printf("Render: %lld ms\t", timer.elapsed());
     timer.restart();
 #endif
 
+    this->doGameStep();
+
+#ifdef TIME_FRAME_COMPS
+    printf("Game frame: %lld ms\t", timer.elapsed());
+#endif
+
     this->m_context->swapBuffers(this);
 
-#ifdef TIME_BUFFER
+#ifdef TIME_FRAME_COMPS
     printf("Buffer: %lld ms\t", timer.elapsed());
     timer.restart();
 #endif
 
-    if (this->m_animating){
-        this->doGameStep();
-        this->renderLater();
-    }
-#ifdef TIME_BUFFER
-    printf("Game frame: %lld ms\t", timer.elapsed());
-#endif
+    if (this->m_animating) this->renderLater();
+
 }
 
 void OpenGL2DWindow::render(QPainter& painter){
