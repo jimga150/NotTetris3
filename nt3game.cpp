@@ -115,17 +115,17 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     int width = newSize.width();
     int height = newSize.height();
 
-    bool aspect_ratio_respected = false;
+    double ar_error = width*1.0/height - aspect_ratio;
+    bool aspect_ratio_respected = qAbs(ar_error) < this->aspect_ratio_epsilon;
 
-    if (width*1.0/height > aspect_ratio){ //screen is relatively wider than the app
+    if (ar_error > 0){ //screen is relatively wider than the app
         this->graphicsscale = height*1.0/this->ui_field.height();
-    } else if (width*1.0/height < aspect_ratio){ //screen is relatively skinnier than app
+    } else if (ar_error < 0){ //screen is relatively skinnier than app
         this->graphicsscale = width*1.0/this->ui_field.width();
-    } else {
-        aspect_ratio_respected = true;
     }
 
     this->graphicsscale = qMax(this->min_graphics_scale, this->graphicsscale);
+    //printf("Graphics scale is now %f\n", this->graphicsscale);
 
     this->scaled_ui_field.setX(static_cast<int>(this->ui_field.x()*this->graphicsscale));
     this->scaled_ui_field.setY(static_cast<int>(this->ui_field.y()*this->graphicsscale));

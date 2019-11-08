@@ -181,7 +181,7 @@ public:
 
 
     //physical properties of graphics and world
-    const double aspect_ratio = 10.0/9.0;
+
 
     const int tetris_rows = 18;
     const int tetris_cols = 10;
@@ -193,6 +193,9 @@ public:
 
     const QRect ui_field = QRect(0, tetris_field.y(), 160, tetris_field.height());
     QRect scaled_ui_field = ui_field;
+
+    const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
+    const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
 
     const double min_graphics_scale = 1;
     double graphicsscale = 1;
