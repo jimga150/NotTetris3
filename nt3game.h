@@ -96,6 +96,15 @@ enum lateral_movement_state_enum{
     num_lateral_movement_states
 };
 
+enum ray_cast_enum{
+    TOPLEFT = 0,
+    TOPRIGHT,
+    BOTTOMLEFT,
+    BOTTOMRIGHT,
+
+    num_ray_casts
+};
+
 class NT3Game : public OpenGL2DWindow
 {
 public:
@@ -121,6 +130,10 @@ public:
     void initializeWalls();
 
     void makeNewTetrisPiece();
+
+    bool checkRowDensity(int row);
+
+    float32 poly_area(b2Vec2* vertices, int num_vertices);
 
 
     //constants
@@ -211,6 +224,8 @@ public:
     float32 ground_friction_k = 0.5f;
 
     float32 restitution = 0.001f;
+
+    float32 line_clear_threshold = 8.1f*side_length*side_length;
 
 
     //piece params

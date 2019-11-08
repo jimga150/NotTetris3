@@ -65,7 +65,6 @@ NT3Game::NT3Game()
     int screen_height = screenRect.height();
 
     if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
-        //this->setFixedSize(h*aspect_ratio, h);
         int window_width = static_cast<int>(screen_height*this->aspect_ratio);
         this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
     } else { //screen is relatively taller than app, or it's the same ratio
@@ -257,8 +256,10 @@ void NT3Game::render(QPainter& painter)
     painter.setBrush(Qt::NoBrush);
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (this->isAWall(b)) continue;
-        this->drawTetrisPiece(&painter, b);
+        if (!this->isAWall(b)){
+            //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
+            this->drawTetrisPiece(&painter, b);
+        }
         //this->drawBodyTo(&painter, b);
     }
 }
@@ -334,6 +335,12 @@ void NT3Game::doGameStep(){
         linear_force_vect.y = -this->upward_correcting_force;
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
+
+    for (int r = 0; r < this->tetris_rows; r++){
+        printf("%d: %u, ", r, this->checkRowDensity(r));
+    }
+    printf("\n");
+    //this->checkRowDensity(this->tetris_rows-1);
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -445,6 +452,123 @@ void NT3Game::makeNewTetrisPiece(){
     this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
     this->currentPiece->SetAngularVelocity(0);
     this->currentPiece->SetLinearDamping(0);
+}
+
+bool NT3Game::checkRowDensity(int row){
+    float32 bot = row*this->side_length;
+    float32 top = (row+1)*this->side_length;
+    //printf("Checking for shapes between %f and %f\n", bot, top);
+
+    float32 total_area = 0;
+
+    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        if (this->isAWall(b)) continue;
+
+        b2Vec2 b_pos = b->GetPosition();
+        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+            //printf("Shape coords are: (%f, %f)\n", s->m_vertices[0].x, s->m_vertices[0].y);
+
+            b2Transform t;
+            t.Set(b_pos, b->GetAngle());
+
+            std::vector<b2RayCastOutput> RC_outputs;
+            std::vector<b2RayCastInput> RC_inputs;
+            std::vector<bool> RC_hits;
+            for (uint8 r = 0; r < num_ray_casts; r++){ //TODO: initialize all line clear ray casts at program start
+                b2RayCastOutput output;
+                RC_outputs.push_back(output);
+                b2RayCastInput input;
+                RC_inputs.push_back(input);
+                switch(r){
+                case TOPLEFT:
+                    RC_inputs.at(r).p1.Set(0, top);
+                    RC_inputs.at(r).p2.Set(this->tetris_field.width(), top);
+                    RC_inputs.at(r).maxFraction = 1;
+                    break;
+                case TOPRIGHT:
+                    RC_inputs.at(r).p1.Set(this->tetris_field.width(), top);
+                    RC_inputs.at(r).p2.Set(0, top);
+                    RC_inputs.at(r).maxFraction = 1;
+                    break;
+                case BOTTOMLEFT:
+                    RC_inputs.at(r).p1.Set(0, bot);
+                    RC_inputs.at(r).p2.Set(this->tetris_field.width(), bot);
+                    RC_inputs.at(r).maxFraction = 1;
+                    break;
+                case BOTTOMRIGHT:
+                    RC_inputs.at(r).p1.Set(this->tetris_field.width(), bot);
+                    RC_inputs.at(r).p2.Set(0, bot);
+                    RC_inputs.at(r).maxFraction = 1;
+                    break;
+                default:
+                    fprintf(stderr, "Ray cast enum not defined\n");
+                    break;
+                } //end ray cast switch statement
+                RC_hits.push_back(s->RayCast(&RC_outputs.at(r), RC_inputs.at(r), t, 0));
+            } //end ray cast init
+
+            if(RC_hits.at(TOPLEFT) || RC_hits.at(BOTTOMLEFT)){
+                //printf("Hit!\n");
+                b2Vec2 new_points[b2_maxPolygonVertices];
+                int num_p = 0;
+                for (int i = 0; i < s->m_count; i++){
+                    b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
+                    if (p.y <= top && p.y >= bot){
+                        new_points[num_p++] = p;
+                        //printf("%d: Adding from shape: (%f, %f)\n", num_p-1, p.x, p.y);
+                    }
+                }
+                //printf("num points = %d after loop\n", num_p);
+
+                if (RC_hits.at(TOPLEFT)){
+                    //printf("Top line hit\n");
+                    new_points[num_p++] = RC_inputs.at(TOPLEFT).p1 + //TODO: encapsulate this formula
+                            RC_outputs.at(TOPLEFT).fraction * (RC_inputs.at(TOPLEFT).p2 - RC_inputs.at(TOPLEFT).p1);
+                    new_points[num_p++] = RC_inputs.at(TOPRIGHT).p1 +
+                            RC_outputs.at(TOPRIGHT).fraction * (RC_inputs.at(TOPRIGHT).p2 - RC_inputs.at(TOPRIGHT).p1);
+                }
+
+                if (RC_hits.at(BOTTOMLEFT)){
+                    //printf("Bottom line hit\n");
+                    new_points[num_p++] = RC_inputs.at(BOTTOMLEFT).p1 +
+                            RC_outputs.at(BOTTOMLEFT).fraction * (RC_inputs.at(BOTTOMLEFT).p2 - RC_inputs.at(BOTTOMLEFT).p1);
+                    new_points[num_p++] = RC_inputs.at(BOTTOMRIGHT).p1 +
+                            RC_outputs.at(BOTTOMRIGHT).fraction * (RC_inputs.at(BOTTOMRIGHT).p2 - RC_inputs.at(BOTTOMRIGHT).p1);
+                }
+
+
+                /*for (int i = 0; i < num_p; i++){
+                    printf("%d: (%f, %f)\n", i, new_points[i].x, new_points[i].y);
+                }*/
+
+                float32 area = this->poly_area(new_points, num_p);
+                total_area += area;
+                //printf("Shape partially inside row: + %f\n", area);
+            } else { //If NEITHER of the ray casts hit
+                if (s->m_vertices[0].y + b_pos.y > top && s->m_vertices[0].y + b_pos.y < bot){
+                    float32 area = this->poly_area(s->m_vertices, s->m_count);
+                    total_area += area;
+                    //printf("Shape totally inside row: + %f\n", area);
+                }
+            } //end neither ray cast hit
+        } //end fixture loop
+    } //end body loop
+    bool over_threshold = total_area > this->line_clear_threshold;
+    //printf("%f > %f = %u\n", total_area, this->line_clear_threshold, over_threshold);
+    return over_threshold;
+}
+
+float32 NT3Game::poly_area(b2Vec2* vertices, int num_vertices){
+    float32 accum = 0.0;
+    for (int i = 0; i < num_vertices; i++){
+        int j = (i + 1) % num_vertices;
+        float32 res = vertices[j].x * vertices[i].y - vertices[i].x * vertices[j].y;
+        accum += res;
+        //printf("%f*%f - %f*%f = %f\n", vertices[j].x, vertices[i].y, vertices[i].x, vertices[j].y, res);
+    }
+    return qAbs(accum/2);
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
