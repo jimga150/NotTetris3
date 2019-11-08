@@ -52,6 +52,8 @@
 
 NT3Game::NT3Game()
 {
+    this->setTitle("Not Tetris 3");
+
     QScreen* screen = this->screen();
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;
