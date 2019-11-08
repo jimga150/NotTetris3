@@ -274,7 +274,9 @@ void NT3Game::render(QPainter& painter)
         double height = static_cast<double>(this->side_length)*this->graphicsscale;
         double top = height*r;
 
-        double fill_fraction = qMin(static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold), 1.0);
+        double fill_fraction = static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold);
+        //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
+        fill_fraction = qMin(fill_fraction, 1.0);
         double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
 
         QRectF status_box(0, top, width, height);
@@ -578,6 +580,8 @@ float32 NT3Game::getRowDensity(uint row){
         } //end fixture loop
     } //end body loop
 
+    Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
+
     return total_area;
 }
 
@@ -705,15 +709,13 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
         b2Assert(edge.LengthSquared() > b2_epsilon * b2_epsilon);
     }
 
-    b2Vec2 c;
-    c.Set(0.0f, 0.0f);
+    count = m;
+
     float32 area = 0.0f;
 
     // pRef is the reference point for forming triangles.
     // It's location doesn't change the result (except for rounding error).
     b2Vec2 pRef(0.0f, 0.0f);
-
-    const float32 inv3 = 1.0f / 3.0f;
 
     for (int32 i = 0; i < count; ++i)
     {
@@ -729,9 +731,11 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 
         float32 triangleArea = 0.5f * D;
         area += triangleArea;
+    }
 
-        // Area weighted centroid
-        c += triangleArea * inv3 * (p1 + p2 + p3);
+    if (area > this->side_length*this->side_length*4){
+        printf("Area is too big: %f\n", area);
+        Q_ASSERT(false);
     }
 
     // Centroid
