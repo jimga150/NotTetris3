@@ -110,13 +110,13 @@ void OpenGL2DWindow::renderNow(){
 
 #ifdef TIME_FRAME_COMPS
     printf("Game frame: %lld ms\t", timer.elapsed());
+    timer.restart();
 #endif
 
     this->m_context->swapBuffers(this);
 
 #ifdef TIME_FRAME_COMPS
     printf("Buffer: %lld ms\t", timer.elapsed());
-    timer.restart();
 #endif
 
     if (this->m_animating) this->renderLater();
