@@ -488,6 +488,7 @@ float32 NT3Game::getRowDensity(uint row){
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
+        if (b == this->currentPiece) continue;
 
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
