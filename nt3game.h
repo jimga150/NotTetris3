@@ -131,9 +131,9 @@ public:
 
     void makeNewTetrisPiece();
 
-    bool checkRowDensity(int row);
+    float32 getRowDensity(uint row);
 
-    float32 poly_area(b2Vec2* vertices, int num_vertices);
+    float32 poly_area(b2Vec2* vertices, int count);
 
 
     //constants
@@ -179,12 +179,16 @@ public:
     b2Body* currentPiece = nullptr;
     QHash<b2Body*, tetris_piece_enum> bodytypes;
 
+    std::vector<float32> row_densities;
+
 
     //physical properties of graphics and world
 
 
-    const int tetris_rows = 18;
-    const int tetris_cols = 10;
+    const uint tetris_rows = 18;
+    const uint tetris_cols = 10;
+
+    const uint row_fill_density_col_width = 6;
 
     const QRect tetris_field = QRect(14, 0, 82, 144);
     QRect scaled_tetris_field = tetris_field;

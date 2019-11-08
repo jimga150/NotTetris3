@@ -86,6 +86,9 @@ NT3Game::NT3Game()
     this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 
+    for (uint r = 0; r < this->tetris_rows; r++){
+        this->row_densities.push_back(0.0f);
+    }
 
     b2Vec2 gravity(0.0f, this->gravity_g);
     this->world = new b2World(gravity);
@@ -264,6 +267,23 @@ void NT3Game::render(QPainter& painter)
         }
         //this->drawBodyTo(&painter, b);
     }
+
+    painter.setPen(Qt::NoPen);
+
+    for (uint r = 0; r < this->tetris_rows; r++){
+        double height = static_cast<double>(this->side_length)*this->graphicsscale;
+        double top = height*r;
+
+        double fill_fraction = qMin(static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold), 1.0);
+        double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
+
+        QRectF status_box(0, top, width, height);
+
+        int grey = static_cast<int>((1-fill_fraction)*255);
+        painter.setBrush(QColor(grey, grey, grey));
+
+        painter.drawRect(status_box);
+    }
 }
 
 bool NT3Game::isAWall(b2Body* b){
@@ -338,10 +358,11 @@ void NT3Game::doGameStep(){
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
 
-    for (int r = 0; r < this->tetris_rows; r++){
-        printf("%d: %u, ", r, this->checkRowDensity(r));
+    for (uint r = 0; r < this->tetris_rows; r++){
+        this->row_densities.at(r) = this->getRowDensity(r);
     }
-    printf("\n");
+    //TODO: check against threshold, clear line if over
+
     //this->checkRowDensity(this->tetris_rows-1);
 }
 
@@ -456,7 +477,7 @@ void NT3Game::makeNewTetrisPiece(){
     this->currentPiece->SetLinearDamping(0);
 }
 
-bool NT3Game::checkRowDensity(int row){
+float32 NT3Game::getRowDensity(uint row){
     float32 bot = row*this->side_length;
     float32 top = (row+1)*this->side_length;
     //printf("Checking for shapes between %f and %f\n", bot, top);
@@ -466,14 +487,13 @@ bool NT3Game::checkRowDensity(int row){
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
 
-        b2Vec2 b_pos = b->GetPosition();
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
             //printf("Shape coords are: (%f, %f)\n", s->m_vertices[0].x, s->m_vertices[0].y);
 
             b2Transform t;
-            t.Set(b_pos, b->GetAngle());
+            t.Set(b->GetPosition(), b->GetAngle());
 
             std::vector<b2RayCastOutput> RC_outputs;
             std::vector<b2RayCastInput> RC_inputs;
@@ -512,65 +532,214 @@ bool NT3Game::checkRowDensity(int row){
             } //end ray cast init
 
             if(RC_hits.at(TOPLEFT) || RC_hits.at(BOTTOMLEFT)){
-                //printf("Hit!\n");
-                b2Vec2 new_points[b2_maxPolygonVertices];
-                int num_p = 0;
+
+                std::vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
+
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
                     if (p.y <= top && p.y >= bot){
-                        new_points[num_p++] = p;
-                        //printf("%d: Adding from shape: (%f, %f)\n", num_p-1, p.x, p.y);
+                        new_points.push_back(p);
                     }
                 }
-                //printf("num points = %d after loop\n", num_p);
 
                 if (RC_hits.at(TOPLEFT)){
-                    //printf("Top line hit\n");
-                    new_points[num_p++] = RC_inputs.at(TOPLEFT).p1 + //TODO: encapsulate this formula
-                            RC_outputs.at(TOPLEFT).fraction * (RC_inputs.at(TOPLEFT).p2 - RC_inputs.at(TOPLEFT).p1);
-                    new_points[num_p++] = RC_inputs.at(TOPRIGHT).p1 +
-                            RC_outputs.at(TOPRIGHT).fraction * (RC_inputs.at(TOPRIGHT).p2 - RC_inputs.at(TOPRIGHT).p1);
+                    new_points.push_back(
+                                RC_inputs.at(TOPLEFT).p1 + //TODO: encapsulate this formula
+                                RC_outputs.at(TOPLEFT).fraction * (RC_inputs.at(TOPLEFT).p2 - RC_inputs.at(TOPLEFT).p1)
+                                );
+                    new_points.push_back(
+                                RC_inputs.at(TOPRIGHT).p1 +
+                                RC_outputs.at(TOPRIGHT).fraction * (RC_inputs.at(TOPRIGHT).p2 - RC_inputs.at(TOPRIGHT).p1)
+                                );
                 }
 
                 if (RC_hits.at(BOTTOMLEFT)){
-                    //printf("Bottom line hit\n");
-                    new_points[num_p++] = RC_inputs.at(BOTTOMLEFT).p1 +
-                            RC_outputs.at(BOTTOMLEFT).fraction * (RC_inputs.at(BOTTOMLEFT).p2 - RC_inputs.at(BOTTOMLEFT).p1);
-                    new_points[num_p++] = RC_inputs.at(BOTTOMRIGHT).p1 +
-                            RC_outputs.at(BOTTOMRIGHT).fraction * (RC_inputs.at(BOTTOMRIGHT).p2 - RC_inputs.at(BOTTOMRIGHT).p1);
+                    new_points.push_back(
+                                RC_inputs.at(BOTTOMLEFT).p1 +
+                                RC_outputs.at(BOTTOMLEFT).fraction * (RC_inputs.at(BOTTOMLEFT).p2 - RC_inputs.at(BOTTOMLEFT).p1)
+                                );
+                    new_points.push_back(
+                                RC_inputs.at(BOTTOMRIGHT).p1 +
+                                RC_outputs.at(BOTTOMRIGHT).fraction * (RC_inputs.at(BOTTOMRIGHT).p2 - RC_inputs.at(BOTTOMRIGHT).p1)
+                                );
                 }
 
-
-                /*for (int i = 0; i < num_p; i++){
-                    printf("%d: (%f, %f)\n", i, new_points[i].x, new_points[i].y);
-                }*/
-
-                float32 area = this->poly_area(new_points, num_p);
+                int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
+                float32 area = this->poly_area(&new_points[0], num_vertices);
                 total_area += area;
-                //printf("Shape partially inside row: + %f\n", area);
+
             } else { //If NEITHER of the ray casts hit
-                if (s->m_vertices[0].y + b_pos.y > top && s->m_vertices[0].y + b_pos.y < bot){
+                b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
+                if (p.y > top && p.y < bot){
                     float32 area = this->poly_area(s->m_vertices, s->m_count);
                     total_area += area;
-                    //printf("Shape totally inside row: + %f\n", area);
                 }
             } //end neither ray cast hit
         } //end fixture loop
     } //end body loop
-    bool over_threshold = total_area > this->line_clear_threshold;
-    //printf("%f > %f = %u\n", total_area, this->line_clear_threshold, over_threshold);
-    return over_threshold;
+
+    return total_area;
 }
 
-float32 NT3Game::poly_area(b2Vec2* vertices, int num_vertices){
-    float32 accum = 0.0;
-    for (int i = 0; i < num_vertices; i++){
-        int j = (i + 1) % num_vertices;
-        float32 res = vertices[j].x * vertices[i].y - vertices[i].x * vertices[j].y;
-        accum += res;
-        //printf("%f*%f - %f*%f = %f\n", vertices[j].x, vertices[i].y, vertices[i].x, vertices[j].y, res);
+//This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
+//so that it returns 0 on error whereas the original function fails an assert, crashing the program.
+float32 NT3Game::poly_area(b2Vec2* vertices, int count){
+
+    if(3 > count && count > b2_maxPolygonVertices){
+        //printf("Polygon count is out of range: %d\n", count);
+        return 0;
     }
-    return qAbs(accum/2);
+
+    int32 n = b2Min(count, b2_maxPolygonVertices);
+
+    // Perform welding and copy vertices into local buffer.
+    b2Vec2 ps[b2_maxPolygonVertices];
+    int32 tempCount = 0;
+    for (int32 i = 0; i < n; ++i)
+    {
+        b2Vec2 v = vertices[i];
+
+        bool unique = true;
+        for (int32 j = 0; j < tempCount; ++j)
+        {
+            if (b2DistanceSquared(v, ps[j]) < ((0.5f * b2_linearSlop) * (0.5f * b2_linearSlop)))
+            {
+                unique = false;
+                break;
+            }
+        }
+
+        if (unique)
+        {
+            ps[tempCount++] = v;
+        }
+    }
+
+    n = tempCount;
+    if (n < 3)
+    {
+        //printf("Polygon is degenerate (1st check).\n");
+        return 0;
+    }
+
+    // Create the convex hull using the Gift wrapping algorithm
+    // http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
+
+    // Find the right most point on the hull
+    int32 i0 = 0;
+    float32 x0 = ps[0].x;
+    for (int32 i = 1; i < n; ++i)
+    {
+        float32 x = ps[i].x;
+        if (x > x0 || (x == x0 && ps[i].y < ps[i0].y))
+        {
+            i0 = i;
+            x0 = x;
+        }
+    }
+
+    int32 hull[b2_maxPolygonVertices];
+    int32 m = 0;
+    int32 ih = i0;
+
+    for (;;)
+    {
+        if (m >= b2_maxPolygonVertices){
+            //printf("m >= %d\n", b2_maxPolygonVertices);
+            return 0;
+        }
+        hull[m] = ih;
+
+        int32 ie = 0;
+        for (int32 j = 1; j < n; ++j)
+        {
+            if (ie == ih)
+            {
+                ie = j;
+                continue;
+            }
+
+            b2Vec2 r = ps[ie] - ps[hull[m]];
+            b2Vec2 v = ps[j] - ps[hull[m]];
+            float32 c = b2Cross(r, v);
+            if (c < 0.0f)
+            {
+                ie = j;
+            }
+
+            // Collinearity check
+            if (c == 0.0f && v.LengthSquared() > r.LengthSquared())
+            {
+                ie = j;
+            }
+        }
+
+        ++m;
+        ih = ie;
+
+        if (ie == i0)
+        {
+            break;
+        }
+    }
+
+    if (m < 3)
+    {
+        //printf("Polygon is degenerate (2nd check).\n");
+        return 0 ;
+    }
+
+    // Copy vertices.
+    b2Vec2 m_vertices[b2_maxPolygonVertices];
+    for (int32 i = 0; i < m; ++i)
+    {
+        m_vertices[i] = ps[hull[i]];
+    }
+
+    // Compute normals. Ensure the edges have non-zero length.
+    for (int32 i = 0; i < m; ++i)
+    {
+        int32 i1 = i;
+        int32 i2 = i + 1 < m ? i + 1 : 0;
+        b2Vec2 edge = m_vertices[i2] - m_vertices[i1];
+        b2Assert(edge.LengthSquared() > b2_epsilon * b2_epsilon);
+    }
+
+    b2Vec2 c;
+    c.Set(0.0f, 0.0f);
+    float32 area = 0.0f;
+
+    // pRef is the reference point for forming triangles.
+    // It's location doesn't change the result (except for rounding error).
+    b2Vec2 pRef(0.0f, 0.0f);
+
+    const float32 inv3 = 1.0f / 3.0f;
+
+    for (int32 i = 0; i < count; ++i)
+    {
+        // Triangle vertices.
+        b2Vec2 p1 = pRef;
+        b2Vec2 p2 = m_vertices[i];
+        b2Vec2 p3 = i + 1 < count ? m_vertices[i+1] : m_vertices[0];
+
+        b2Vec2 e1 = p2 - p1;
+        b2Vec2 e2 = p3 - p1;
+
+        float32 D = b2Cross(e1, e2);
+
+        float32 triangleArea = 0.5f * D;
+        area += triangleArea;
+
+        // Area weighted centroid
+        c += triangleArea * inv3 * (p1 + p2 + p3);
+    }
+
+    // Centroid
+    if (area > b2_epsilon){
+        return area;
+    }
+    //printf("area <= %f\n", b2_epsilon);
+    return 0;
 }
 
 void NT3Game::initializeTetrisPieceDefs(){
