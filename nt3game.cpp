@@ -274,7 +274,9 @@ void NT3Game::render(QPainter& painter)
         double height = static_cast<double>(this->side_length)*this->graphicsscale;
         double top = height*r;
 
-        double fill_fraction = qMin(static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold), 1.0);
+        double fill_fraction = static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold);
+        //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
+        fill_fraction = qMin(fill_fraction, 1.0);
         double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
 
         QRectF status_box(0, top, width, height);
@@ -578,6 +580,8 @@ float32 NT3Game::getRowDensity(uint row){
         } //end fixture loop
     } //end body loop
 
+    //Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
+
     return total_area;
 }
 
@@ -595,29 +599,24 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     // Perform welding and copy vertices into local buffer.
     b2Vec2 ps[b2_maxPolygonVertices];
     int32 tempCount = 0;
-    for (int32 i = 0; i < n; ++i)
-    {
+    for (int32 i = 0; i < n; ++i){
         b2Vec2 v = vertices[i];
 
         bool unique = true;
-        for (int32 j = 0; j < tempCount; ++j)
-        {
-            if (b2DistanceSquared(v, ps[j]) < ((0.5f * b2_linearSlop) * (0.5f * b2_linearSlop)))
-            {
+        for (int32 j = 0; j < tempCount; ++j){
+            if (b2DistanceSquared(v, ps[j]) < ((0.5f * b2_linearSlop) * (0.5f * b2_linearSlop))){
                 unique = false;
                 break;
             }
         }
 
-        if (unique)
-        {
+        if (unique){
             ps[tempCount++] = v;
         }
     }
 
     n = tempCount;
-    if (n < 3)
-    {
+    if (n < 3){
         //printf("Polygon is degenerate (1st check).\n");
         return 0;
     }
@@ -628,11 +627,9 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     // Find the right most point on the hull
     int32 i0 = 0;
     float32 x0 = ps[0].x;
-    for (int32 i = 1; i < n; ++i)
-    {
+    for (int32 i = 1; i < n; ++i){
         float32 x = ps[i].x;
-        if (x > x0 || (x == x0 && ps[i].y < ps[i0].y))
-        {
+        if (x > x0 || (x == x0 && ps[i].y < ps[i0].y)){
             i0 = i;
             x0 = x;
         }
@@ -642,8 +639,7 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     int32 m = 0;
     int32 ih = i0;
 
-    for (;;)
-    {
+    for (;;){
         if (m >= b2_maxPolygonVertices){
             //printf("m >= %d\n", b2_maxPolygonVertices);
             return 0;
@@ -651,10 +647,8 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
         hull[m] = ih;
 
         int32 ie = 0;
-        for (int32 j = 1; j < n; ++j)
-        {
-            if (ie == ih)
-            {
+        for (int32 j = 1; j < n; ++j){
+            if (ie == ih){
                 ie = j;
                 continue;
             }
@@ -662,14 +656,12 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
             b2Vec2 r = ps[ie] - ps[hull[m]];
             b2Vec2 v = ps[j] - ps[hull[m]];
             float32 c = b2Cross(r, v);
-            if (c < 0.0f)
-            {
+            if (c < 0.0f){
                 ie = j;
             }
 
             // Collinearity check
-            if (c == 0.0f && v.LengthSquared() > r.LengthSquared())
-            {
+            if (c == 0.0f && v.LengthSquared() > r.LengthSquared()){
                 ie = j;
             }
         }
@@ -677,46 +669,39 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
         ++m;
         ih = ie;
 
-        if (ie == i0)
-        {
+        if (ie == i0){
             break;
         }
     }
 
-    if (m < 3)
-    {
+    if (m < 3){
         //printf("Polygon is degenerate (2nd check).\n");
         return 0 ;
     }
 
     // Copy vertices.
     b2Vec2 m_vertices[b2_maxPolygonVertices];
-    for (int32 i = 0; i < m; ++i)
-    {
+    for (int32 i = 0; i < m; ++i){
         m_vertices[i] = ps[hull[i]];
     }
 
     // Compute normals. Ensure the edges have non-zero length.
-    for (int32 i = 0; i < m; ++i)
-    {
+    for (int32 i = 0; i < m; ++i){
         int32 i1 = i;
         int32 i2 = i + 1 < m ? i + 1 : 0;
         b2Vec2 edge = m_vertices[i2] - m_vertices[i1];
         b2Assert(edge.LengthSquared() > b2_epsilon * b2_epsilon);
     }
 
-    b2Vec2 c;
-    c.Set(0.0f, 0.0f);
+    count = m;
+
     float32 area = 0.0f;
 
     // pRef is the reference point for forming triangles.
     // It's location doesn't change the result (except for rounding error).
     b2Vec2 pRef(0.0f, 0.0f);
 
-    const float32 inv3 = 1.0f / 3.0f;
-
-    for (int32 i = 0; i < count; ++i)
-    {
+    for (int32 i = 0; i < count; ++i){
         // Triangle vertices.
         b2Vec2 p1 = pRef;
         b2Vec2 p2 = m_vertices[i];
@@ -729,9 +714,6 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 
         float32 triangleArea = 0.5f * D;
         area += triangleArea;
-
-        // Area weighted centroid
-        c += triangleArea * inv3 * (p1 + p2 + p3);
     }
 
     // Centroid
