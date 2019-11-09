@@ -92,6 +92,7 @@ NT3Game::NT3Game()
 
     b2Vec2 gravity(0.0f, this->gravity_g);
     this->world = new b2World(gravity);
+    this->world->SetAllowSleeping(true);
     this->contactlistener = new NT3ContactListener;
     this->world->SetContactListener(this->contactlistener);
 
