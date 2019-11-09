@@ -133,6 +133,8 @@ public:
 
     float32 getRowDensity(uint row);
 
+    b2Vec2 hit_point(b2RayCastInput input, b2RayCastOutput output);
+
     float32 poly_area(b2Vec2* vertices, int count);
 
 
@@ -180,10 +182,10 @@ public:
     QHash<b2Body*, tetris_piece_enum> bodytypes;
 
     std::vector<float32> row_densities;
+    std::vector<QHash<b2Body*, float32>> body_density_contributions;
 
 
     //physical properties of graphics and world
-
 
     const uint tetris_rows = 18;
     const uint tetris_cols = 10;

@@ -88,6 +88,8 @@ NT3Game::NT3Game()
 
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.push_back(0.0f);
+        QHash<b2Body*, float32> bdc;
+        this->body_density_contributions.push_back(bdc);
     }
 
     b2Vec2 gravity(0.0f, this->gravity_g);
@@ -485,55 +487,65 @@ float32 NT3Game::getRowDensity(uint row){
     float32 top = (row+1)*this->side_length;
     //printf("Checking for shapes between %f and %f\n", bot, top);
 
+    std::vector<b2RayCastOutput> RC_outputs;
+    std::vector<b2RayCastInput> RC_inputs;
+    std::vector<bool> RC_hits;
+    for (uint8 r = 0; r < num_ray_casts; r++){
+        b2RayCastOutput output;
+        RC_outputs.push_back(output);
+        b2RayCastInput input;
+        RC_inputs.push_back(input);
+        RC_inputs.at(r).maxFraction = 1;
+        switch(r){
+        case TOPLEFT:
+            RC_inputs.at(r).p1.Set(0, top);
+            RC_inputs.at(r).p2.Set(this->tetris_field.width(), top);
+            break;
+        case TOPRIGHT:
+            RC_inputs.at(r).p1.Set(this->tetris_field.width(), top);
+            RC_inputs.at(r).p2.Set(0, top);
+            break;
+        case BOTTOMLEFT:
+            RC_inputs.at(r).p1.Set(0, bot);
+            RC_inputs.at(r).p2.Set(this->tetris_field.width(), bot);
+            break;
+        case BOTTOMRIGHT:
+            RC_inputs.at(r).p1.Set(this->tetris_field.width(), bot);
+            RC_inputs.at(r).p2.Set(0, bot);
+            break;
+        default:
+            fprintf(stderr, "Ray cast enum not defined\n");
+            break;
+        } //end ray cast switch statement
+    } //end ray cast init
+
     float32 total_area = 0;
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
         if (b == this->currentPiece) continue;
 
+        if (this->body_density_contributions.at(row).contains(b)){
+            if (!b->IsAwake()){
+                total_area += this->body_density_contributions.at(row).value(b);
+                continue;
+            }
+            this->body_density_contributions.at(row).remove(b);
+        }
+
+        b2Transform t;
+        t.Set(b->GetPosition(), b->GetAngle());
+
+        float32 body_area = 0;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
             //printf("Shape coords are: (%f, %f)\n", s->m_vertices[0].x, s->m_vertices[0].y);
 
-            b2Transform t;
-            t.Set(b->GetPosition(), b->GetAngle());
-
-            std::vector<b2RayCastOutput> RC_outputs;
-            std::vector<b2RayCastInput> RC_inputs;
-            std::vector<bool> RC_hits;
-            for (uint8 r = 0; r < num_ray_casts; r++){ //TODO: initialize all line clear ray casts at program start
-                b2RayCastOutput output;
-                RC_outputs.push_back(output);
-                b2RayCastInput input;
-                RC_inputs.push_back(input);
-                switch(r){
-                case TOPLEFT:
-                    RC_inputs.at(r).p1.Set(0, top);
-                    RC_inputs.at(r).p2.Set(this->tetris_field.width(), top);
-                    RC_inputs.at(r).maxFraction = 1;
-                    break;
-                case TOPRIGHT:
-                    RC_inputs.at(r).p1.Set(this->tetris_field.width(), top);
-                    RC_inputs.at(r).p2.Set(0, top);
-                    RC_inputs.at(r).maxFraction = 1;
-                    break;
-                case BOTTOMLEFT:
-                    RC_inputs.at(r).p1.Set(0, bot);
-                    RC_inputs.at(r).p2.Set(this->tetris_field.width(), bot);
-                    RC_inputs.at(r).maxFraction = 1;
-                    break;
-                case BOTTOMRIGHT:
-                    RC_inputs.at(r).p1.Set(this->tetris_field.width(), bot);
-                    RC_inputs.at(r).p2.Set(0, bot);
-                    RC_inputs.at(r).maxFraction = 1;
-                    break;
-                default:
-                    fprintf(stderr, "Ray cast enum not defined\n");
-                    break;
-                } //end ray cast switch statement
+            RC_hits.clear();
+            for (uint8 r = 0; r < num_ray_casts; r++){
                 RC_hits.push_back(s->RayCast(&RC_outputs.at(r), RC_inputs.at(r), t, 0));
-            } //end ray cast init
+            }
 
             if(RC_hits.at(TOPLEFT) || RC_hits.at(BOTTOMLEFT)){
 
@@ -547,44 +559,37 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (RC_hits.at(TOPLEFT)){
-                    new_points.push_back(
-                                RC_inputs.at(TOPLEFT).p1 + //TODO: encapsulate this formula
-                                RC_outputs.at(TOPLEFT).fraction * (RC_inputs.at(TOPLEFT).p2 - RC_inputs.at(TOPLEFT).p1)
-                                );
-                    new_points.push_back(
-                                RC_inputs.at(TOPRIGHT).p1 +
-                                RC_outputs.at(TOPRIGHT).fraction * (RC_inputs.at(TOPRIGHT).p2 - RC_inputs.at(TOPRIGHT).p1)
-                                );
+                    new_points.push_back(this->hit_point(RC_inputs.at(TOPLEFT), RC_outputs.at(TOPLEFT)));
+                    new_points.push_back(this->hit_point(RC_inputs.at(TOPRIGHT), RC_outputs.at(TOPRIGHT)));
                 }
 
                 if (RC_hits.at(BOTTOMLEFT)){
-                    new_points.push_back(
-                                RC_inputs.at(BOTTOMLEFT).p1 +
-                                RC_outputs.at(BOTTOMLEFT).fraction * (RC_inputs.at(BOTTOMLEFT).p2 - RC_inputs.at(BOTTOMLEFT).p1)
-                                );
-                    new_points.push_back(
-                                RC_inputs.at(BOTTOMRIGHT).p1 +
-                                RC_outputs.at(BOTTOMRIGHT).fraction * (RC_inputs.at(BOTTOMRIGHT).p2 - RC_inputs.at(BOTTOMRIGHT).p1)
-                                );
+                    new_points.push_back(this->hit_point(RC_inputs.at(BOTTOMLEFT), RC_outputs.at(BOTTOMLEFT)));
+                    new_points.push_back(this->hit_point(RC_inputs.at(BOTTOMRIGHT), RC_outputs.at(BOTTOMRIGHT)));
                 }
 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
                 float32 area = this->poly_area(&new_points[0], num_vertices);
-                total_area += area;
+                body_area += area;
 
             } else { //If NEITHER of the ray casts hit
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
                 if (p.y > top && p.y < bot){
                     float32 area = this->poly_area(s->m_vertices, s->m_count);
-                    total_area += area;
+                    body_area += area;
                 }
             } //end neither ray cast hit
         } //end fixture loop
+        this->body_density_contributions.at(row).insert(b, body_area);
+        total_area += body_area;
     } //end body loop
 
     //Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
-
     return total_area;
+}
+
+b2Vec2 NT3Game::hit_point(b2RayCastInput input, b2RayCastOutput output){
+    return input.p1 + output.fraction * (input.p2 - input.p1);
 }
 
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
