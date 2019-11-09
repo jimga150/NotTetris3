@@ -487,31 +487,27 @@ float32 NT3Game::getRowDensity(uint row){
     float32 top = (row+1)*this->side_length;
     //printf("Checking for shapes between %f and %f\n", bot, top);
 
-    std::vector<b2RayCastOutput> RC_outputs;
-    std::vector<b2RayCastInput> RC_inputs;
-    std::vector<bool> RC_hits;
+    std::vector<rayCastComplete> ray_casts;
     for (uint8 r = 0; r < num_ray_casts; r++){
-        b2RayCastOutput output;
-        RC_outputs.push_back(output);
-        b2RayCastInput input;
-        RC_inputs.push_back(input);
-        RC_inputs.at(r).maxFraction = 1;
+        rayCastComplete ray_cast;
+        ray_casts.push_back(ray_cast);
+        ray_casts.at(r).input.maxFraction = 1;
         switch(r){
         case TOPLEFT:
-            RC_inputs.at(r).p1.Set(0, top);
-            RC_inputs.at(r).p2.Set(this->tetris_field.width(), top);
+            ray_casts.at(r).input.p1.Set(0, top);
+            ray_casts.at(r).input.p2.Set(this->tetris_field.width(), top);
             break;
         case TOPRIGHT:
-            RC_inputs.at(r).p1.Set(this->tetris_field.width(), top);
-            RC_inputs.at(r).p2.Set(0, top);
+            ray_casts.at(r).input.p1.Set(this->tetris_field.width(), top);
+            ray_casts.at(r).input.p2.Set(0, top);
             break;
         case BOTTOMLEFT:
-            RC_inputs.at(r).p1.Set(0, bot);
-            RC_inputs.at(r).p2.Set(this->tetris_field.width(), bot);
+            ray_casts.at(r).input.p1.Set(0, bot);
+            ray_casts.at(r).input.p2.Set(this->tetris_field.width(), bot);
             break;
         case BOTTOMRIGHT:
-            RC_inputs.at(r).p1.Set(this->tetris_field.width(), bot);
-            RC_inputs.at(r).p2.Set(0, bot);
+            ray_casts.at(r).input.p1.Set(this->tetris_field.width(), bot);
+            ray_casts.at(r).input.p2.Set(0, bot);
             break;
         default:
             fprintf(stderr, "Ray cast enum not defined\n");
@@ -540,14 +536,12 @@ float32 NT3Game::getRowDensity(uint row){
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
-            //printf("Shape coords are: (%f, %f)\n", s->m_vertices[0].x, s->m_vertices[0].y);
 
-            RC_hits.clear();
             for (uint8 r = 0; r < num_ray_casts; r++){
-                RC_hits.push_back(s->RayCast(&RC_outputs.at(r), RC_inputs.at(r), t, 0));
+                ray_casts.at(r).hit = s->RayCast(&ray_casts.at(r).output, ray_casts.at(r).input, t, 0);
             }
 
-            if(RC_hits.at(TOPLEFT) || RC_hits.at(BOTTOMLEFT)){
+            if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
 
                 std::vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
@@ -558,14 +552,14 @@ float32 NT3Game::getRowDensity(uint row){
                     }
                 }
 
-                if (RC_hits.at(TOPLEFT)){
-                    new_points.push_back(this->hit_point(RC_inputs.at(TOPLEFT), RC_outputs.at(TOPLEFT)));
-                    new_points.push_back(this->hit_point(RC_inputs.at(TOPRIGHT), RC_outputs.at(TOPRIGHT)));
+                if (ray_casts.at(TOPLEFT).hit){
+                    new_points.push_back(this->hit_point(ray_casts.at(TOPLEFT).input, ray_casts.at(TOPLEFT).output));
+                    new_points.push_back(this->hit_point(ray_casts.at(TOPRIGHT).input, ray_casts.at(TOPRIGHT).output));
                 }
 
-                if (RC_hits.at(BOTTOMLEFT)){
-                    new_points.push_back(this->hit_point(RC_inputs.at(BOTTOMLEFT), RC_outputs.at(BOTTOMLEFT)));
-                    new_points.push_back(this->hit_point(RC_inputs.at(BOTTOMRIGHT), RC_outputs.at(BOTTOMRIGHT)));
+                if (ray_casts.at(BOTTOMLEFT).hit){
+                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMLEFT).input, ray_casts.at(BOTTOMLEFT).output));
+                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMRIGHT).input, ray_casts.at(BOTTOMRIGHT).output));
                 }
 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);

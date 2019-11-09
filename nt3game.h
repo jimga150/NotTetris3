@@ -105,6 +105,12 @@ enum ray_cast_enum{
     num_ray_casts
 };
 
+struct rayCastComplete{
+    b2RayCastInput input;
+    b2RayCastOutput output;
+    bool hit;
+};
+
 class NT3Game : public OpenGL2DWindow
 {
 public:
