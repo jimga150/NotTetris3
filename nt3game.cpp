@@ -553,13 +553,13 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (ray_casts.at(TOPLEFT).hit){
-                    new_points.push_back(this->hit_point(ray_casts.at(TOPLEFT).input, ray_casts.at(TOPLEFT).output));
-                    new_points.push_back(this->hit_point(ray_casts.at(TOPRIGHT).input, ray_casts.at(TOPRIGHT).output));
+                    new_points.push_back(this->hit_point(ray_casts.at(TOPLEFT)));
+                    new_points.push_back(this->hit_point(ray_casts.at(TOPRIGHT)));
                 }
 
                 if (ray_casts.at(BOTTOMLEFT).hit){
-                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMLEFT).input, ray_casts.at(BOTTOMLEFT).output));
-                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMRIGHT).input, ray_casts.at(BOTTOMRIGHT).output));
+                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMLEFT)));
+                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMRIGHT)));
                 }
 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
@@ -582,8 +582,8 @@ float32 NT3Game::getRowDensity(uint row){
     return total_area;
 }
 
-b2Vec2 NT3Game::hit_point(b2RayCastInput input, b2RayCastOutput output){
-    return input.p1 + output.fraction * (input.p2 - input.p1);
+b2Vec2 NT3Game::hit_point(rayCastComplete ray_cast){
+    return ray_cast.input.p1 + ray_cast.output.fraction * (ray_cast.input.p2 - ray_cast.input.p1);
 }
 
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()

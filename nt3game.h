@@ -139,7 +139,7 @@ public:
 
     float32 getRowDensity(uint row);
 
-    b2Vec2 hit_point(b2RayCastInput input, b2RayCastOutput output);
+    b2Vec2 hit_point(rayCastComplete ray_cast);
 
     float32 poly_area(b2Vec2* vertices, int count);
 
