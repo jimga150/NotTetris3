@@ -111,6 +111,10 @@ struct rayCastComplete{
     bool hit;
 };
 
+struct tetrisPieceData{
+    tetris_piece_enum type = I;
+};
+
 class NT3Game : public OpenGL2DWindow
 {
 public:
@@ -185,7 +189,6 @@ public:
     b2Body* walls[num_walls];
 
     b2Body* currentPiece = nullptr;
-    QHash<b2Body*, tetris_piece_enum> bodytypes;
 
     std::vector<float32> row_densities;
     std::vector<QHash<b2Body*, float32>> body_density_contributions;

@@ -112,7 +112,12 @@ NT3Game::NT3Game()
 
 NT3Game::~NT3Game()
 {
-    if (this->world) delete world;
+    if (this->world){
+        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            delete static_cast<tetrisPieceData*>(b->GetUserData());
+        }
+        delete world;
+    }
     if (this->contactlistener) delete contactlistener;
 }
 
@@ -264,7 +269,7 @@ void NT3Game::render(QPainter& painter)
     painter.setBrush(Qt::NoBrush);
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (!this->isAWall(b)){
+        if (!this->isAWall(b)/* && b->IsAwake()*/){
             //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
             this->drawTetrisPiece(&painter, b);
         }
@@ -367,8 +372,6 @@ void NT3Game::doGameStep(){
         this->row_densities.at(r) = this->getRowDensity(r);
     }
     //TODO: check against threshold, clear line if over
-
-    //this->checkRowDensity(this->tetris_rows-1);
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -448,7 +451,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
 void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
-    tetris_piece_enum piece = this->bodytypes.value(piece_body, I);
+    tetris_piece_enum type = static_cast<tetrisPieceData*>(piece_body->GetUserData())->type;
 
     painter->save();
 
@@ -459,22 +462,24 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->scale(this->graphicsscale, this->graphicsscale);
     painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
 
-    painter->drawPixmap(this->piece_rects.at(piece), this->piece_images.at(piece));
+    painter->drawPixmap(this->piece_rects.at(type), this->piece_images.at(type));
 
     painter->restore();
 }
 
 void NT3Game::makeNewTetrisPiece(){
 
-    tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+    tetrisPieceData* data = new tetrisPieceData;
+    data->type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
 
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
 
-    for (b2FixtureDef f : this->tetrisFixtures.at(type)){
+    for (b2FixtureDef f : this->tetrisFixtures.at(data->type)){
         this->currentPiece->CreateFixture(&f);
     }
+
     this->contactlistener->currentPiece = this->currentPiece;
-    this->bodytypes.insert(this->currentPiece, type);
+    this->currentPiece->SetUserData(data);
 
     this->currentPiece->SetGravityScale(0);
     this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
@@ -485,7 +490,6 @@ void NT3Game::makeNewTetrisPiece(){
 float32 NT3Game::getRowDensity(uint row){
     float32 bot = row*this->side_length;
     float32 top = (row+1)*this->side_length;
-    //printf("Checking for shapes between %f and %f\n", bot, top);
 
     std::vector<rayCastComplete> ray_casts;
     for (uint8 r = 0; r < num_ray_casts; r++){
