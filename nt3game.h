@@ -170,8 +170,8 @@ public:
 
 
     //Box2d params
-    const int32 default_velocityIterations = 10;
-    const int32 default_positionIterations = 10;
+    const int32 default_velocityIterations = 8;
+    const int32 default_positionIterations = 3;
 
     int32 velocityIterations = default_velocityIterations;
     int32 positionIterations = default_positionIterations;
