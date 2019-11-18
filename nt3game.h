@@ -148,7 +148,7 @@ public:
     //graphics
     void render(QPainter& painter) override;
 
-    void drawBodyTo(QPainter* painter, b2Body *body);
+    void drawBodyTo(QPainter* painter, b2Body *body, bool debug_graphics);
 
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
 
@@ -188,6 +188,11 @@ public:
 
     void init_BDC();
     //end functions
+
+
+    //debug
+    bool debug_graphics = true;
+
 
     //constants
     const int millis_per_second = 1000;
@@ -307,6 +312,8 @@ public:
     std::vector<QPixmap> piece_images;
     std::vector<QRect> piece_rects;
 
+
+    //freeze frame data
     bool row_cleared = false;
     bool freeze_frame = false;
     QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
