@@ -157,7 +157,7 @@ public:
 
     //calculated timings
     double fps;
-    double timeStep;
+    float32 timeStep;
     double framerate; //seconds
 
 

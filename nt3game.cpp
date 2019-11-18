@@ -57,7 +57,7 @@ NT3Game::NT3Game()
     QScreen* screen = this->screen();
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;
-    this->timeStep = this->framerate; //seconds
+    this->timeStep = static_cast<float32>(this->framerate); //seconds
     this->expected_frame_time = static_cast<int>(ceil(this->framerate*this->millis_per_second));
     //printf("eft: %d\n", this->expected_frame_time);
     //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
