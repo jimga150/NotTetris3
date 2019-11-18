@@ -107,10 +107,23 @@ enum ray_cast_enum{
     num_ray_casts
 };
 
+enum line_cut_side_enum{
+    BOTTOM = 0,
+    TOP,
+
+    num_line_cut_sides
+};
+
 struct rayCastComplete{
     b2RayCastInput input;
     b2RayCastOutput output;
     bool hit;
+
+    void doRayCast(b2Shape* s, b2Body* b){
+        b2Transform t;
+        t.Set(b->GetPosition(), b->GetAngle());
+        this->hit = s->RayCast(&this->output, this->input, t, 0);
+    }
 };
 
 struct tetrisPieceData{
@@ -143,11 +156,19 @@ public:
 
     void makeNewTetrisPiece();
 
+    void clearRow(uint row);
+
+    b2Vec2 centerPoint(b2Vec2* points, int count);
+
     float32 getRowDensity(uint row);
 
     b2Vec2 hit_point(rayCastComplete ray_cast);
 
     float32 poly_area(b2Vec2* vertices, int count);
+
+    std::vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
+
+    QString b2Vec2String(b2Vec2 vec);
 
 
     //constants
@@ -193,6 +214,7 @@ public:
 
     b2Body* currentPiece = nullptr;
 
+    //Index: Row box # (up to tetris_rows-1)
     std::vector<float32> row_densities;
     std::vector<QHash<b2Body*, float32>> body_density_contributions;
 
@@ -267,6 +289,7 @@ public:
     std::vector<QPixmap> piece_images;
     std::vector<QRect> piece_rects;
 
+    bool row_cleared = false;
     bool freeze_frame = false;
     QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
     int last_frame = 0;

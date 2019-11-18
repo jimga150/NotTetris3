@@ -88,7 +88,9 @@ NT3Game::NT3Game()
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 
     for (uint r = 0; r < this->tetris_rows; r++){
+
         this->row_densities.push_back(0.0f);
+
         QHash<b2Body*, float32> bdc;
         this->body_density_contributions.push_back(bdc);
     }
@@ -284,7 +286,7 @@ void NT3Game::render(QPainter& painter)
 
     painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.drawPixmap(0, 0, this->scaled_ui_field.width(), this->scaled_ui_field.height(), this->gamebackground);
+    painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
 
     painter.setPen(Qt::SolidLine);
     painter.setPen(this->debug_line_color);
@@ -340,9 +342,16 @@ void NT3Game::doGameStep(){
     this->render(sf_painter);
     sf_painter.end();
 
-    world->Step(static_cast<float32>(this->timeStep), this->velocityIterations, this->positionIterations);
+    if (this->row_cleared){
+        this->row_cleared = false;
+        this->freeze_frame = true;
+    }
 
+    world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
+
+    bool touchdown = false;
     if (this->contactlistener->hasCurrentPieceCollided()){
+        touchdown = true;
         this->currentPiece->SetGravityScale(1);
 
         if (this->currentPiece->GetWorldCenter().y < 0){
@@ -404,7 +413,15 @@ void NT3Game::doGameStep(){
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.at(r) = this->getRowDensity(r);
     }
-    //TODO: check against threshold, clear line if over
+
+    if (touchdown){
+        for (uint r = 0; r < this->tetris_rows; r++){
+            if (this->row_densities.at(r) > this->line_clear_threshold){
+                this->clearRow(r);
+                this->row_cleared = true;
+            }
+        }
+    }
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -432,6 +449,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
                 //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
             }
             painter->drawPolygon(&points[0], numpoints);
+
         }
             break;
         case b2Shape::e_circle:{
@@ -520,11 +538,261 @@ void NT3Game::makeNewTetrisPiece(){
     this->currentPiece->SetLinearDamping(0);
 }
 
-float32 NT3Game::getRowDensity(uint row){
-    float32 bot = row*this->side_length;
-    float32 top = (row+1)*this->side_length;
+void NT3Game::clearRow(uint row){
 
+    std::vector<float32> sides;
+    for (uint i = 0; i < num_line_cut_sides; i++){
+        switch(i){
+        case TOP:
+            sides.push_back((row+1)*this->side_length);
+            break;
+        case BOTTOM:
+            sides.push_back(row*this->side_length);
+            break;
+        default:
+            fprintf(stderr, "Line clear side %u not defined\n", i);
+            break;
+        }
+    }
+
+    std::vector<rayCastComplete> ray_casts = this->getRayCasts(sides.at(TOP), sides.at(BOTTOM));
+
+    //make list of bodies affected by this row clear
+    //for top and bottom lines:
+    std::vector<b2Body*> affected_bodies;
+
+    //find all bodies with shapes that cross the line
+    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        if (this->isAWall(b)) continue;
+
+        bool affected = false;
+        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+            ray_casts.at(TOPLEFT).doRayCast(s, b);
+            ray_casts.at(BOTTOMLEFT).doRayCast(s, b);
+            if (ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
+                //printf("%p is affected by row clear\n", reinterpret_cast<void*>(b));
+                affected = true;
+                affected_bodies.push_back(b);
+                break;
+            }
+
+        }
+
+        //for all of the affected bodies:
+        if (!affected) continue;
+
+        //for shapes in those bodies:
+        std::vector<b2Fixture*> fixtures_to_destroy;
+        std::vector<b2PolygonShape> shapes_to_make;
+        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+            //printf("New Fixture\n");
+            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+            for (uint side = 0; side < num_line_cut_sides; side++){
+                /*switch(side){
+                case TOP:
+                    printf("Checking Top side...\n");
+                    break;
+                case BOTTOM:
+                    printf("Checking Bottom side...\n");
+                    break;
+                default:
+                    fprintf(stderr, "Side not defined! %u\n", side);
+                    break;
+                }*/
+
+                //get list of points on outside of row clear
+                std::vector<b2Vec2> new_points;
+                for (int i = 0; i < s->m_count; i++){
+                    b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
+                    bool outside;
+                    switch(side){
+                    case TOP:
+                        outside = p.y > sides.at(TOP);
+                        break;
+                    case BOTTOM:
+                        outside = p.y < sides.at(BOTTOM);
+                        break;
+                    default:
+                        outside = false;
+                        fprintf(stderr, "Line clear side %u not defined\n", side);
+                        break;
+                    }
+
+                    if (outside){
+                        //printf("%s is outside the line clear\n", this->b2Vec2String(p).toUtf8().constData());
+                        new_points.push_back(s->m_vertices[i]);
+                    }
+                }
+
+                //combine with list of points where shape hits line (must convert to local points)
+                b2Vec2 hit_worldpoint;
+                switch(side){
+                case TOP:
+                    ray_casts.at(TOPLEFT).doRayCast(s, b);
+                    if (!ray_casts.at(TOPLEFT).hit) break;
+
+                    hit_worldpoint = this->hit_point(ray_casts.at(TOPLEFT));
+                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+
+                    ray_casts.at(TOPRIGHT).doRayCast(s, b);
+                    hit_worldpoint = this->hit_point(ray_casts.at(TOPRIGHT));
+                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    break;
+                case BOTTOM:
+                    ray_casts.at(BOTTOMLEFT).doRayCast(s, b);
+                    if (!ray_casts.at(BOTTOMLEFT).hit) break;
+
+                    hit_worldpoint = this->hit_point(ray_casts.at(BOTTOMLEFT));
+                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+
+                    ray_casts.at(BOTTOMRIGHT).doRayCast(s, b);
+                    hit_worldpoint = this->hit_point(ray_casts.at(BOTTOMRIGHT));
+                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    break;
+                default:
+                    fprintf(stderr, "Line clear side %u not defined\n", side);
+                    break;
+                }
+
+                //validate points: if invalid, continue to next shape. this shape is just getting destroyed.
+                int new_count = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
+                //printf("Trimming points: %ld --> %d\n", new_points.size(), new_count);
+                if (!(this->poly_area(&new_points[0], new_count) > 0)){
+                    //printf("Portion of shape outside line cut was too small, discarding\n");
+                    continue;
+                }
+
+                //printf("Portion of shape outside line cut IS valid\n");
+
+                //if they ARE valid:
+                //make new shape with new points
+                b2PolygonShape new_shape;
+                new_shape.Set(&new_points[0], new_count);
+                shapes_to_make.push_back(new_shape);
+
+            } //end loop though both sides
+
+            //remove original shape (later)
+            fixtures_to_destroy.push_back(f);
+
+            //add it to the current body (later)
+
+
+        } //end shape cutting loop
+
+        for (b2Fixture* f : fixtures_to_destroy){
+            b->DestroyFixture(f);
+        }
+
+        b2FixtureDef f_def = this->tetrisFixtures.at(0).at(0);
+        for (b2PolygonShape s : shapes_to_make){
+            /*printf("Adding shape to new body:\n");
+            for (uint i = 0; i < s.m_count; i++){
+                printf("\t%s\n", this->b2Vec2String(b->GetWorldPoint(s.m_vertices[i])).toUtf8().constData());
+            }*/
+            f_def.shape = &s;
+            b->CreateFixture(&f_def);
+        }
+
+    }//end body reshape loop
+
+
+
+    //(Now all bodies have been cut, but are still one rigid body each. they need to be split)
+    std::vector<b2Body*> bodies_to_destroy;
+    for (b2Body* b : affected_bodies){
+        //each vector in shape_groups represents a number of shapes that are touching,
+        //directly or indirectly via each other
+        std::vector<std::vector<b2PolygonShape*>> shape_groups;
+
+        //transform doesnt matter when testing overlaps because all these shapes are part of one body to start
+        b2Transform t;
+        t.SetIdentity();
+
+        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+            bool found_touch = false;
+            for (uint g = 0; g < shape_groups.size(); g++){
+
+                for (b2PolygonShape* vs : shape_groups.at(g)){
+
+                    //if shape is touching vshape
+                    if (b2TestOverlap(s, 0, vs, 0, t, t)){
+                        //add shape to vector(v)
+                        shape_groups.at(g).push_back(s);
+                        found_touch = true;
+                        break;
+                    }
+                }
+                if (found_touch) break;
+            }
+            //if shape wasn't touching any other shapes in the vector
+            if (!found_touch){
+                //add shape to its own svector, add that svector to the vector
+                std::vector<b2PolygonShape*> new_group;
+                new_group.push_back(s);
+                shape_groups.push_back(new_group);
+            }
+        } //end shape grouping looping
+
+        b2BodyDef new_body_def = this->tetrisBodyDef;
+        new_body_def.angle = b->GetAngle();
+
+        for (std::vector<b2PolygonShape*> group : shape_groups){
+
+            //make new body
+            new_body_def.position = b->GetPosition();
+            b2Body* new_body = this->world->CreateBody(&new_body_def);
+
+            b2FixtureDef fixture_def = this->tetrisFixtures.at(0).at(0);
+
+            //add shapes in svector to body
+            for (b2PolygonShape* s : group){
+                fixture_def.shape = s;
+                new_body->CreateFixture(&fixture_def);
+            }
+        }
+
+        //delete original body (later)
+        bodies_to_destroy.push_back(b);
+
+    } //end body separation loop
+
+    for (b2Body* b : bodies_to_destroy){
+        this->world->DestroyBody(b);
+    }
+
+    fflush(stdout);
+}
+
+QString NT3Game::b2Vec2String(b2Vec2 vec){
+    return QString("(%1, %2)").arg(vec.x).arg(vec.y);
+}
+
+b2Vec2 NT3Game::centerPoint(b2Vec2* points, int count){
+    b2Vec2 ans;
+    ans.SetZero();
+    for (int i = 0; i < count; i++){
+        ans += points[i];
+    }
+    ans *= 1.0f/count;
+    return ans;
+}
+
+std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     std::vector<rayCastComplete> ray_casts;
+
     for (uint8 r = 0; r < num_ray_casts; r++){
         rayCastComplete ray_cast;
         ray_casts.push_back(ray_cast);
@@ -552,6 +820,15 @@ float32 NT3Game::getRowDensity(uint row){
         } //end ray cast switch statement
     } //end ray cast init
 
+    return ray_casts;
+}
+
+float32 NT3Game::getRowDensity(uint row){
+    float32 bot = row*this->side_length;
+    float32 top = (row+1)*this->side_length;
+
+    std::vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
+
     float32 total_area = 0;
 
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
@@ -566,19 +843,18 @@ float32 NT3Game::getRowDensity(uint row){
             this->body_density_contributions.at(row).remove(b);
         }
 
-        b2Transform t;
-        t.Set(b->GetPosition(), b->GetAngle());
-
         float32 body_area = 0;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
 
             for (uint8 r = 0; r < num_ray_casts; r++){
-                ray_casts.at(r).hit = s->RayCast(&ray_casts.at(r).output, ray_casts.at(r).input, t, 0);
+                ray_casts.at(r).doRayCast(s, b);
             }
 
+            bool inside_row = false;
             if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
+                inside_row = true;
 
                 std::vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
@@ -590,13 +866,17 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (ray_casts.at(TOPLEFT).hit){
-                    new_points.push_back(this->hit_point(ray_casts.at(TOPLEFT)));
-                    new_points.push_back(this->hit_point(ray_casts.at(TOPRIGHT)));
+                    b2Vec2 topleft_hit = this->hit_point(ray_casts.at(TOPLEFT));
+                    b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
+                    new_points.push_back(topleft_hit);
+                    new_points.push_back(topright_hit);
                 }
 
                 if (ray_casts.at(BOTTOMLEFT).hit){
-                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMLEFT)));
-                    new_points.push_back(this->hit_point(ray_casts.at(BOTTOMRIGHT)));
+                    b2Vec2 bottomleft_hit = this->hit_point(ray_casts.at(BOTTOMLEFT));
+                    b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
+                    new_points.push_back(bottomleft_hit);
+                    new_points.push_back(bottomright_hit);
                 }
 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
@@ -604,15 +884,21 @@ float32 NT3Game::getRowDensity(uint row){
                 body_area += area;
 
             } else { //If NEITHER of the ray casts hit
+
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
                 if (p.y > top && p.y < bot){
                     float32 area = this->poly_area(s->m_vertices, s->m_count);
                     body_area += area;
+                    inside_row = true;
                 }
+
             } //end neither ray cast hit
+
         } //end fixture loop
+
         this->body_density_contributions.at(row).insert(b, body_area);
         total_area += body_area;
+
     } //end body loop
 
     //Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
@@ -667,6 +953,7 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     float32 x0 = ps[0].x;
     for (int32 i = 1; i < n; ++i){
         float32 x = ps[i].x;
+        //TODO: How do i get around this warning?
         if (x > x0 || (x == x0 && ps[i].y < ps[i0].y)){
             i0 = i;
             x0 = x;
