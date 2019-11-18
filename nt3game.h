@@ -133,45 +133,55 @@ struct tetrisPieceData{
 class NT3Game : public OpenGL2DWindow
 {
 public:
+
+    //constructor/destructor
     explicit NT3Game();
     ~NT3Game() override;
 
 
+    //graphics
     void render(QPainter& painter) override;
-
-
-    void doGameStep() override;
-
-    bool isAWall(b2Body* b);
 
     void drawBodyTo(QPainter* painter, b2Body *body);
 
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
 
+
+    //game logic
+    void doGameStep() override;
+
+
+    //calculating/removing rows
+    float32 getRowDensity(uint row);
+
+    void clearRow(uint row);
+
+    std::vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
+
+    b2Vec2 hit_point(rayCastComplete ray_cast);
+
+    float32 poly_area(b2Vec2* vertices, int count);
+
+
+    //adding new pieces
+    void makeNewTetrisPiece();
+
+
+    //utilities
+    bool isAWall(b2Body* b);
+
+    QString b2Vec2String(b2Vec2 vec);
+
+
+    //initialization functions
     void initializeTetrisPieceDefs();
 
     void initializeTetrisPieceImages();
 
     void initializeWalls();
 
-    void makeNewTetrisPiece();
-
-    void clearRow(uint row);
-
-    b2Vec2 centerPoint(b2Vec2* points, int count);
-
-    float32 getRowDensity(uint row);
-
-    b2Vec2 hit_point(rayCastComplete ray_cast);
-
-    float32 poly_area(b2Vec2* vertices, int count);
-
-    std::vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
-
-    QString b2Vec2String(b2Vec2 vec);
-
     void init_BDC();
-
+    //end functions
 
     //constants
     const int millis_per_second = 1000;

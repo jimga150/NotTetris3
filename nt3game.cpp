@@ -118,6 +118,7 @@ NT3Game::~NT3Game()
     if (this->contactlistener) delete contactlistener;
 }
 
+
 void NT3Game::resizeEvent(QResizeEvent* event){
     QSize newSize = event->size();
     int width = newSize.width();
@@ -149,6 +150,156 @@ void NT3Game::resizeEvent(QResizeEvent* event){
         this->resize(this->scaled_ui_field.width(), this->scaled_ui_field.height());
     }
 }
+
+void NT3Game::render(QPainter& painter)
+{
+    if (this->freeze_frame){
+        painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
+        return;
+    }
+
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
+
+    painter.setPen(Qt::SolidLine);
+    painter.setPen(this->debug_line_color);
+    painter.setBrush(Qt::NoBrush);
+
+    painter.drawText(QPointF(3*this->graphicsscale, 10*this->graphicsscale), QString::number(this->last_frame));
+
+    //printf("New frame:\n");
+    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        if (!this->isAWall(b)/* && b->IsAwake()*/){
+            //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
+            //this->drawTetrisPiece(&painter, b);
+        }
+        this->drawBodyTo(&painter, b, true);
+    }
+
+    painter.setPen(Qt::NoPen);
+
+    for (uint r = 0; r < this->tetris_rows; r++){
+        double height = static_cast<double>(this->side_length)*this->graphicsscale;
+        double top = height*r;
+
+        double fill_fraction = static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold);
+        //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
+        fill_fraction = qMin(fill_fraction, 1.0);
+        double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
+
+        QRectF status_box(0, top, width, height);
+
+        int grey = static_cast<int>((1-fill_fraction)*255);
+        painter.setBrush(QColor(grey, grey, grey));
+
+        painter.drawRect(status_box);
+    }
+}
+
+void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
+
+    painter->save();
+    painter->translate(
+                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
+                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
+                );
+
+    if (debug){
+        QPoint point(0, 0);
+        QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
+        //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
+        painter->drawText(point, ptrStr);
+        //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
+    }
+
+    painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
+
+    for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
+        switch(f->GetType()){
+        case b2Shape::e_polygon:{
+            b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
+            int numpoints = shape.m_count;
+            std::vector<QPointF> points;
+            for (int i = 0; i < numpoints; i++){
+                points.push_back(
+                            QPointF(
+                                static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
+                                static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                                )
+                            );
+                //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
+            }
+            painter->drawPolygon(&points[0], numpoints);
+
+        }
+            break;
+        case b2Shape::e_circle:{
+            b2CircleShape shape = *static_cast<b2CircleShape*>(f->GetShape());
+            QPointF center(
+                        static_cast<double>(shape.m_p.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_p.y)*this->graphicsscale
+                        );
+            double radius = static_cast<double>(shape.m_radius);
+            radius *= this->graphicsscale;
+            painter->drawEllipse(center, radius, radius);
+        }
+            break;
+        case b2Shape::e_edge:{
+            b2EdgeShape shape = *static_cast<b2EdgeShape*>(f->GetShape());
+            QPointF p1 = QPointF(
+                        static_cast<double>(shape.m_vertex1.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_vertex1.y)*this->graphicsscale
+                        );
+            QPointF p2 = QPointF(
+                        static_cast<double>(shape.m_vertex2.x)*this->graphicsscale,
+                        static_cast<double>(shape.m_vertex2.y)*this->graphicsscale
+                        );
+            painter->drawLine(p1, p2);
+        }
+            break;
+        case b2Shape::e_chain:{
+            b2ChainShape shape = *static_cast<b2ChainShape*>(f->GetShape());
+            QPainterPath path;
+            path.moveTo(
+                        static_cast<double>(shape.m_vertices[0].x),
+                    static_cast<double>(shape.m_vertices[0].y) //I HATE this indentation. Why, Qt?
+                    );
+            for (int i = 1; i < shape.m_count; i++){
+                path.lineTo(
+                            static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
+                            static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                            );
+            }
+            painter->drawPath(path);
+        }
+            break;
+        default:
+            fprintf(stderr, "Fixture in body has undefined shape type!\n");
+            return;
+        }
+    }
+    painter->restore();
+}
+
+void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
+
+    tetris_piece_enum type = static_cast<tetrisPieceData*>(piece_body->GetUserData())->type;
+
+    painter->save();
+
+    painter->translate(
+                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->graphicsscale,
+                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->graphicsscale
+                );
+    painter->scale(this->graphicsscale, this->graphicsscale);
+    painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
+
+    painter->drawPixmap(this->piece_rects.at(type), this->piece_images.at(type));
+
+    painter->restore();
+}
+
 
 void NT3Game::keyPressEvent(QKeyEvent* ev){
     //printf("Key pressed: %s\n", ev->text().toUtf8().constData());
@@ -271,59 +422,6 @@ void NT3Game::keyReleaseEvent(QKeyEvent* ev){
     }
 }
 
-void NT3Game::render(QPainter& painter)
-{
-    if (this->freeze_frame){
-        painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
-        return;
-    }
-
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
-
-    painter.setPen(Qt::SolidLine);
-    painter.setPen(this->debug_line_color);
-    painter.setBrush(Qt::NoBrush);
-
-    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (!this->isAWall(b)/* && b->IsAwake()*/){
-            //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
-            this->drawTetrisPiece(&painter, b);
-        }
-        //this->drawBodyTo(&painter, b);
-    }
-
-    painter.setPen(Qt::NoPen);
-
-    for (uint r = 0; r < this->tetris_rows; r++){
-        double height = static_cast<double>(this->side_length)*this->graphicsscale;
-        double top = height*r;
-
-        double fill_fraction = static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold);
-        //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
-        fill_fraction = qMin(fill_fraction, 1.0);
-        double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
-
-        QRectF status_box(0, top, width, height);
-
-        int grey = static_cast<int>((1-fill_fraction)*255);
-        painter.setBrush(QColor(grey, grey, grey));
-
-        painter.drawRect(status_box);
-    }
-}
-
-bool NT3Game::isAWall(b2Body* b){
-    for (uint i = 0; i < num_walls; i++){
-        if (b == this->walls[i]){
-            return true;
-        }
-    }
-    return false;
-}
-
-
 void NT3Game::doGameStep(){
 
     if (this->freeze_frame){
@@ -418,118 +516,85 @@ void NT3Game::doGameStep(){
     }
 }
 
-void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
-    painter->save();
-    painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
-                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
-                );
-    painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
+float32 NT3Game::getRowDensity(uint row){
+    float32 bot = row*this->side_length;
+    float32 top = (row+1)*this->side_length;
 
-    for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
-        switch(f->GetType()){
-        case b2Shape::e_polygon:{
-            b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
-            int numpoints = shape.m_count;
-            std::vector<QPointF> points;
-            for (int i = 0; i < numpoints; i++){
-                points.push_back(
-                            QPointF(
-                                static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
-                                static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
-                                )
-                            );
-                //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
+    std::vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
+
+    float32 total_area = 0;
+
+    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        if (this->isAWall(b)) continue;
+        if (b == this->currentPiece) continue;
+
+        if (this->body_density_contributions.at(row).contains(b)){
+            if (!b->IsAwake()){
+                total_area += this->body_density_contributions.at(row).value(b);
+                continue;
             }
-            painter->drawPolygon(&points[0], numpoints);
+            this->body_density_contributions.at(row).remove(b);
+        }
 
-        }
-            break;
-        case b2Shape::e_circle:{
-            b2CircleShape shape = *static_cast<b2CircleShape*>(f->GetShape());
-            QPointF center(
-                        static_cast<double>(shape.m_p.x)*this->graphicsscale,
-                        static_cast<double>(shape.m_p.y)*this->graphicsscale
-                        );
-            double radius = static_cast<double>(shape.m_radius);
-            radius *= this->graphicsscale;
-            painter->drawEllipse(center, radius, radius);
-        }
-            break;
-        case b2Shape::e_edge:{
-            b2EdgeShape shape = *static_cast<b2EdgeShape*>(f->GetShape());
-            QPointF p1 = QPointF(
-                        static_cast<double>(shape.m_vertex1.x)*this->graphicsscale,
-                        static_cast<double>(shape.m_vertex1.y)*this->graphicsscale
-                        );
-            QPointF p2 = QPointF(
-                        static_cast<double>(shape.m_vertex2.x)*this->graphicsscale,
-                        static_cast<double>(shape.m_vertex2.y)*this->graphicsscale
-                        );
-            painter->drawLine(p1, p2);
-        }
-            break;
-        case b2Shape::e_chain:{
-            b2ChainShape shape = *static_cast<b2ChainShape*>(f->GetShape());
-            QPainterPath path;
-            path.moveTo(
-                        static_cast<double>(shape.m_vertices[0].x),
-                    static_cast<double>(shape.m_vertices[0].y) //I HATE this indentation. Why, Qt?
-                    );
-            for (int i = 1; i < shape.m_count; i++){
-                path.lineTo(
-                            static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
-                            static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
-                            );
+        float32 body_area = 0;
+        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+            for (uint8 r = 0; r < num_ray_casts; r++){
+                ray_casts.at(r).doRayCast(s, b);
             }
-            painter->drawPath(path);
-        }
-            break;
-        default:
-            fprintf(stderr, "Fixture in body has undefined shape type!\n");
-            return;
-        }
-    }
-    painter->restore();
-}
 
-void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
+            if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
+                std::vector<b2Vec2> new_points;
 
-    tetris_piece_enum type = static_cast<tetrisPieceData*>(piece_body->GetUserData())->type;
+                for (int i = 0; i < s->m_count; i++){
 
-    painter->save();
+                    b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
+                    if (p.y <= top && p.y >= bot){
+                        new_points.push_back(p);
+                    }
 
-    painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->graphicsscale,
-                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->graphicsscale
-                );
-    painter->scale(this->graphicsscale, this->graphicsscale);
-    painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
+                }
 
-    painter->drawPixmap(this->piece_rects.at(type), this->piece_images.at(type));
+                if (ray_casts.at(TOPLEFT).hit){
+                    b2Vec2 topleft_hit = this->hit_point(ray_casts.at(TOPLEFT));
+                    b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
+                    new_points.push_back(topleft_hit);
+                    new_points.push_back(topright_hit);
+                }
 
-    painter->restore();
-}
+                if (ray_casts.at(BOTTOMLEFT).hit){
+                    b2Vec2 bottomleft_hit = this->hit_point(ray_casts.at(BOTTOMLEFT));
+                    b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
+                    new_points.push_back(bottomleft_hit);
+                    new_points.push_back(bottomright_hit);
+                }
 
-void NT3Game::makeNewTetrisPiece(){
+                int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
+                float32 area = this->poly_area(&new_points[0], num_vertices);
+                body_area += area;
 
-    tetrisPieceData* data = new tetrisPieceData;
-    data->type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+            } else { //If NEITHER of the ray casts hit
 
-    this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
+                b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
+                if (p.y <= top && p.y >= bot){
+                    float32 area = this->poly_area(s->m_vertices, s->m_count);
+                    body_area += area;
+                }
 
-    for (b2FixtureDef f : this->tetrisFixtures.at(data->type)){
-        this->currentPiece->CreateFixture(&f);
-    }
+            } //end neither ray cast hit
 
-    this->contactlistener->currentPiece = this->currentPiece;
-    this->currentPiece->SetUserData(data);
+        } //end fixture loop
 
-    this->currentPiece->SetGravityScale(0);
-    this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
-    this->currentPiece->SetAngularVelocity(0);
-    this->currentPiece->SetLinearDamping(0);
+        this->body_density_contributions.at(row).insert(b, body_area);
+        total_area += body_area;
+
+    } //end body loop
+
+    //Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
+    return total_area;
 }
 
 void NT3Game::clearRow(uint row){
@@ -772,20 +837,6 @@ void NT3Game::clearRow(uint row){
     fflush(stdout);
 }
 
-QString NT3Game::b2Vec2String(b2Vec2 vec){
-    return QString("(%1, %2)").arg(vec.x).arg(vec.y);
-}
-
-b2Vec2 NT3Game::centerPoint(b2Vec2* points, int count){
-    b2Vec2 ans;
-    ans.SetZero();
-    for (int i = 0; i < count; i++){
-        ans += points[i];
-    }
-    ans *= 1.0f/count;
-    return ans;
-}
-
 std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     std::vector<rayCastComplete> ray_casts;
 
@@ -817,86 +868,6 @@ std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     } //end ray cast init
 
     return ray_casts;
-}
-
-float32 NT3Game::getRowDensity(uint row){
-    float32 bot = row*this->side_length;
-    float32 top = (row+1)*this->side_length;
-
-    std::vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
-
-    float32 total_area = 0;
-
-    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (this->isAWall(b)) continue;
-        if (b == this->currentPiece) continue;
-
-        if (this->body_density_contributions.at(row).contains(b)){
-            if (!b->IsAwake()){
-                total_area += this->body_density_contributions.at(row).value(b);
-                continue;
-            }
-            this->body_density_contributions.at(row).remove(b);
-        }
-
-        float32 body_area = 0;
-        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
-            Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
-            b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
-
-            for (uint8 r = 0; r < num_ray_casts; r++){
-                ray_casts.at(r).doRayCast(s, b);
-            }
-
-            if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
-                std::vector<b2Vec2> new_points;
-
-                for (int i = 0; i < s->m_count; i++){
-
-                    b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
-                    if (p.y <= top && p.y >= bot){
-                        new_points.push_back(p);
-                    }
-
-                }
-
-                if (ray_casts.at(TOPLEFT).hit){
-                    b2Vec2 topleft_hit = this->hit_point(ray_casts.at(TOPLEFT));
-                    b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
-                    new_points.push_back(topleft_hit);
-                    new_points.push_back(topright_hit);
-                }
-
-                if (ray_casts.at(BOTTOMLEFT).hit){
-                    b2Vec2 bottomleft_hit = this->hit_point(ray_casts.at(BOTTOMLEFT));
-                    b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
-                    new_points.push_back(bottomleft_hit);
-                    new_points.push_back(bottomright_hit);
-                }
-
-                int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
-                float32 area = this->poly_area(&new_points[0], num_vertices);
-                body_area += area;
-
-            } else { //If NEITHER of the ray casts hit
-
-                b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
-                if (p.y <= top && p.y >= bot){
-                    float32 area = this->poly_area(s->m_vertices, s->m_count);
-                    body_area += area;
-                }
-
-            } //end neither ray cast hit
-
-        } //end fixture loop
-
-        this->body_density_contributions.at(row).insert(b, body_area);
-        total_area += body_area;
-
-    } //end body loop
-
-    //Q_ASSERT(total_area/this->side_length <= this->tetris_field.width());
-    return total_area;
 }
 
 b2Vec2 NT3Game::hit_point(rayCastComplete ray_cast){
@@ -1042,6 +1013,42 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     //printf("area <= %f\n", b2_epsilon);
     return 0;
 }
+
+
+void NT3Game::makeNewTetrisPiece(){
+
+    tetrisPieceData* data = new tetrisPieceData;
+    data->type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+
+    this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
+
+    for (b2FixtureDef f : this->tetrisFixtures.at(data->type)){
+        this->currentPiece->CreateFixture(&f);
+    }
+
+    this->contactlistener->currentPiece = this->currentPiece;
+    this->currentPiece->SetUserData(data);
+
+    this->currentPiece->SetGravityScale(0);
+    this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
+    this->currentPiece->SetAngularVelocity(0);
+    this->currentPiece->SetLinearDamping(0);
+}
+
+
+bool NT3Game::isAWall(b2Body* b){
+    for (uint i = 0; i < num_walls; i++){
+        if (b == this->walls[i]){
+            return true;
+        }
+    }
+    return false;
+}
+
+QString NT3Game::b2Vec2String(b2Vec2 vec){
+    return QString("(%1, %2)").arg(vec.x).arg(vec.y);
+}
+
 
 void NT3Game::initializeTetrisPieceDefs(){
 
