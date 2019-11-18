@@ -170,6 +170,8 @@ public:
 
     QString b2Vec2String(b2Vec2 vec);
 
+    void init_BDC();
+
 
     //constants
     const int millis_per_second = 1000;

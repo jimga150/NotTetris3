@@ -87,13 +87,7 @@ NT3Game::NT3Game()
     this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 
-    for (uint r = 0; r < this->tetris_rows; r++){
-
-        this->row_densities.push_back(0.0f);
-
-        QHash<b2Body*, float32> bdc;
-        this->body_density_contributions.push_back(bdc);
-    }
+    this->init_BDC();
 
     b2Vec2 gravity(0.0f, this->gravity_g);
     this->world = new b2World(gravity);
@@ -773,6 +767,8 @@ void NT3Game::clearRow(uint row){
         this->world->DestroyBody(b);
     }
 
+    this->init_BDC();
+
     fflush(stdout);
 }
 
@@ -1159,4 +1155,14 @@ void NT3Game::initializeWalls(){
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[RIGHTWALL]->GetFixtureList()->SetFriction(0);
+}
+
+void NT3Game::init_BDC(){
+    for (uint r = 0; r < this->tetris_rows; r++){
+
+        this->row_densities.push_back(0.0f);
+
+        QHash<b2Body*, float32> bdc;
+        this->body_density_contributions.push_back(bdc);
+    }
 }
