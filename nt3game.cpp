@@ -848,17 +848,16 @@ float32 NT3Game::getRowDensity(uint row){
                 ray_casts.at(r).doRayCast(s, b);
             }
 
-            bool inside_row = false;
             if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
-                inside_row = true;
-
                 std::vector<b2Vec2> new_points;
+
                 for (int i = 0; i < s->m_count; i++){
 
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
                     if (p.y <= top && p.y >= bot){
                         new_points.push_back(p);
                     }
+
                 }
 
                 if (ray_casts.at(TOPLEFT).hit){
@@ -882,10 +881,9 @@ float32 NT3Game::getRowDensity(uint row){
             } else { //If NEITHER of the ray casts hit
 
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
-                if (p.y > top && p.y < bot){
+                if (p.y <= top && p.y >= bot){
                     float32 area = this->poly_area(s->m_vertices, s->m_count);
                     body_area += area;
-                    inside_row = true;
                 }
 
             } //end neither ray cast hit
