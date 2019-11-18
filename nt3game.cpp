@@ -917,8 +917,11 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     float32 x0 = ps[0].x;
     for (int32 i = 1; i < n; ++i){
         float32 x = ps[i].x;
-        //TODO: How do i get around this warning?
-        if (x > x0 || (x == x0 && ps[i].y < ps[i0].y)){
+        //removed the x == x0(...) to suppress a warning.
+        //That statement only handles an extreme case (that can be safely ignored)
+        //It is NOT an instance of comparing floating point values for equality
+        //to check an unrelated edge case
+        if (x > x0 /*|| (x == x0 && ps[i].y < ps[i0].y)*/){
             i0 = i;
             x0 = x;
         }
