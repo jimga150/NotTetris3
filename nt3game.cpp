@@ -1045,7 +1045,7 @@ bool NT3Game::isAWall(b2Body* b){
 }
 
 QString NT3Game::b2Vec2String(b2Vec2 vec){
-    return QString("(%1, %2)").arg(vec.x).arg(vec.y);
+    return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
 }
 
 
