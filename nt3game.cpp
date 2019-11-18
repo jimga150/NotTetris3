@@ -80,6 +80,7 @@ NT3Game::NT3Game()
     }
 
     //key-action mappings
+    this->freeze_key = Qt::Key_Space;
     this->accelDownKey = Qt::Key_Down;
     this->rotateStateTable.insert(Qt::Key_Z, ROTATECCW);
     this->rotateStateTable.insert(Qt::Key_X, ROTATECW);
@@ -159,6 +160,15 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
 
     int key = ev->key();
 
+    if (this->freeze_frame){
+        if (key == Qt::Key_Left){ //previous frame
+            this->last_frame--;
+            if (this->last_frame < 0) this->last_frame = NUM_FRAMES_TO_SAVE - 1;
+        } else if (key == Qt::Key_Right){
+            this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
+        }
+    }
+
     if (this->lateralMovementStateTable.contains(key)){
         lateral_movement_state_enum requested_direction = this->lateralMovementStateTable.value(key);
         lateral_movement_state_enum other_direction = requested_direction == MOVERIGHT ? MOVELEFT : MOVERIGHT;
@@ -203,6 +213,13 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
         }
     } else if (key == this->accelDownKey){
         this->accelDownState = true;
+    } else if (key == this->freeze_key){
+
+        this->freeze_frame = !this->freeze_frame;
+
+        this->lateralMovementState = NO_LATERAL_MOVEMENT;
+        this->rotateState = NO_ROTATION;
+        this->accelDownState = false;
     }
 }
 
@@ -260,6 +277,11 @@ void NT3Game::keyReleaseEvent(QKeyEvent* ev){
 
 void NT3Game::render(QPainter& painter)
 {
+    if (this->freeze_frame){
+        painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
+        return;
+    }
+
     painter.setRenderHint(QPainter::Antialiasing);
 
     painter.drawPixmap(0, 0, this->scaled_ui_field.width(), this->scaled_ui_field.height(), this->gamebackground);
@@ -307,6 +329,17 @@ bool NT3Game::isAWall(b2Body* b){
 
 
 void NT3Game::doGameStep(){
+
+    if (this->freeze_frame){
+        return;
+    }
+
+    this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
+    this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
+    QPainter sf_painter(&this->saved_frames[this->last_frame]);
+    this->render(sf_painter);
+    sf_painter.end();
+
     world->Step(static_cast<float32>(this->timeStep), this->velocityIterations, this->positionIterations);
 
     if (this->contactlistener->hasCurrentPieceCollided()){

@@ -58,6 +58,8 @@
 #include "opengl2dwindow.h"
 #include "nt3contactlistener.h"
 
+#define NUM_FRAMES_TO_SAVE 20
+
 enum tetris_piece_enum{
     I = 0, //Long skinny piece
     O, //2x2 square
@@ -164,6 +166,7 @@ public:
     rotate_state_enum rotateState = NO_ROTATION;
     lateral_movement_state_enum lateralMovementState = NO_LATERAL_MOVEMENT;
 
+    int freeze_key;
     int accelDownKey;
     QHash<int, rotate_state_enum> rotateStateTable;
     QHash<int, lateral_movement_state_enum> lateralMovementStateTable;
@@ -263,6 +266,10 @@ public:
 
     std::vector<QPixmap> piece_images;
     std::vector<QRect> piece_rects;
+
+    bool freeze_frame = false;
+    QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
+    int last_frame = 0;
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
