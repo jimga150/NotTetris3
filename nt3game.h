@@ -60,6 +60,12 @@
 
 #define NUM_FRAMES_TO_SAVE 20
 
+#define STD_VECTOR_ACCESS_TRYCATCH(STATEMENT) try { \
+    STATEMENT; \
+    } catch (std::out_of_range e) { \
+    printf("Line %d: vector access failed: %s\n", __LINE__, e.what()); \
+    }
+
 enum tetris_piece_enum{
     I = 0, //Long skinny piece
     O, //2x2 square
