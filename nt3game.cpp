@@ -190,12 +190,10 @@ void NT3Game::render(QPainter& painter)
         fill_fraction = qMin(fill_fraction, 1.0);
         double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
 
-        QRectF status_box(0, top, width, height);
-
         int grey = static_cast<int>((1-fill_fraction)*255);
         painter.setBrush(QColor(grey, grey, grey));
 
-        painter.drawRect(status_box);
+        painter.drawRect(QRectF(0, top, width, height));
     }
 }
 
@@ -208,10 +206,9 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
                 );
 
     if (debug){
-        QPoint point(0, 0);
         QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
         //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-        painter->drawText(point, ptrStr);
+        painter->drawText(QPoint(0, 0), ptrStr);
         //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
     }
 
@@ -801,9 +798,8 @@ void NT3Game::clearRow(uint row){
             //if shape wasn't touching any other shapes in the vector
             if (!found_touch){
                 //add shape to its own svector, add that svector to the vector
-                std::vector<b2PolygonShape*> new_group;
-                new_group.push_back(s);
-                shape_groups.push_back(new_group);
+                shape_groups.push_back(std::vector<b2PolygonShape*>());
+                shape_groups.back().push_back(s);
             }
         } //end shape grouping looping
 
@@ -1061,8 +1057,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
 
     for (uint8 i = 0; i < num_tetris_pieces; i++){
-        std::vector<b2PolygonShape> polyshapevect;
-        this->tetrisShapes.push_back(polyshapevect);
+        this->tetrisShapes.push_back(std::vector<b2PolygonShape>());
     }
 
     b2PolygonShape shape_template;
@@ -1167,10 +1162,7 @@ void NT3Game::initializeWalls(){
 
 void NT3Game::init_BDC(){
     for (uint r = 0; r < this->tetris_rows; r++){
-
         this->row_densities.push_back(0.0f);
-
-        QHash<b2Body*, float32> bdc;
-        this->body_density_contributions.push_back(bdc);
+        this->body_density_contributions.push_back(QHash<b2Body*, float32>());
     }
 }
