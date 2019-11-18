@@ -873,6 +873,7 @@ std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
 }
 
 b2Vec2 NT3Game::hit_point(rayCastComplete ray_cast){
+    Q_ASSERT(ray_cast.hit);
     return ray_cast.input.p1 + ray_cast.output.fraction * (ray_cast.input.p2 - ray_cast.input.p1);
 }
 
