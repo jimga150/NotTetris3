@@ -523,19 +523,23 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (ray_casts.at(TOPLEFT).hit){
-                    Q_ASSERT(ray_casts.at(TOPRIGHT).hit);
                     b2Vec2 topleft_hit = this->hit_point(ray_casts.at(TOPLEFT));
-                    b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
                     new_points.push_back(topleft_hit);
-                    new_points.push_back(topright_hit);
+
+                    if (ray_casts.at(TOPRIGHT).hit){
+                        b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
+                        new_points.push_back(topright_hit);
+                    }
                 }
 
                 if (ray_casts.at(BOTTOMLEFT).hit){
-                    Q_ASSERT(ray_casts.at(BOTTOMRIGHT).hit);
                     b2Vec2 bottomleft_hit = this->hit_point(ray_casts.at(BOTTOMLEFT));
-                    b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
                     new_points.push_back(bottomleft_hit);
-                    new_points.push_back(bottomright_hit);
+
+                    if (ray_casts.at(BOTTOMRIGHT).hit){
+                        b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
+                        new_points.push_back(bottomright_hit);
+                    }
                 }
 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
