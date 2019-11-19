@@ -1157,7 +1157,17 @@ void NT3Game::initializeTetrisPieceImages(){
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
         QPixmap orig_pixmap = QPixmap(path);
-        this->piece_images.push_back(orig_pixmap.scaled(orig_pixmap.size()*this->max_graphics_scale));
+        orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->max_graphics_scale);
+
+        this->piece_images.push_back(QPixmap(orig_pixmap.size()));
+        this->piece_images.back().fill(Qt::transparent);
+
+        QPainter p(&this->piece_images.back());
+        p.drawPixmap(this->piece_images.back().rect(), orig_pixmap);
+        p.end();
+
+        /*printf("%u: orig_pixmap: %u, this->piece_images.back(): %u\n",
+               piece, orig_pixmap.hasAlphaChannel(), this->piece_images.back().hasAlphaChannel());*/
 
         switch(piece){
         case I:
