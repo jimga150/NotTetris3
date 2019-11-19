@@ -181,7 +181,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
         case b2Shape::e_polygon:{
             b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
             int numpoints = shape.m_count;
-            std::vector<QPointF> points;
+            vector<QPointF> points;
             for (int i = 0; i < numpoints; i++){
                 points.push_back(
                             QPointF(
@@ -485,7 +485,7 @@ float32 NT3Game::getRowDensity(uint row){
     float32 bot = row*this->side_length;
     float32 top = (row+1)*this->side_length;
 
-    std::vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
+    vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
 
     float32 total_area = 0;
 
@@ -511,7 +511,7 @@ float32 NT3Game::getRowDensity(uint row){
             }
 
             if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
-                std::vector<b2Vec2> new_points;
+                vector<b2Vec2> new_points;
 
                 for (int i = 0; i < s->m_count; i++){
 
@@ -563,7 +563,7 @@ float32 NT3Game::getRowDensity(uint row){
 
 void NT3Game::clearRow(uint row){
 
-    std::vector<float32> sides;
+    vector<float32> sides;
     for (uint i = 0; i < num_line_cut_sides; i++){
         switch(i){
         case TOP:
@@ -578,11 +578,11 @@ void NT3Game::clearRow(uint row){
         }
     }
 
-    std::vector<rayCastComplete> ray_casts = this->getRayCasts(sides.at(TOP), sides.at(BOTTOM));
+    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.at(TOP), sides.at(BOTTOM));
 
     //make list of bodies affected by this row clear
     //for top and bottom lines:
-    std::vector<b2Body*> affected_bodies;
+    vector<b2Body*> affected_bodies;
 
     //find all bodies with shapes that cross the line
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
@@ -608,8 +608,8 @@ void NT3Game::clearRow(uint row){
         if (!affected) continue;
 
         //for shapes in those bodies:
-        std::vector<b2Fixture*> fixtures_to_destroy;
-        std::vector<b2PolygonShape> shapes_to_make;
+        vector<b2Fixture*> fixtures_to_destroy;
+        vector<b2PolygonShape> shapes_to_make;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             //printf("New Fixture\n");
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
@@ -629,7 +629,7 @@ void NT3Game::clearRow(uint row){
                 }*/
 
                 //get list of points on outside of row clear
-                std::vector<b2Vec2> new_points;
+                vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
                     bool outside;
@@ -731,11 +731,11 @@ void NT3Game::clearRow(uint row){
 
 
     //(Now all bodies have been cut, but are still one rigid body each. they need to be split)
-    std::vector<b2Body*> bodies_to_destroy;
+    vector<b2Body*> bodies_to_destroy;
     for (b2Body* b : affected_bodies){
         //each vector in shape_groups represents a number of shapes that are touching,
         //directly or indirectly via each other
-        std::vector<std::vector<b2PolygonShape*>> shape_groups;
+        vector<vector<b2PolygonShape*>> shape_groups;
 
         //transform doesnt matter when testing overlaps because all these shapes are part of one body to start
         b2Transform t;
@@ -763,7 +763,7 @@ void NT3Game::clearRow(uint row){
             //if shape wasn't touching any other shapes in the vector
             if (!found_touch){
                 //add shape to its own svector, add that svector to the vector
-                shape_groups.push_back(std::vector<b2PolygonShape*>());
+                shape_groups.push_back(vector<b2PolygonShape*>());
                 shape_groups.back().push_back(s);
             }
         } //end shape grouping looping
@@ -771,7 +771,7 @@ void NT3Game::clearRow(uint row){
         b2BodyDef new_body_def = this->tetrisBodyDef;
         new_body_def.angle = b->GetAngle();
 
-        for (std::vector<b2PolygonShape*> group : shape_groups){
+        for (vector<b2PolygonShape*> group : shape_groups){
 
             //make new body
             new_body_def.position = b->GetPosition();
@@ -807,8 +807,12 @@ void NT3Game::clearRow(uint row){
     //fflush(stdout);
 }
 
-std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
-    std::vector<rayCastComplete> ray_casts;
+QPixmap NT3Game::maskImage(QPixmap image, b2Body* b){
+
+}
+
+vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
+    vector<rayCastComplete> ray_casts;
 
     for (uint8 r = 0; r < num_ray_casts; r++){
         rayCastComplete ray_cast;
@@ -1041,7 +1045,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
 
     for (uint8 i = 0; i < num_tetris_pieces; i++){
-        this->tetrisShapes.push_back(std::vector<b2PolygonShape>());
+        this->tetrisShapes.push_back(vector<b2PolygonShape>());
     }
 
     b2PolygonShape shape_template;
@@ -1078,7 +1082,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisShapes.at(T).at(1).SetAsBox(this->side_length/2, this->side_length/2, b2Vec2(0, this->side_length), 0);
 
     b2FixtureDef fixture_template;
-    std::vector<b2FixtureDef> fixture_vector_template;
+    vector<b2FixtureDef> fixture_vector_template;
     for (uint32 t = 0; t < this->tetrisShapes.size(); t++){
         this->tetrisFixtures.push_back(fixture_vector_template);
         for (uint32 s = 0; s < this->max_shapes_per_piece; s++){

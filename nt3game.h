@@ -16,6 +16,8 @@
     printf("Line %d: vector access failed: %s\n", __LINE__, e.what()); \
     }
 
+using namespace std;
+
 enum tetris_piece_enum{
     I = 0, //Long skinny piece
     O, //2x2 square
@@ -122,7 +124,9 @@ public:
 
     void clearRow(uint row);
 
-    std::vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
+    QPixmap maskImage(QPixmap image, b2Body* b);
+
+    vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
 
     b2Vec2 hit_point(rayCastComplete ray_cast);
 
@@ -188,20 +192,20 @@ public:
 
     //Box2d data
     b2BodyDef tetrisBodyDef;
-    std::vector<std::vector<b2FixtureDef>> tetrisFixtures;
-    std::vector<std::vector<b2PolygonShape>> tetrisShapes;
+    vector<vector<b2FixtureDef>> tetrisFixtures;
+    vector<vector<b2PolygonShape>> tetrisShapes;
 
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
-    std::vector<b2Body*> bodies;
+    vector<b2Body*> bodies;
 
     b2Body* walls[num_walls];
 
     b2Body* currentPiece = nullptr;
 
     //Index: Row box # (up to tetris_rows-1)
-    std::vector<float32> row_densities;
-    std::vector<QHash<b2Body*, float32>> body_density_contributions;
+    vector<float32> row_densities;
+    vector<QHash<b2Body*, float32>> body_density_contributions;
 
 
     //physical properties of graphics and world
@@ -275,8 +279,8 @@ public:
     QString gameafield_path = ":/resources/graphics/gameafield.png";
     QPixmap gameafield = QPixmap(gameafield_path);
 
-    std::vector<QPixmap> piece_images;
-    std::vector<QRect> piece_rects;
+    vector<QPixmap> piece_images;
+    vector<QRect> piece_rects;
 
     QPixmap default_piece_image;
     QRect default_piece_rect;
