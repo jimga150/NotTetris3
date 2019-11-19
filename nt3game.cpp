@@ -880,26 +880,29 @@ QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
 vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     vector<rayCastComplete> ray_casts;
 
+    float32 left = -this->side_length;
+    float32 right = this->tetris_field.width() + this->side_length;
+
     for (uint8 r = 0; r < num_ray_casts; r++){
         rayCastComplete ray_cast;
         ray_casts.push_back(ray_cast);
         ray_casts.at(r).input.maxFraction = 1;
         switch(r){
         case TOPLEFT:
-            ray_casts.at(r).input.p1.Set(0, top);
-            ray_casts.at(r).input.p2.Set(this->tetris_field.width(), top);
+            ray_casts.at(r).input.p1.Set(left, top);
+            ray_casts.at(r).input.p2.Set(right, top);
             break;
         case TOPRIGHT:
-            ray_casts.at(r).input.p1.Set(this->tetris_field.width(), top);
-            ray_casts.at(r).input.p2.Set(0, top);
+            ray_casts.at(r).input.p1.Set(right, top);
+            ray_casts.at(r).input.p2.Set(left, top);
             break;
         case BOTTOMLEFT:
-            ray_casts.at(r).input.p1.Set(0, bot);
-            ray_casts.at(r).input.p2.Set(this->tetris_field.width(), bot);
+            ray_casts.at(r).input.p1.Set(left, bot);
+            ray_casts.at(r).input.p2.Set(right, bot);
             break;
         case BOTTOMRIGHT:
-            ray_casts.at(r).input.p1.Set(this->tetris_field.width(), bot);
-            ray_casts.at(r).input.p2.Set(0, bot);
+            ray_casts.at(r).input.p1.Set(right, bot);
+            ray_casts.at(r).input.p2.Set(left, bot);
             break;
         default:
             fprintf(stderr, "Ray cast enum not defined\n");
