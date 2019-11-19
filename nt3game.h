@@ -157,7 +157,7 @@ public:
 
 
     //debug
-    bool debug_graphics = true;
+    bool debug_graphics = false;
 
 
     //constants
