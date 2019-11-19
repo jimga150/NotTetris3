@@ -138,7 +138,7 @@ void NT3Game::render(QPainter& painter)
             //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
             this->drawTetrisPiece(&painter, b);
         }
-        this->drawBodyTo(&painter, b, this->debug_graphics);
+        //this->drawBodyTo(&painter, b, this->debug_graphics);
     }
 
     painter.setPen(Qt::NoPen);
