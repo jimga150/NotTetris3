@@ -223,6 +223,10 @@ public:
     const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
 
     const double min_graphics_scale = 1;
+
+    const double mgs_factor = 2;
+    double max_graphics_scale = 10;
+
     double graphicsscale = 1;
 
     float32 piece_start_y = -side_length/2;

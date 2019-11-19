@@ -17,9 +17,16 @@ NT3Game::NT3Game()
     int screen_height = screenRect.height();
 
     if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
+
+        this->max_graphics_scale = this->mgs_factor*(screen_height*1.0/this->ui_field.height());
+
         int window_width = static_cast<int>(screen_height*this->aspect_ratio);
         this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+
     } else { //screen is relatively taller than app, or it's the same ratio
+
+        this->max_graphics_scale = this->mgs_factor*(screen_width*1.0/this->ui_field.width());
+
         int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
         this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
@@ -797,7 +804,7 @@ void NT3Game::clearRow(uint row){
 
     this->init_BDC();
 
-    fflush(stdout);
+    //fflush(stdout);
 }
 
 std::vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
@@ -986,12 +993,11 @@ void NT3Game::makeNewTetrisPiece(){
     tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
 
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
+    this->contactlistener->currentPiece = this->currentPiece;
 
     for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
     }
-
-    this->contactlistener->currentPiece = this->currentPiece;
 
     tetrisPieceData* data = new tetrisPieceData;
     data->image = this->piece_images.at(type);
@@ -1090,7 +1096,8 @@ void NT3Game::initializeTetrisPieceImages(){
     int side_length = static_cast<int>(this->side_length);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
-        this->piece_images.push_back(QPixmap(path));
+        QPixmap orig_pixmap = QPixmap(path);
+        this->piece_images.push_back(orig_pixmap.scaled(orig_pixmap.size()*this->max_graphics_scale));
 
         switch(piece){
         case I:
