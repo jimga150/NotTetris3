@@ -917,11 +917,10 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     float32 x0 = ps[0].x;
     for (int32 i = 1; i < n; ++i){
         float32 x = ps[i].x;
-        //removed the x == x0(...) to suppress a warning.
-        //That statement only handles an extreme case (that can be safely ignored)
-        //It is NOT an instance of comparing floating point values for equality
-        //to check an unrelated edge case
-        if (x > x0 /*|| (x == x0 && ps[i].y < ps[i0].y)*/){
+        // In most compiliers, x == x0 will generat a warning regarding comparing floating point values with ==.
+        //This warning may be safely ignored because this is a case that lies
+        //outside the typical mistakes of programmers using floating point.
+        if (x > x0 || (x == x0 && ps[i].y < ps[i0].y)){
             i0 = i;
             x0 = x;
         }
