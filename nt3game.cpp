@@ -567,10 +567,10 @@ void NT3Game::clearRow(uint row){
     for (uint i = 0; i < num_line_cut_sides; i++){
         switch(i){
         case TOP:
-            sides.push_back((row+1)*this->side_length);
+            sides.push_back((row+1)*this->side_length + numeric_limits<float32>::epsilon());
             break;
         case BOTTOM:
-            sides.push_back(row*this->side_length);
+            sides.push_back(row*this->side_length - numeric_limits<float32>::epsilon());
             break;
         default:
             fprintf(stderr, "Line clear side %u not defined\n", i);
@@ -999,7 +999,7 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 
     if (m < 3){
         //printf("Polygon is degenerate (2nd check).\n");
-        return 0 ;
+        return 0;
     }
 
     // Copy vertices.
@@ -1040,7 +1040,7 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
     }
 
     // Centroid
-    if (area > b2_epsilon){
+    if (area > this->min_poly_area){
         return area;
     }
     //printf("area <= %f\n", b2_epsilon);

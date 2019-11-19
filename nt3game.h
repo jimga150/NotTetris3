@@ -163,6 +163,7 @@ public:
     //constants
     const int millis_per_second = 1000;
     const double rad_to_deg = 180.0/M_PI;
+    const float32 min_poly_area = 0.75f;
 
 
     //calculated timings
