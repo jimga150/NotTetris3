@@ -124,7 +124,7 @@ public:
 
     void clearRow(uint row);
 
-    QPixmap maskImage(QPixmap image, b2Body* b);
+    QPixmap maskImage(QPixmap pixmap, b2Body* b, QRect rect);
 
     vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
 

@@ -808,8 +808,63 @@ void NT3Game::clearRow(uint row){
     //fflush(stdout);
 }
 
-QPixmap NT3Game::maskImage(QPixmap image, b2Body* b){
+QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
+    if (!pixmap.hasAlphaChannel()){
+        printf("Piece has no alpha channel!\n");
+        fflush(stdout);
+    }
 
+    QImage image = pixmap.toImage();
+
+    float32 scale = 1.0f/static_cast<float32>(this->max_graphics_scale);
+
+    b2Vec2 offset(rect.x(), rect.y());
+
+    b2Transform t;
+    t.SetIdentity();
+
+    /*printf("New body:\n");
+    for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+        printf("New fixture:\n");
+        Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+        b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+        for (int i = 0; i < s->m_count; i++){
+            printf("%s\n", this->b2Vec2String(s->m_vertices[i]).toUtf8().constData());
+        }
+    }*/
+
+    for (int y = 0; y < image.height(); y++){
+        for (int x = 0; x < image.width(); x++){
+            if (qAlpha(image.pixel(x, y)) == 0){
+                continue;
+            }
+
+            b2Vec2 vec(x, y);
+            //printf("%s --> ", this->b2Vec2String(vec).toUtf8().constData());
+            vec *= scale;
+            vec += offset;
+            //printf("%s\n", this->b2Vec2String(vec).toUtf8().constData());
+            //vec = b->GetWorldPoint(vec);
+
+            bool pass = false;
+            for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+                Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+                b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+
+                if (s->TestPoint(t, vec)){
+                    pass = true;
+                    //printf("Pass!\n");
+                    break;
+                }
+            }
+
+            if (!pass){
+                image.setPixelColor(x, y, QColor(0, 0, 255, 0)); //set to transparent
+            }
+        }
+    }
+    return QPixmap::fromImage(image);
 }
 
 vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
