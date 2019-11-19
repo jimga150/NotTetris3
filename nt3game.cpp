@@ -1013,7 +1013,9 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
         int32 i1 = i;
         int32 i2 = i + 1 < m ? i + 1 : 0;
         b2Vec2 edge = m_vertices[i2] - m_vertices[i1];
-        b2Assert(edge.LengthSquared() > b2_epsilon * b2_epsilon);
+        if(!(edge.LengthSquared() > b2_epsilon * b2_epsilon)){
+            return 0;
+        }
     }
 
     count = m;
