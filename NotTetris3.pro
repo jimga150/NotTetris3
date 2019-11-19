@@ -18,6 +18,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += TIME_FRAMES
 #DEFINES += TIME_FRAME_COMPS
 
+#This code compares floating point numbers with equality a lot,
+#and all of them are justified, contrary to the folks over at C++ HQ.
+QMAKE_CXXFLAGS += -Wno-float-equal -Wno-weak-vtables
+
 SOURCES += \
     Box2D/Collision/Shapes/b2ChainShape.cpp \
     Box2D/Collision/Shapes/b2CircleShape.cpp \
