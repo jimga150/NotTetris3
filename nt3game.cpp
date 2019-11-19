@@ -129,7 +129,7 @@ void NT3Game::render(QPainter& painter)
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (!this->isAWall(b)/* && b->IsAwake()*/){
             //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
-            //this->drawTetrisPiece(&painter, b);
+            this->drawTetrisPiece(&painter, b);
         }
         this->drawBodyTo(&painter, b, this->debug_graphics);
     }
