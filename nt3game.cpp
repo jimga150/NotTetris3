@@ -61,12 +61,16 @@ NT3Game::~NT3Game()
 {
     if (this->world){
         for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-            tetrisPieceData* data = this->getTetrisPieceData(b);
-            if (data) delete data;
+            this->freeUserDataOn(b);
         }
         delete world;
     }
     if (this->contactlistener) delete contactlistener;
+}
+
+void NT3Game::freeUserDataOn(b2Body* b){
+    tetrisPieceData* data = this->getTetrisPieceData(b);
+    if (data) delete data;
 }
 
 
@@ -788,6 +792,7 @@ void NT3Game::clearRow(uint row){
     } //end body separation loop
 
     for (b2Body* b : bodies_to_destroy){
+        this->freeUserDataOn(b);
         this->world->DestroyBody(b);
     }
 

@@ -95,6 +95,10 @@ public:
     ~NT3Game() override;
 
 
+    //Destructor utility
+    void freeUserDataOn(b2Body* b);
+
+
     //graphics
     void render(QPainter& painter) override;
 
