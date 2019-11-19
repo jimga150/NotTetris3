@@ -27,7 +27,7 @@
 // Solver debugging is normally disabled because the block solver sometimes has to deal with a poorly conditioned effective mass matrix.
 #define B2_DEBUG_SOLVER 0
 
-bool g_blockSolve = true;
+static bool g_blockSolve = true;
 
 struct b2ContactPositionConstraint
 {
