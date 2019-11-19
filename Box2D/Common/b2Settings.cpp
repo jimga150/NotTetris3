@@ -39,6 +39,11 @@ void b2Log(const char* string, ...)
 {
     va_list args;
     va_start(args, string);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
     vprintf(string, args);
+#pragma GCC diagnostic pop
+
     va_end(args);
 }

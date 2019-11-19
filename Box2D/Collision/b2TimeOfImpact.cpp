@@ -121,6 +121,9 @@ struct b2SeparationFunction
         }
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcovered-switch-default"
+
     //
     float32 FindMinSeparation(int32* indexA, int32* indexB, float32 t) const
     {
@@ -240,6 +243,8 @@ struct b2SeparationFunction
             return 0.0f;
         }
     }
+
+#pragma GCC diagnostic pop
 
     const b2DistanceProxy* m_proxyA;
     const b2DistanceProxy* m_proxyB;
