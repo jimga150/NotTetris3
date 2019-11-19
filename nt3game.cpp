@@ -1137,6 +1137,8 @@ void NT3Game::initializeWalls(){
 }
 
 void NT3Game::init_BDC(){
+    this->row_densities.clear();
+    this->body_density_contributions.clear();
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.push_back(0.0f);
         this->body_density_contributions.push_back(QHash<b2Body*, float32>());
