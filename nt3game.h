@@ -144,6 +144,8 @@ public:
 
     tetrisPieceData *getTetrisPieceData(b2Body* b);
 
+    QPixmap enableAlphaChannel(QPixmap pixmap);
+
 
     //initialization functions
     void initializeTetrisPieceDefs();

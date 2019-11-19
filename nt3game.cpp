@@ -1094,6 +1094,19 @@ tetrisPieceData* NT3Game::getTetrisPieceData(b2Body* b){
     return static_cast<tetrisPieceData*>(data);
 }
 
+QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
+    if (pixmap.hasAlphaChannel()) return pixmap;
+
+    QPixmap ans(pixmap.size());
+    ans.fill(Qt::transparent);
+
+    QPainter p(&ans);
+    p.drawPixmap(ans.rect(), pixmap);
+    p.end();
+
+    return ans;
+}
+
 
 void NT3Game::initializeTetrisPieceDefs(){
 
@@ -1157,16 +1170,12 @@ void NT3Game::initializeTetrisPieceDefs(){
 void NT3Game::initializeTetrisPieceImages(){
     int side_length = static_cast<int>(this->side_length);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
+
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
         QPixmap orig_pixmap = QPixmap(path);
         orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->max_graphics_scale);
 
-        this->piece_images.push_back(QPixmap(orig_pixmap.size()));
-        this->piece_images.back().fill(Qt::transparent);
-
-        QPainter p(&this->piece_images.back());
-        p.drawPixmap(this->piece_images.back().rect(), orig_pixmap);
-        p.end();
+        this->piece_images.push_back(this->enableAlphaChannel(orig_pixmap));
 
         /*printf("%u: orig_pixmap: %u, this->piece_images.back(): %u\n",
                piece, orig_pixmap.hasAlphaChannel(), this->piece_images.back().hasAlphaChannel());*/
