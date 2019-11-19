@@ -128,6 +128,8 @@ public:
 
     QString b2Vec2String(b2Vec2 vec);
 
+    tetrisPieceData *getTetrisPieceData(b2Body* b);
+
 
     //initialization functions
     void initializeTetrisPieceDefs();

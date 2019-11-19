@@ -61,7 +61,8 @@ NT3Game::~NT3Game()
 {
     if (this->world){
         for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-            delete static_cast<tetrisPieceData*>(b->GetUserData());
+            tetrisPieceData* data = this->getTetrisPieceData(b);
+            if (data) delete data;
         }
         delete world;
     }
@@ -233,7 +234,10 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
 
 void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
-    tetris_piece_enum type = static_cast<tetrisPieceData*>(piece_body->GetUserData())->type;
+    tetris_piece_enum type = I;
+
+    tetrisPieceData* body_data = this->getTetrisPieceData(piece_body);
+    if (body_data != nullptr) type = body_data->type;
 
     painter->save();
 
@@ -762,6 +766,13 @@ void NT3Game::clearRow(uint row){
             new_body_def.position = b->GetPosition();
             b2Body* new_body = this->world->CreateBody(&new_body_def);
 
+            tetrisPieceData* data = new tetrisPieceData;
+
+            tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
+            if (orig_body_data != nullptr) data->type = orig_body_data->type;
+
+            new_body->SetUserData(data);
+
             b2FixtureDef fixture_def = this->tetrisFixtures.at(0).at(0);
 
             //add shapes in svector to body
@@ -998,6 +1009,14 @@ bool NT3Game::isAWall(b2Body* b){
 
 QString NT3Game::b2Vec2String(b2Vec2 vec){
     return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
+}
+
+tetrisPieceData* NT3Game::getTetrisPieceData(b2Body* b){
+
+    void* data = b->GetUserData();
+    if (data == nullptr) return nullptr;
+
+    return static_cast<tetrisPieceData*>(data);
 }
 
 
