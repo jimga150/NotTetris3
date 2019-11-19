@@ -28,6 +28,11 @@ enum tetris_piece_enum{
     num_tetris_pieces
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+static tetris_piece_enum default_tetris_piece = I;
+#pragma GCC diagnostic push
+
 enum wall_enum{
     GROUND = 0,
     LEFTWALL,
@@ -83,7 +88,8 @@ struct rayCastComplete{
 };
 
 struct tetrisPieceData{
-    tetris_piece_enum type = I;
+    QPixmap image;
+    QRect region;
 };
 
 class NT3Game : public OpenGL2DWindow
@@ -267,6 +273,9 @@ public:
 
     std::vector<QPixmap> piece_images;
     std::vector<QRect> piece_rects;
+
+    QPixmap default_piece_image;
+    QRect default_piece_rect;
 
 
     //freeze frame data

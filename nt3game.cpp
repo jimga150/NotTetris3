@@ -238,11 +238,6 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
 
 void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
-    tetris_piece_enum type = I;
-
-    tetrisPieceData* body_data = this->getTetrisPieceData(piece_body);
-    if (body_data != nullptr) type = body_data->type;
-
     painter->save();
 
     painter->translate(
@@ -252,7 +247,12 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->scale(this->graphicsscale, this->graphicsscale);
     painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
 
-    painter->drawPixmap(this->piece_rects.at(type), this->piece_images.at(type));
+    tetrisPieceData* body_data = this->getTetrisPieceData(piece_body);
+    if (body_data == nullptr){
+        painter->drawPixmap(this->default_piece_rect, this->default_piece_image);
+    } else {
+        painter->drawPixmap(body_data->region, body_data->image);
+    }
 
     painter->restore();
 }
@@ -770,12 +770,11 @@ void NT3Game::clearRow(uint row){
             new_body_def.position = b->GetPosition();
             b2Body* new_body = this->world->CreateBody(&new_body_def);
 
-            tetrisPieceData* data = new tetrisPieceData;
-
             tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
-            if (orig_body_data != nullptr) data->type = orig_body_data->type;
-
-            new_body->SetUserData(data);
+            if (orig_body_data != nullptr){
+                tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
+                new_body->SetUserData(data);
+            }
 
             b2FixtureDef fixture_def = this->tetrisFixtures.at(0).at(0);
 
@@ -984,16 +983,19 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 
 void NT3Game::makeNewTetrisPiece(){
 
-    tetrisPieceData* data = new tetrisPieceData;
-    data->type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+    tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
 
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
 
-    for (b2FixtureDef f : this->tetrisFixtures.at(data->type)){
+    for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
     }
 
     this->contactlistener->currentPiece = this->currentPiece;
+
+    tetrisPieceData* data = new tetrisPieceData;
+    data->image = this->piece_images.at(type);
+    data->region = this->piece_rects.at(type);
     this->currentPiece->SetUserData(data);
 
     this->currentPiece->SetGravityScale(0);
@@ -1111,6 +1113,8 @@ void NT3Game::initializeTetrisPieceImages(){
             break;
         }
     }
+    this->default_piece_image = this->piece_images.at(default_tetris_piece);
+    this->default_piece_rect = this->piece_rects.at(default_tetris_piece);
 }
 
 void NT3Game::initializeWalls(){
