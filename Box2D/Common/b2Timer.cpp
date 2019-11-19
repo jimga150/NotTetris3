@@ -74,7 +74,7 @@ b2Timer::b2Timer()
 void b2Timer::Reset()
 {
     timeval t;
-    gettimeofday(&t, 0);
+    gettimeofday(&t, nullptr);
     m_start_sec = static_cast<unsigned long long>(t.tv_sec);
     m_start_usec = static_cast<unsigned long long>(t.tv_usec);
 }
@@ -82,7 +82,7 @@ void b2Timer::Reset()
 float32 b2Timer::GetMilliseconds() const
 {
     timeval t;
-    gettimeofday(&t, 0);
+    gettimeofday(&t, nullptr);
     time_t start_sec = static_cast<time_t>(m_start_sec);
     suseconds_t start_usec = static_cast<suseconds_t>(m_start_usec);
 
