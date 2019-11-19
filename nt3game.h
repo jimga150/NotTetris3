@@ -262,7 +262,7 @@ public:
     float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
     float32 ground_friction_k = 0.5f;
 
-    float32 restitution = 0.001f;
+    float32 restitution = 0.0f;//0.001f;
 
     float32 line_clear_threshold = 8.1f*side_length*side_length;
 

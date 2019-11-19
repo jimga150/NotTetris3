@@ -1223,19 +1223,23 @@ void NT3Game::initializeWalls(){
     edge.Set(b2Vec2(0, tetris_field.height()), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
-    this->walls[GROUND]->CreateFixture(&edge, 0.0f)->SetFriction(this->ground_friction_k);
+    this->walls[GROUND]->CreateFixture(&edge, 0.0f);
+    this->walls[GROUND]->GetFixtureList()->SetFriction(this->ground_friction_k);
+    this->walls[GROUND]->GetFixtureList()->SetRestitution(this->restitution);
 
     edge.Set(b2Vec2(0, 0), b2Vec2(0, tetris_field.height()));
 
     this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[LEFTWALL]->GetFixtureList()->SetFriction(0);
+    this->walls[LEFTWALL]->GetFixtureList()->SetRestitution(this->restitution);
 
     edge.Set(b2Vec2(tetris_field.width(), 0), b2Vec2(tetris_field.width(), tetris_field.height()));
 
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[RIGHTWALL]->GetFixtureList()->SetFriction(0);
+    this->walls[RIGHTWALL]->GetFixtureList()->SetRestitution(this->restitution);
 }
 
 void NT3Game::init_BDC(){
