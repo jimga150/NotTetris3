@@ -34,6 +34,14 @@ class b2ChainShape : public b2Shape
 public:
     b2ChainShape();
 
+    b2ChainShape(const b2ChainShape&) = default;
+
+    b2ChainShape(b2ChainShape&&) = default;
+
+    b2ChainShape& operator=(const b2ChainShape&) = default;
+
+    b2ChainShape& operator=(b2ChainShape&&) = default;
+
     /// The destructor frees the vertices using b2Free.
     ~b2ChainShape() override;
 
