@@ -47,10 +47,10 @@ void b2Rope::Initialize(const b2RopeDef* def)
 {
     b2Assert(def->count >= 3);
     m_count = def->count;
-    m_ps = static_cast<b2Vec2*>(b2Alloc(m_count * sizeof(b2Vec2)));
-    m_p0s = static_cast<b2Vec2*>(b2Alloc(m_count * sizeof(b2Vec2)));
-    m_vs = static_cast<b2Vec2*>(b2Alloc(m_count * sizeof(b2Vec2)));
-    m_ims = static_cast<float32*>(b2Alloc(m_count * sizeof(float32)));
+    m_ps = static_cast<b2Vec2*>(b2Alloc(m_count * SIZEOF_INT(b2Vec2)));
+    m_p0s = static_cast<b2Vec2*>(b2Alloc(m_count * SIZEOF_INT(b2Vec2)));
+    m_vs = static_cast<b2Vec2*>(b2Alloc(m_count * SIZEOF_INT(b2Vec2)));
+    m_ims = static_cast<float32*>(b2Alloc(m_count * SIZEOF_INT(float32)));
 
     for (int32 i = 0; i < m_count; ++i)
     {
@@ -71,8 +71,8 @@ void b2Rope::Initialize(const b2RopeDef* def)
 
     int32 count2 = m_count - 1;
     int32 count3 = m_count - 2;
-    m_Ls = static_cast<float32*>(b2Alloc(count2 * sizeof(float32)));
-    m_as = static_cast<float32*>(b2Alloc(count3 * sizeof(float32)));
+    m_Ls = static_cast<float32*>(b2Alloc(count2 * SIZEOF_INT(float32)));
+    m_as = static_cast<float32*>(b2Alloc(count3 * SIZEOF_INT(float32)));
 
     for (int32 i = 0; i < count2; ++i)
     {
@@ -104,7 +104,7 @@ void b2Rope::Initialize(const b2RopeDef* def)
 
 void b2Rope::Step(float32 h, int32 iterations)
 {
-    if (h == 0.0)
+    if (h == 0.0f)
     {
         return;
     }

@@ -25,8 +25,8 @@ b2DynamicTree::b2DynamicTree()
 
     m_nodeCapacity = 16;
     m_nodeCount = 0;
-    m_nodes = static_cast<b2TreeNode*>(b2Alloc(m_nodeCapacity * sizeof(b2TreeNode)));
-    memset(m_nodes, 0, m_nodeCapacity * sizeof(b2TreeNode));
+    m_nodes = static_cast<b2TreeNode*>(b2Alloc(m_nodeCapacity * SIZEOF_INT(b2TreeNode)));
+    memset(m_nodes, 0, static_cast<unsigned long>(m_nodeCapacity) * sizeof(b2TreeNode));
 
     // Build a linked list for the free list.
     for (int32 i = 0; i < m_nodeCapacity - 1; ++i)
@@ -60,8 +60,8 @@ int32 b2DynamicTree::AllocateNode()
         // The free list is empty. Rebuild a bigger pool.
         b2TreeNode* oldNodes = m_nodes;
         m_nodeCapacity *= 2;
-        m_nodes = static_cast<b2TreeNode*>(b2Alloc(m_nodeCapacity * sizeof(b2TreeNode)));
-        memcpy(m_nodes, oldNodes, m_nodeCount * sizeof(b2TreeNode));
+        m_nodes = static_cast<b2TreeNode*>(b2Alloc(m_nodeCapacity * SIZEOF_INT(b2TreeNode)));
+        memcpy(m_nodes, oldNodes, static_cast<unsigned long>(m_nodeCount) * sizeof(b2TreeNode));
         b2Free(oldNodes);
 
         // Build a linked list for the free list. The parent
@@ -695,7 +695,7 @@ int32 b2DynamicTree::GetMaxBalance() const
 
 void b2DynamicTree::RebuildBottomUp()
 {
-    int32* nodes = static_cast<int32*>(b2Alloc(m_nodeCount * sizeof(int32)));
+    int32* nodes = static_cast<int32*>(b2Alloc(m_nodeCount * SIZEOF_INT(int32)));
     int32 count = 0;
 
     // Build array of leaves. Free the rest.

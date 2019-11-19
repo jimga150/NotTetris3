@@ -137,7 +137,7 @@ void b2ContactManager::Collide()
             }
 
             // Clear the filtering flag.
-            c->m_flags &= ~b2Contact::e_filterFlag;
+            c->m_flags &= static_cast<unsigned int>(~b2Contact::e_filterFlag);
         }
 
         bool activeA = bodyA->IsAwake() && bodyA->m_type != b2_staticBody;

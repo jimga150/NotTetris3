@@ -24,7 +24,7 @@
 #include <float.h>
 
 #if !defined(NDEBUG)
-	#define b2DEBUG
+    #define b2DEBUG
 #endif
 
 #define B2_NOT_USED(x) ((void)(x))
@@ -129,6 +129,8 @@ typedef double float64;
 /// A body cannot sleep if its angular velocity is above this tolerance.
 #define b2_angularSleepTolerance	(2.0f / 180.0f * b2_pi)
 
+#define SIZEOF_INT(TYPE) static_cast<int>(sizeof(TYPE))
+
 // Memory Allocation
 
 /// Implement this function to use your own memory allocator.
@@ -144,9 +146,9 @@ void b2Log(const char* string, ...);
 /// See http://en.wikipedia.org/wiki/Software_versioning
 struct b2Version
 {
-	int32 major;		///< significant changes
-	int32 minor;		///< incremental changes
-	int32 revision;		///< bug fixes
+    int32 major;		///< significant changes
+    int32 minor;		///< incremental changes
+    int32 revision;		///< bug fixes
 };
 
 /// Current version.

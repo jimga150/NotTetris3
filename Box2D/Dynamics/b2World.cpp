@@ -403,7 +403,7 @@ void b2World::Solve(const b2TimeStep& step)
     }
     for (b2Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
     {
-        c->m_flags &= ~b2Contact::e_islandFlag;
+        c->m_flags &= static_cast<unsigned int>(~b2Contact::e_islandFlag);
     }
     for (b2Joint* j = m_jointList; j; j = j->m_next)
     {
@@ -412,7 +412,7 @@ void b2World::Solve(const b2TimeStep& step)
 
     // Build and simulate all awake islands.
     int32 stackSize = m_bodyCount;
-    b2Body** stack = static_cast<b2Body**>(m_stackAllocator.Allocate(stackSize * sizeof(b2Body*)));
+    b2Body** stack = static_cast<b2Body**>(m_stackAllocator.Allocate(stackSize * SIZEOF_INT(b2Body*)));
     for (b2Body* seed = m_bodyList; seed; seed = seed->m_next)
     {
         if (seed->m_flags & b2Body::e_islandFlag)
@@ -589,7 +589,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
         for (b2Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
         {
             // Invalidate TOI
-            c->m_flags &= ~(b2Contact::e_toiFlag | b2Contact::e_islandFlag);
+            c->m_flags &= static_cast<unsigned int>(~(b2Contact::e_toiFlag | b2Contact::e_islandFlag));
             c->m_toiCount = 0;
             c->m_toi = 1.0f;
         }
@@ -733,7 +733,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
 
         // The TOI contact likely has some new contact points.
         minContact->Update(m_contactManager.m_contactListener);
-        minContact->m_flags &= ~b2Contact::e_toiFlag;
+        minContact->m_flags &= static_cast<unsigned int>(~b2Contact::e_toiFlag);
         ++minContact->m_toiCount;
 
         // Is the contact solid?
@@ -878,7 +878,7 @@ void b2World::SolveTOI(const b2TimeStep& step)
             // Invalidate all contact TOIs on this displaced body.
             for (b2ContactEdge* ce = body->m_contactList; ce; ce = ce->next)
             {
-                ce->contact->m_flags &= ~(b2Contact::e_toiFlag | b2Contact::e_islandFlag);
+                ce->contact->m_flags &= static_cast<unsigned int>(~(b2Contact::e_toiFlag | b2Contact::e_islandFlag));
             }
         }
 
@@ -1313,7 +1313,7 @@ void b2World::Dump()
         return;
     }
 
-    b2Log("b2Vec2 g(%.15lef, %.15lef);\n", m_gravity.x, m_gravity.y);
+    b2Log("b2Vec2 g(%.15lef, %.15lef);\n", static_cast<double>(m_gravity.x), static_cast<double>(m_gravity.y));
     b2Log("m_world->SetGravity(g);\n");
 
     b2Log("b2Body** bodies = (b2Body**)b2Alloc(%d * sizeof(b2Body*));\n", m_bodyCount);

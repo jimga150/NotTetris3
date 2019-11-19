@@ -24,11 +24,11 @@ b2BroadPhase::b2BroadPhase()
 
     m_pairCapacity = 16;
     m_pairCount = 0;
-    m_pairBuffer = static_cast<b2Pair*>(b2Alloc(m_pairCapacity * sizeof(b2Pair)));
+    m_pairBuffer = static_cast<b2Pair*>(b2Alloc(m_pairCapacity * SIZEOF_INT(b2Pair)));
 
     m_moveCapacity = 16;
     m_moveCount = 0;
-    m_moveBuffer = static_cast<int32*>(b2Alloc(m_moveCapacity * sizeof(int32)));
+    m_moveBuffer = static_cast<int32*>(b2Alloc(m_moveCapacity * SIZEOF_INT(int32)));
 }
 
 b2BroadPhase::~b2BroadPhase()
@@ -72,8 +72,8 @@ void b2BroadPhase::BufferMove(int32 proxyId)
     {
         int32* oldBuffer = m_moveBuffer;
         m_moveCapacity *= 2;
-        m_moveBuffer = static_cast<int32*>(b2Alloc(m_moveCapacity * sizeof(int32)));
-        memcpy(m_moveBuffer, oldBuffer, m_moveCount * sizeof(int32));
+        m_moveBuffer = static_cast<int32*>(b2Alloc(m_moveCapacity * SIZEOF_INT(int32)));
+        memcpy(m_moveBuffer, oldBuffer, static_cast<unsigned long>(m_moveCount) * sizeof(int32));
         b2Free(oldBuffer);
     }
 
@@ -106,8 +106,8 @@ bool b2BroadPhase::QueryCallback(int32 proxyId)
     {
         b2Pair* oldBuffer = m_pairBuffer;
         m_pairCapacity *= 2;
-        m_pairBuffer = static_cast<b2Pair*>(b2Alloc(m_pairCapacity * sizeof(b2Pair)));
-        memcpy(m_pairBuffer, oldBuffer, m_pairCount * sizeof(b2Pair));
+        m_pairBuffer = static_cast<b2Pair*>(b2Alloc(m_pairCapacity * SIZEOF_INT(b2Pair)));
+        memcpy(m_pairBuffer, oldBuffer, static_cast<unsigned long>(m_pairCount) * sizeof(b2Pair));
         b2Free(oldBuffer);
     }
 

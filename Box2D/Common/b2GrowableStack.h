@@ -50,8 +50,8 @@ public:
         {
             T* old = m_stack;
             m_capacity *= 2;
-            m_stack = static_cast<T*>(b2Alloc(m_capacity * sizeof(T)));
-            memcpy(m_stack, old, m_count * sizeof(T));
+            m_stack = static_cast<T*>(b2Alloc(m_capacity * SIZEOF_INT(T)));
+            memcpy(m_stack, old, static_cast<unsigned long>(m_count) * sizeof(T));
             if (old != m_array)
             {
                 b2Free(old);

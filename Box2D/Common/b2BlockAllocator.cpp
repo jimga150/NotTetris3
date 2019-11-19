@@ -58,9 +58,9 @@ b2BlockAllocator::b2BlockAllocator()
 
     m_chunkSpace = b2_chunkArrayIncrement;
     m_chunkCount = 0;
-    m_chunks = static_cast<b2Chunk*>(b2Alloc(m_chunkSpace * sizeof(b2Chunk)));
+    m_chunks = static_cast<b2Chunk*>(b2Alloc(m_chunkSpace * SIZEOF_INT(b2Chunk)));
 
-    memset(m_chunks, 0, m_chunkSpace * sizeof(b2Chunk));
+    memset(m_chunks, 0, static_cast<unsigned long>(m_chunkSpace) * sizeof(b2Chunk));
     memset(m_freeLists, 0, sizeof(m_freeLists));
 
     if (s_blockSizeLookupInitialized == false)
@@ -121,8 +121,8 @@ void* b2BlockAllocator::Allocate(int32 size)
         {
             b2Chunk* oldChunks = m_chunks;
             m_chunkSpace += b2_chunkArrayIncrement;
-            m_chunks = static_cast<b2Chunk*>(b2Alloc(m_chunkSpace * sizeof(b2Chunk)));
-            memcpy(m_chunks, oldChunks, m_chunkCount * sizeof(b2Chunk));
+            m_chunks = static_cast<b2Chunk*>(b2Alloc(m_chunkSpace * SIZEOF_INT(b2Chunk)));
+            memcpy(m_chunks, oldChunks, static_cast<unsigned long>(m_chunkCount) * sizeof(b2Chunk));
             memset(m_chunks + m_chunkCount, 0, b2_chunkArrayIncrement * sizeof(b2Chunk));
             b2Free(oldChunks);
         }
@@ -209,7 +209,7 @@ void b2BlockAllocator::Clear()
     }
 
     m_chunkCount = 0;
-    memset(m_chunks, 0, m_chunkSpace * sizeof(b2Chunk));
+    memset(m_chunks, 0, static_cast<unsigned long>(m_chunkSpace) * sizeof(b2Chunk));
 
     memset(m_freeLists, 0, sizeof(m_freeLists));
 }

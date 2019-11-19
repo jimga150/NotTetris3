@@ -55,7 +55,7 @@ void b2Fixture::Create(b2BlockAllocator* allocator, b2Body* body, const b2Fixtur
 
     // Reserve proxy space
     int32 childCount = m_shape->GetChildCount();
-    m_proxies = static_cast<b2FixtureProxy*>(allocator->Allocate(childCount * sizeof(b2FixtureProxy)));
+    m_proxies = static_cast<b2FixtureProxy*>(allocator->Allocate(childCount * SIZEOF_INT(b2FixtureProxy)));
     for (int32 i = 0; i < childCount; ++i)
     {
         m_proxies[i].fixture = nullptr;
@@ -73,7 +73,7 @@ void b2Fixture::Destroy(b2BlockAllocator* allocator)
 
     // Free the proxy array.
     int32 childCount = m_shape->GetChildCount();
-    allocator->Free(m_proxies, childCount * sizeof(b2FixtureProxy));
+    allocator->Free(m_proxies, childCount * SIZEOF_INT(b2FixtureProxy));
     m_proxies = nullptr;
 
     // Free the child shape.
@@ -229,9 +229,9 @@ void b2Fixture::SetSensor(bool sensor)
 void b2Fixture::Dump(int32 bodyIndex)
 {
     b2Log("    b2FixtureDef fd;\n");
-    b2Log("    fd.friction = %.15lef;\n", m_friction);
-    b2Log("    fd.restitution = %.15lef;\n", m_restitution);
-    b2Log("    fd.density = %.15lef;\n", m_density);
+    b2Log("    fd.friction = %.15lef;\n", static_cast<double>(m_friction));
+    b2Log("    fd.restitution = %.15lef;\n", static_cast<double>(m_restitution));
+    b2Log("    fd.density = %.15lef;\n", static_cast<double>(m_density));
     b2Log("    fd.isSensor = bool(%d);\n", m_isSensor);
     b2Log("    fd.filter.categoryBits = uint16(%d);\n", m_filter.categoryBits);
     b2Log("    fd.filter.maskBits = uint16(%d);\n", m_filter.maskBits);
@@ -243,8 +243,8 @@ void b2Fixture::Dump(int32 bodyIndex)
         {
             b2CircleShape* s = static_cast<b2CircleShape*>(m_shape);
             b2Log("    b2CircleShape shape;\n");
-            b2Log("    shape.m_radius = %.15lef;\n", s->m_radius);
-            b2Log("    shape.m_p.Set(%.15lef, %.15lef);\n", s->m_p.x, s->m_p.y);
+            b2Log("    shape.m_radius = %.15lef;\n", static_cast<double>(s->m_radius));
+            b2Log("    shape.m_p.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_p.x), static_cast<double>(s->m_p.y));
         }
         break;
 
@@ -252,11 +252,11 @@ void b2Fixture::Dump(int32 bodyIndex)
         {
             b2EdgeShape* s = static_cast<b2EdgeShape*>(m_shape);
             b2Log("    b2EdgeShape shape;\n");
-            b2Log("    shape.m_radius = %.15lef;\n", s->m_radius);
-            b2Log("    shape.m_vertex0.Set(%.15lef, %.15lef);\n", s->m_vertex0.x, s->m_vertex0.y);
-            b2Log("    shape.m_vertex1.Set(%.15lef, %.15lef);\n", s->m_vertex1.x, s->m_vertex1.y);
-            b2Log("    shape.m_vertex2.Set(%.15lef, %.15lef);\n", s->m_vertex2.x, s->m_vertex2.y);
-            b2Log("    shape.m_vertex3.Set(%.15lef, %.15lef);\n", s->m_vertex3.x, s->m_vertex3.y);
+            b2Log("    shape.m_radius = %.15lef;\n", static_cast<double>(s->m_radius));
+            b2Log("    shape.m_vertex0.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_vertex0.x), static_cast<double>(s->m_vertex0.y));
+            b2Log("    shape.m_vertex1.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_vertex1.x), static_cast<double>(s->m_vertex1.y));
+            b2Log("    shape.m_vertex2.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_vertex2.x), static_cast<double>(s->m_vertex2.y));
+            b2Log("    shape.m_vertex3.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_vertex3.x), static_cast<double>(s->m_vertex3.y));
             b2Log("    shape.m_hasVertex0 = bool(%d);\n", s->m_hasVertex0);
             b2Log("    shape.m_hasVertex3 = bool(%d);\n", s->m_hasVertex3);
         }
@@ -269,7 +269,7 @@ void b2Fixture::Dump(int32 bodyIndex)
             b2Log("    b2Vec2 vs[%d];\n", b2_maxPolygonVertices);
             for (int32 i = 0; i < s->m_count; ++i)
             {
-                b2Log("    vs[%d].Set(%.15lef, %.15lef);\n", i, s->m_vertices[i].x, s->m_vertices[i].y);
+                b2Log("    vs[%d].Set(%.15lef, %.15lef);\n", i, static_cast<double>(s->m_vertices[i].x), static_cast<double>(s->m_vertices[i].y));
             }
             b2Log("    shape.Set(vs, %d);\n", s->m_count);
         }
@@ -282,11 +282,11 @@ void b2Fixture::Dump(int32 bodyIndex)
             b2Log("    b2Vec2 vs[%d];\n", s->m_count);
             for (int32 i = 0; i < s->m_count; ++i)
             {
-                b2Log("    vs[%d].Set(%.15lef, %.15lef);\n", i, s->m_vertices[i].x, s->m_vertices[i].y);
+                b2Log("    vs[%d].Set(%.15lef, %.15lef);\n", i, static_cast<double>(s->m_vertices[i].x), static_cast<double>(s->m_vertices[i].y));
             }
             b2Log("    shape.CreateChain(vs, %d);\n", s->m_count);
-            b2Log("    shape.m_prevVertex.Set(%.15lef, %.15lef);\n", s->m_prevVertex.x, s->m_prevVertex.y);
-            b2Log("    shape.m_nextVertex.Set(%.15lef, %.15lef);\n", s->m_nextVertex.x, s->m_nextVertex.y);
+            b2Log("    shape.m_prevVertex.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_prevVertex.x), static_cast<double>(s->m_prevVertex.y));
+            b2Log("    shape.m_nextVertex.Set(%.15lef, %.15lef);\n", static_cast<double>(s->m_nextVertex.x), static_cast<double>(s->m_nextVertex.y));
             b2Log("    shape.m_hasPrevVertex = bool(%d);\n", s->m_hasPrevVertex);
             b2Log("    shape.m_hasNextVertex = bool(%d);\n", s->m_hasNextVertex);
         }
