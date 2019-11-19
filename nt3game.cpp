@@ -777,18 +777,19 @@ void NT3Game::clearRow(uint row){
             new_body_def.position = b->GetPosition();
             b2Body* new_body = this->world->CreateBody(&new_body_def);
 
-            tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
-            if (orig_body_data != nullptr){
-                tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
-                new_body->SetUserData(data);
-            }
-
             b2FixtureDef fixture_def = this->tetrisFixtures.at(0).at(0);
 
             //add shapes in svector to body
             for (b2PolygonShape* s : group){
                 fixture_def.shape = s;
                 new_body->CreateFixture(&fixture_def);
+            }
+
+            tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
+            if (orig_body_data != nullptr){
+                tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
+                data->image = this->maskImage(data->image, new_body, data->region);
+                new_body->SetUserData(data);
             }
         }
 
