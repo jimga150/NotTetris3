@@ -523,6 +523,7 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (ray_casts.at(TOPLEFT).hit){
+                    Q_ASSERT(ray_casts.at(TOPRIGHT).hit);
                     b2Vec2 topleft_hit = this->hit_point(ray_casts.at(TOPLEFT));
                     b2Vec2 topright_hit = this->hit_point(ray_casts.at(TOPRIGHT));
                     new_points.push_back(topleft_hit);
@@ -530,6 +531,7 @@ float32 NT3Game::getRowDensity(uint row){
                 }
 
                 if (ray_casts.at(BOTTOMLEFT).hit){
+                    Q_ASSERT(ray_casts.at(BOTTOMRIGHT).hit);
                     b2Vec2 bottomleft_hit = this->hit_point(ray_casts.at(BOTTOMLEFT));
                     b2Vec2 bottomright_hit = this->hit_point(ray_casts.at(BOTTOMRIGHT));
                     new_points.push_back(bottomleft_hit);
@@ -664,6 +666,7 @@ void NT3Game::clearRow(uint row){
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
 
                     ray_casts.at(TOPRIGHT).doRayCast(s, b);
+                    Q_ASSERT(ray_casts.at(TOPRIGHT).hit);
                     hit_worldpoint = this->hit_point(ray_casts.at(TOPRIGHT));
                     //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
@@ -677,6 +680,7 @@ void NT3Game::clearRow(uint row){
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
 
                     ray_casts.at(BOTTOMRIGHT).doRayCast(s, b);
+                    Q_ASSERT(ray_casts.at(BOTTOMRIGHT).hit);
                     hit_worldpoint = this->hit_point(ray_casts.at(BOTTOMRIGHT));
                     //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
@@ -788,7 +792,9 @@ void NT3Game::clearRow(uint row){
             tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
             if (orig_body_data != nullptr){
                 tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
+                Q_ASSERT(data->image.hasAlphaChannel());
                 data->image = this->maskImage(data->image, new_body, data->region);
+                Q_ASSERT(data->image.hasAlphaChannel());
                 new_body->SetUserData(data);
             }
         }
