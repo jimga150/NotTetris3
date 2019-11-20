@@ -468,6 +468,9 @@ void NT3Game::doGameStep(){
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
 
+    if (this->row_cleared){
+        this->init_BDC();
+    }
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.at(r) = this->getRowDensity(r);
     }
@@ -823,8 +826,6 @@ void NT3Game::clearRow(uint row){
         this->freeUserDataOn(b);
         this->world->DestroyBody(b);
     }
-
-    this->init_BDC();
 
     //fflush(stdout);
 }
