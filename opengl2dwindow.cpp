@@ -100,12 +100,21 @@ void OpenGL2DWindow::renderLater(){
 }
 
 void OpenGL2DWindow::renderNow(){
+
+#ifdef TIME_FRAME_COMPS
+    printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
+           this->frame_times.openGL_init_time, this->frame_times.render_time,
+           this->frame_times.game_frame_time, this->frame_times.buffer_time);
+#endif
+
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
     this->frame_times_vect.push_back(elapsed);
     const char* suffix = elapsed > this->expected_frame_time ? this->frame_toolong_suffix.data() : this->frame_normal_suffix.data();
     printf("Frame took %lld ms %s\n", elapsed, suffix);
     this->frameTimer.restart();
+#elif defined(TIME_FRAME_COMPS)
+    printf("\n");
 #endif
 
     if (!this->isExposed())
@@ -141,7 +150,7 @@ void OpenGL2DWindow::renderNow(){
     this->m_device->setDevicePixelRatio(this->devicePixelRatio());
 
 #ifdef TIME_FRAME_COMPS
-    printf("OpenGL init: %lld ms\t", timer.elapsed());
+    this->frame_times.openGL_init_time = timer.elapsed();
     timer.restart();
 #endif
 
@@ -152,21 +161,21 @@ void OpenGL2DWindow::renderNow(){
     painter.end();
 
 #ifdef TIME_FRAME_COMPS
-    printf("Render: %lld ms\t", timer.elapsed());
+    this->frame_times.render_time = timer.elapsed();
     timer.restart();
 #endif
 
     this->doGameStep();
 
 #ifdef TIME_FRAME_COMPS
-    printf("Game frame: %lld ms\t", timer.elapsed());
+    this->frame_times.game_frame_time = timer.elapsed();
     timer.restart();
 #endif
 
     this->m_context->swapBuffers(this);
 
 #ifdef TIME_FRAME_COMPS
-    printf("Buffer: %lld ms\t", timer.elapsed());
+    this->frame_times.buffer_time = timer.elapsed();
 #endif
 
     if (this->m_animating) this->renderLater();
