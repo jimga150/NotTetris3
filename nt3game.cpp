@@ -78,6 +78,7 @@ NT3Game::~NT3Game()
 void NT3Game::freeUserDataOn(b2Body* b){
     tetrisPieceData* data = this->getTetrisPieceData(b);
     if (data) delete data;
+    b->SetUserData(nullptr);
 }
 
 
