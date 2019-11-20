@@ -401,10 +401,9 @@ void NT3Game::doGameStep(){
     this->render(sf_painter);
     sf_painter.end();
 
-    if (this->row_cleared){
-        this->row_cleared = false;
+    /*if (this->row_cleared){
         this->freeze_frame = true;
-    }
+    }*/
 
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
 
