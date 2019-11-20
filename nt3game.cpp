@@ -791,12 +791,14 @@ void NT3Game::clearRow(uint row){
         } //end shape grouping looping
 
         b2BodyDef new_body_def = this->tetrisBodyDef;
+        new_body_def.gravityScale = 1.0f;
+        new_body_def.linearVelocity.SetZero();
         new_body_def.angle = b->GetAngle();
+        new_body_def.position = b->GetPosition();
 
         for (vector<b2PolygonShape*> group : shape_groups){
 
             //make new body
-            new_body_def.position = b->GetPosition();
             b2Body* new_body = this->world->CreateBody(&new_body_def);
 
             b2FixtureDef fixture_def = this->tetrisFixtures.at(0).at(0);
@@ -1090,11 +1092,6 @@ void NT3Game::makeNewTetrisPiece(){
     data->image = this->piece_images.at(type);
     data->region = this->piece_rects.at(type);
     this->currentPiece->SetUserData(data);
-
-    this->currentPiece->SetGravityScale(0);
-    this->currentPiece->SetLinearVelocity(b2Vec2(0, this->downward_velocity_regular));
-    this->currentPiece->SetAngularVelocity(0);
-    this->currentPiece->SetLinearDamping(0);
 }
 
 
@@ -1135,10 +1132,24 @@ QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
 
 void NT3Game::initializeTetrisPieceDefs(){
 
+
     this->tetrisBodyDef.type = b2_dynamicBody;
+
     this->tetrisBodyDef.allowSleep = true;
     this->tetrisBodyDef.awake = true;
+
+    this->tetrisBodyDef.bullet = false;
+
     this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
+
+    this->tetrisBodyDef.gravityScale = 0;
+
+    this->tetrisBodyDef.linearVelocity = b2Vec2(0, this->downward_velocity_regular);
+    this->tetrisBodyDef.angularVelocity = 0;
+
+    this->tetrisBodyDef.linearDamping = 0.5f;
+    this->tetrisBodyDef.angularDamping = 0.1f;
+
 
     for (uint8 i = 0; i < num_tetris_pieces; i++){
         this->tetrisShapes.push_back(vector<b2PolygonShape>());
@@ -1178,16 +1189,17 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisShapes.at(T).at(1).SetAsBox(this->side_length/2, this->side_length/2, b2Vec2(0, this->side_length), 0);
 
     b2FixtureDef fixture_template;
+    fixture_template.density = this->density;
+    fixture_template.friction = this->piece_friction_k;
+    fixture_template.restitution = this->restitution;
+
     vector<b2FixtureDef> fixture_vector_template;
     for (uint32 t = 0; t < this->tetrisShapes.size(); t++){
         this->tetrisFixtures.push_back(fixture_vector_template);
         for (uint32 s = 0; s < this->max_shapes_per_piece; s++){
             if (this->tetrisShapes.at(t).size() == s) break;
+            fixture_template.shape = &this->tetrisShapes.at(t).at(s);
             this->tetrisFixtures.at(t).push_back(fixture_template);
-            this->tetrisFixtures.at(t).at(s).shape = &this->tetrisShapes.at(t).at(s);
-            this->tetrisFixtures.at(t).at(s).density = this->density;
-            this->tetrisFixtures.at(t).at(s).friction = this->piece_friction_k;
-            this->tetrisFixtures.at(t).at(s).restitution = this->restitution;
         }
     }
 }
