@@ -128,13 +128,9 @@ void NT3Game::render(QPainter& painter)
     painter.setPen(this->debug_line_color);
     painter.setBrush(Qt::NoBrush);
 
-    if (this->debug_graphics){
-        painter.drawText(QPointF(3*this->graphicsscale, 10*this->graphicsscale), QString::number(this->last_frame));
-    }
-
     //printf("New frame:\n");
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (!this->isAWall(b)/* && b->IsAwake()*/){
+        if (!this->isAWall(b) /*&& b->IsAwake()*/){
             //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
             this->drawTetrisPiece(&painter, b);
         }
@@ -156,6 +152,13 @@ void NT3Game::render(QPainter& painter)
         painter.setBrush(QColor(grey, grey, grey));
 
         painter.drawRect(QRectF(0, top, width, height));
+    }
+
+    if (this->debug_graphics){
+        painter.setPen(this->debug_line_color);
+        painter.drawText(QPointF(3*this->graphicsscale, 10*this->graphicsscale), QString::number(this->last_frame));
+        painter.drawText(QPointF(3*this->graphicsscale, 12*this->graphicsscale), QString::number(this->frame_times.render_time));
+        painter.drawText(QPointF(3*this->graphicsscale, 14*this->graphicsscale), QString::number(this->frame_times.game_frame_time));
     }
 }
 
