@@ -157,7 +157,6 @@ void NT3Game::render(QPainter& painter)
 
     if (this->debug_graphics){
         painter.setPen(this->debug_line_color);
-        painter.drawText(QPointF(3*this->graphicsscale, 10*this->graphicsscale), QString::number(this->last_frame));
         painter.drawText(QPointF(3*this->graphicsscale, 12*this->graphicsscale), QString::number(this->frame_times.render_time));
         painter.drawText(QPointF(3*this->graphicsscale, 14*this->graphicsscale), QString::number(this->frame_times.game_frame_time));
     }
@@ -275,7 +274,7 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
 
     int key = ev->key();
 
-    if (this->freeze_frame){
+    if (this->save_frames && this->freeze_frame){
         if (key == Qt::Key_Left){ //previous frame
             this->last_frame--;
             if (this->last_frame < 0) this->last_frame = NUM_FRAMES_TO_SAVE - 1;
@@ -328,7 +327,7 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
         }
     } else if (key == this->accelDownKey){
         this->accelDownState = true;
-    } else if (key == this->freeze_key){
+    } else if (this->save_frames && key == this->freeze_key){
 
         this->freeze_frame = !this->freeze_frame;
 
@@ -396,21 +395,25 @@ void NT3Game::doGameStep(){
         return;
     }
 
-    this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
-    this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
-    QPainter sf_painter(&this->saved_frames[this->last_frame]);
-    this->render(sf_painter);
-    sf_painter.end();
+    QElapsedTimer timer;
+    timer.start();
+
+    if (save_frames){
+        this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
+        this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
+        QPainter sf_painter(&this->saved_frames[this->last_frame]);
+        this->render(sf_painter);
+        sf_painter.end();
+        printf("Re-render: %lld ms,\t", timer.elapsed());
+    }
 
     /*if (this->row_cleared){
         this->freeze_frame = true;
     }*/
 
-    QElapsedTimer timer;
-    timer.start();
+    timer.restart();
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
-    qint64 elapsed = timer.elapsed();
-    printf("World step: %lld ms,\t", elapsed);
+    printf("World step: %lld ms,\t", timer.elapsed());
     timer.restart();
 
     bool touchdown = false;

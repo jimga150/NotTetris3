@@ -2,6 +2,7 @@
 #include <QResizeEvent>
 
 #include <QRandomGenerator>
+#include <QElapsedTimer>
 
 #include "Box2D/Box2D.h"
 
@@ -160,6 +161,7 @@ public:
 
     //debug
     bool debug_graphics = true;
+    bool save_frames = false;
 
 
     //constants
