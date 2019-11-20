@@ -599,12 +599,16 @@ void NT3Game::clearRow(uint row){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
 
+            float32 v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
+            if (v0_worldpoint_y > sides.at(BOTTOM) && v0_worldpoint_y < sides.at(TOP)){
+                affected = true;
+                break;
+            }
+
             ray_casts.at(TOPLEFT).doRayCast(s, b);
             ray_casts.at(BOTTOMLEFT).doRayCast(s, b);
             if (ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
-                //printf("%p is affected by row clear\n", reinterpret_cast<void*>(b));
                 affected = true;
-                affected_bodies.push_back(b);
                 break;
             }
 
@@ -612,6 +616,9 @@ void NT3Game::clearRow(uint row){
 
         //for all of the affected bodies:
         if (!affected) continue;
+
+        //printf("%p is affected by row clear\n", reinterpret_cast<void*>(b));
+        affected_bodies.push_back(b);
 
         //for shapes in those bodies:
         vector<b2Fixture*> fixtures_to_destroy;
