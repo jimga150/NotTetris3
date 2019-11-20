@@ -135,7 +135,9 @@ void NT3Game::render(QPainter& painter)
             //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
             this->drawTetrisPiece(&painter, b);
         }
-        //this->drawBodyTo(&painter, b, this->debug_graphics);
+        if (debug_box2d){
+            this->drawBodyTo(&painter, b);
+        }
     }
 
     painter.setPen(Qt::NoPen);
@@ -155,14 +157,16 @@ void NT3Game::render(QPainter& painter)
         painter.drawRect(QRectF(0, top, width, height));
     }
 
-    if (this->debug_graphics){
+#ifdef TIME_FRAME_COMPS
+    if (this->debug_framerate){
         painter.setPen(this->debug_line_color);
         painter.drawText(QPointF(3*this->graphicsscale, 12*this->graphicsscale), QString::number(this->frame_times.render_time));
         painter.drawText(QPointF(3*this->graphicsscale, 14*this->graphicsscale), QString::number(this->frame_times.game_frame_time));
     }
+#endif
 }
 
-void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
+void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
 
     painter->save();
     painter->translate(
@@ -170,12 +174,10 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body, bool debug){
                 this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
                 );
 
-    if (debug){
-        QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
-        //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-        painter->drawText(QPoint(0, 0), ptrStr);
-        //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
-    }
+    QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
+    //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
+    painter->drawText(QPoint(0, 0), ptrStr);
+    //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
 
     painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
 
@@ -394,9 +396,10 @@ void NT3Game::doGameStep(){
     if (this->freeze_frame){
         return;
     }
-
+#ifdef TIME_GAME_FRAME
     QElapsedTimer timer;
     timer.start();
+#endif
 
     if (save_frames){
         this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
@@ -404,17 +407,21 @@ void NT3Game::doGameStep(){
         QPainter sf_painter(&this->saved_frames[this->last_frame]);
         this->render(sf_painter);
         sf_painter.end();
+#ifdef TIME_GAME_FRAME
         printf("Re-render: %lld ms,\t", timer.elapsed());
+#endif
     }
 
     /*if (this->row_cleared){
         this->freeze_frame = true;
     }*/
 
+#ifdef TIME_GAME_FRAME
     timer.restart();
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
     printf("World step: %lld ms,\t", timer.elapsed());
     timer.restart();
+#endif
 
     bool touchdown = false;
     if (this->contactlistener->hasCurrentPieceCollided()){
@@ -481,15 +488,19 @@ void NT3Game::doGameStep(){
         this->init_BDC();
     }
 
+#ifdef TIME_GAME_FRAME
     printf("Currpiece math: %lld ms\t", timer.elapsed());
     timer.restart();
+#endif
 
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.at(r) = this->getRowDensity(r);
     }
 
+#ifdef TIME_GAME_FRAME
     printf("Row density: %lld ms\t", timer.elapsed());
     timer.restart();
+#endif
 
     this->row_cleared = false;
     if (touchdown){
@@ -501,7 +512,9 @@ void NT3Game::doGameStep(){
             }
         }
     }
+#ifdef TIME_GAME_FRAME
     printf("Row clears: %lld ms\n", timer.elapsed());
+#endif
 }
 
 

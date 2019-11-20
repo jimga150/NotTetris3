@@ -9,6 +9,8 @@
 #include "opengl2dwindow.h"
 #include "nt3contactlistener.h"
 
+#define TIME_GAME_FRAME 1
+
 #define NUM_FRAMES_TO_SAVE 20
 
 #define STD_VECTOR_ACCESS_TRYCATCH(STATEMENT) try { \
@@ -111,7 +113,7 @@ public:
     //graphics
     void render(QPainter& painter) override;
 
-    void drawBodyTo(QPainter* painter, b2Body *body, bool debug_graphics);
+    void drawBodyTo(QPainter* painter, b2Body *body);
 
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
 
@@ -160,7 +162,8 @@ public:
 
 
     //debug
-    bool debug_graphics = true;
+    bool debug_framerate = true;
+    bool debug_box2d = false;
     bool save_frames = false;
 
 
