@@ -479,7 +479,7 @@ void NT3Game::doGameStep(){
         for (uint r = 0; r < this->tetris_rows; r++){
             if (this->row_densities.at(r) > this->line_clear_threshold){
                 this->clearRow(r);
-                //this->row_cleared = true;
+                this->row_cleared = true;
             }
         }
     }
