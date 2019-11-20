@@ -405,7 +405,12 @@ void NT3Game::doGameStep(){
         this->freeze_frame = true;
     }*/
 
+    QElapsedTimer timer;
+    timer.start();
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
+    qint64 elapsed = timer.elapsed();
+    printf("World step: %lld ms,\t", elapsed);
+    timer.restart();
 
     bool touchdown = false;
     if (this->contactlistener->hasCurrentPieceCollided()){
@@ -471,18 +476,28 @@ void NT3Game::doGameStep(){
     if (this->row_cleared){
         this->init_BDC();
     }
+
+    printf("Currpiece math: %lld ms\t", timer.elapsed());
+    timer.restart();
+
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_densities.at(r) = this->getRowDensity(r);
     }
 
+    printf("Row density: %lld ms\t", timer.elapsed());
+    timer.restart();
+
+    this->row_cleared = false;
     if (touchdown){
         for (uint r = 0; r < this->tetris_rows; r++){
             if (this->row_densities.at(r) > this->line_clear_threshold){
+                //printf("Clearing row %u\n", r);
                 this->clearRow(r);
                 this->row_cleared = true;
             }
         }
     }
+    printf("Row clears: %lld ms\n", timer.elapsed());
 }
 
 
