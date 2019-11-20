@@ -670,10 +670,11 @@ void NT3Game::clearRow(uint row){
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
 
                     ray_casts.at(TOPRIGHT).doRayCast(s, b);
-                    Q_ASSERT(ray_casts.at(TOPRIGHT).hit);
-                    hit_worldpoint = this->hit_point(ray_casts.at(TOPRIGHT));
-                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
-                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    if (ray_casts.at(TOPRIGHT).hit){
+                        hit_worldpoint = this->hit_point(ray_casts.at(TOPRIGHT));
+                        //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                        new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    }
                     break;
                 case BOTTOM:
                     ray_casts.at(BOTTOMLEFT).doRayCast(s, b);
@@ -684,10 +685,11 @@ void NT3Game::clearRow(uint row){
                     new_points.push_back(b->GetLocalPoint(hit_worldpoint));
 
                     ray_casts.at(BOTTOMRIGHT).doRayCast(s, b);
-                    Q_ASSERT(ray_casts.at(BOTTOMRIGHT).hit);
-                    hit_worldpoint = this->hit_point(ray_casts.at(BOTTOMRIGHT));
-                    //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
-                    new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    if(ray_casts.at(BOTTOMRIGHT).hit){
+                        hit_worldpoint = this->hit_point(ray_casts.at(BOTTOMRIGHT));
+                        //printf("Added %s to point list for this shape\n", this->b2Vec2String(hit_worldpoint).toUtf8().constData());
+                        new_points.push_back(b->GetLocalPoint(hit_worldpoint));
+                    }
                     break;
                 default:
                     fprintf(stderr, "Line clear side %u not defined\n", side);
