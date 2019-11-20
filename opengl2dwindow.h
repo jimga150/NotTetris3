@@ -87,7 +87,7 @@ protected:
 
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
-    std::vector<long long> frame_times;
+    std::vector<long long> frame_times_vect;
     std::string frame_toolong_suffix = "!!!";
     std::string frame_normal_suffix = "";
 #endif

@@ -60,9 +60,9 @@ OpenGL2DWindow::OpenGL2DWindow(){
 
 OpenGL2DWindow::~OpenGL2DWindow(){
 #ifdef TIME_FRAMES
-    quint64 numframes = this->frame_times.size();
+    quint64 numframes = this->frame_times_vect.size();
     qint64 totalTime = 0;
-    for (qint64 ft : this->frame_times){
+    for (qint64 ft : this->frame_times_vect){
         totalTime += ft;
     }
     double de_facto_rate = totalTime*1.0/numframes;
@@ -102,7 +102,7 @@ void OpenGL2DWindow::renderLater(){
 void OpenGL2DWindow::renderNow(){
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
-    this->frame_times.push_back(elapsed);
+    this->frame_times_vect.push_back(elapsed);
     const char* suffix = elapsed > this->expected_frame_time ? this->frame_toolong_suffix.data() : this->frame_normal_suffix.data();
     printf("Frame took %lld ms %s\n", elapsed, suffix);
     this->frameTimer.restart();
