@@ -116,12 +116,12 @@ void NT3Game::resizeEvent(QResizeEvent* event){
 
 void NT3Game::render(QPainter& painter)
 {
+    painter.setRenderHint(QPainter::Antialiasing);
+
     if (this->freeze_frame){
         painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
         return;
     }
-
-    painter.setRenderHint(QPainter::Antialiasing);
 
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
 
