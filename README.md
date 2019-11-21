@@ -6,9 +6,8 @@ Known bugs:
 * occasional value jumps on row density
 
 Todo:
-* optimize for many shapes (moooore)
+* keep optimizing for many shapes
 * insert notice that source for Box2D library was modified
-* Add flashy bar on row clear
 * Add scoring
 * Add next piece preview
 * Add menu
