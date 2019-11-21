@@ -16,6 +16,12 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
+/*
+* This copy of Box2D HAS been altered.
+* No alterations made have affected the behavior of the library
+* and have been purely to suppress warnings on 64-bit clang.
+*/
+
 #ifndef BOX2D_H
 #define BOX2D_H
 

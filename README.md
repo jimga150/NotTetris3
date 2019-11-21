@@ -7,7 +7,6 @@ Known bugs:
 
 Todo:
 * keep optimizing for many shapes
-* insert notice that source for Box2D library was modified
 * Add scoring
 * Add next piece preview
 * Add menu
