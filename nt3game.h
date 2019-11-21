@@ -196,8 +196,6 @@ public:
 
     const double rad_to_deg = 180.0/M_PI;
 
-    const float32 min_poly_area = 0.75f;
-
 
     //calculated timings
     double fps;
@@ -260,6 +258,8 @@ public:
     QRect scaled_tetris_field = tetris_field;
 
     float32 side_length = static_cast<float32>(tetris_field.height()*1.0/tetris_rows);
+
+    const float32 min_poly_area = (1.0f/40.0f)*side_length*side_length;
 
     const QRect ui_field = QRect(0, tetris_field.y(), 160, tetris_field.height());
     QRect scaled_ui_field = ui_field;
