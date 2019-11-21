@@ -637,7 +637,7 @@ void NT3Game::clearRow(uint row){
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
 
             float32 v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
-            if (v0_worldpoint_y > sides.at(BOTTOM) && v0_worldpoint_y < sides.at(TOP)){
+            if (v0_worldpoint_y >= sides.at(BOTTOM) && v0_worldpoint_y <= sides.at(TOP)){
                 affected = true;
                 break;
             }
