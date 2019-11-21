@@ -924,7 +924,11 @@ QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
             }
         }
     }
-    return QPixmap::fromImage(image);
+    pixmap = QPixmap::fromImage(image);
+    if (!pixmap.hasAlphaChannel()){
+        pixmap = this->enableAlphaChannel(pixmap);
+    }
+    return pixmap;
 }
 
 vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
