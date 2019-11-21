@@ -162,17 +162,22 @@ void NT3Game::render(QPainter& painter)
     }
 
     if (this->game_state == row_clear_blinking){
+
         if (this->blink_on){
+
             painter.setBrush(this->line_clear_color);
-            int side_length = static_cast<int>(this->side_length);
+
             for (uint r = 0; r < this->tetris_rows; r++){
-                row_sides_struct sides(r, this->side_length);
+
                 if (this->rows_to_clear.at(r)){
+
+                    row_sides_struct sides(r, this->side_length);
+
                     painter.drawRect(
                                 this->scaled_tetris_field.x(),
-                                static_cast<int>(static_cast<double>(sides.bottom)*this->graphicsscale),
+                                static_cast<int>(static_cast<double>(sides.bottom)*this->graphicsscale) - 1,
                                 this->scaled_tetris_field.width(),
-                                static_cast<int>(side_length*this->graphicsscale)
+                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->graphicsscale) + 2
                                 );
                 }
             }
