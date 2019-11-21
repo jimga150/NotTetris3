@@ -9,7 +9,7 @@
 #include "opengl2dwindow.h"
 #include "nt3contactlistener.h"
 
-#define TIME_GAME_FRAME 1
+//#define TIME_GAME_FRAME 1
 
 #define NUM_FRAMES_TO_SAVE 20
 
@@ -20,6 +20,13 @@
     }
 
 using namespace std;
+
+enum nt3_state_enum{
+    gameA = 0,
+    row_clear_blinking,
+
+    num_nt3_states
+};
 
 enum tetris_piece_enum{
     I = 0, //Long skinny piece
@@ -149,6 +156,8 @@ public:
 
     QPixmap enableAlphaChannel(QPixmap pixmap);
 
+    void setGameState(nt3_state_enum newstate);
+
 
     //initialization functions
     void initializeTetrisPieceDefs();
@@ -161,22 +170,34 @@ public:
     //end functions
 
 
+
     //debug
     bool debug_framerate = true;
+
     bool debug_box2d = false;
+
     bool save_frames = false;
 
 
     //constants
     const int millis_per_second = 1000;
+
     const double rad_to_deg = 180.0/M_PI;
+
     const float32 min_poly_area = 0.75f;
 
 
     //calculated timings
     double fps;
+
     float32 timeStep;
+
     double framerate; //seconds
+
+
+    //Game state
+    nt3_state_enum game_state = gameA;
+    nt3_state_enum last_state = gameA;
 
 
     //input states/params
@@ -294,8 +315,23 @@ public:
     QRect default_piece_rect;
 
 
+    //Line clear stuff
+    QColor line_clear_color = QColor(0xd2af8f);
+
+    const double lc_blink_toggle_time = 0.1875; //seconds
+
+    const uint num_blinks = 4; //number of blinks to do on row clear
+
+    uint num_blinks_so_far = 0; //blink count accumulator
+
+    vector<bool> rows_to_clear;
+
+    double row_blink_accumulator = 0; //seconds
+
+    bool blink_on = true; //blink state
+
+
     //freeze frame data
-    bool row_cleared = false;
     bool freeze_frame = false;
     QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
     int last_frame = 0;

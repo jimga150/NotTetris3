@@ -36,6 +36,10 @@ NT3Game::NT3Game()
         this->close();
     }
 
+    for (uint i = 0; i < this->tetris_rows; i++){
+        this->rows_to_clear.push_back(false);
+    }
+
     //key-action mappings
     this->freeze_key = Qt::Key_Space;
     this->accelDownKey = Qt::Key_Down;
@@ -155,6 +159,18 @@ void NT3Game::render(QPainter& painter)
         painter.setBrush(QColor(grey, grey, grey));
 
         painter.drawRect(QRectF(0, top, width, height));
+    }
+
+    if (this->game_state == row_clear_blinking){
+        if (this->blink_on){
+            painter.setBrush(this->line_clear_color);
+            int side_length = static_cast<int>(this->side_length);
+            for (uint r = 0; r < this->tetris_rows; r++){
+                if (this->rows_to_clear.at(r)){
+                    painter.drawRect(this->scaled_tetris_field.x(), r*side_length*this->graphicsscale, this->scaled_tetris_field.width(), side_length*this->graphicsscale);
+                }
+            }
+        }
     }
 
 #ifdef TIME_FRAME_COMPS
@@ -393,9 +409,34 @@ void NT3Game::keyReleaseEvent(QKeyEvent* ev){
 
 void NT3Game::doGameStep(){
 
-    if (this->freeze_frame){
+    if (this->freeze_frame) return;
+
+    if (this->game_state == row_clear_blinking){
+
+        this->row_blink_accumulator += this->framerate;
+        if (this->row_blink_accumulator > this->lc_blink_toggle_time){
+            this->row_blink_accumulator = 0;
+
+            this->blink_on = !this->blink_on;
+            if (this->blink_on){
+
+                ++this->num_blinks_so_far;
+                if (this->num_blinks_so_far >= this->num_blinks){
+                    this->num_blinks_so_far = 0;
+
+                    this->setGameState(gameA);
+                    for (uint r = 0; r < this->tetris_rows; r++){
+                        if (this->rows_to_clear.at(r)){
+                            this->clearRow(r);
+                            this->rows_to_clear.at(r) = false;
+                        }
+                    }
+                }
+            }
+        }
         return;
     }
+
 #ifdef TIME_GAME_FRAME
     QElapsedTimer timer;
     timer.start();
@@ -488,7 +529,7 @@ void NT3Game::doGameStep(){
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
 
-    if (this->row_cleared){
+    if (this->last_state == row_clear_blinking && this->game_state == gameA){
         this->init_BDC();
     }
 
@@ -506,13 +547,11 @@ void NT3Game::doGameStep(){
     timer.restart();
 #endif
 
-    this->row_cleared = false;
     if (touchdown){
         for (uint r = 0; r < this->tetris_rows; r++){
             if (this->row_densities.at(r) > this->line_clear_threshold){
-                //printf("Clearing row %u\n", r);
-                this->clearRow(r);
-                this->row_cleared = true;
+                this->rows_to_clear.at(r) = true;
+                this->setGameState(row_clear_blinking);
             }
         }
     }
@@ -1167,6 +1206,11 @@ QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
     p.end();
 
     return ans;
+}
+
+void NT3Game::setGameState(nt3_state_enum newstate){
+    this->last_state = this->game_state;
+    this->game_state = newstate;
 }
 
 

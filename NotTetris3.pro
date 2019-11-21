@@ -16,7 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #DEFINES += TIME_FRAMES
-DEFINES += TIME_FRAME_COMPS
+#DEFINES += TIME_FRAME_COMPS
 
 #This code compares floating point numbers with equality a lot,
 #and all of them are justified, contrary to the folks over at C++ HQ.
