@@ -166,8 +166,14 @@ void NT3Game::render(QPainter& painter)
             painter.setBrush(this->line_clear_color);
             int side_length = static_cast<int>(this->side_length);
             for (uint r = 0; r < this->tetris_rows; r++){
+                row_sides_struct sides(r, this->side_length);
                 if (this->rows_to_clear.at(r)){
-                    painter.drawRect(this->scaled_tetris_field.x(), r*side_length*this->graphicsscale, this->scaled_tetris_field.width(), side_length*this->graphicsscale);
+                    painter.drawRect(
+                                this->scaled_tetris_field.x(),
+                                static_cast<int>(static_cast<double>(sides.bottom)*this->graphicsscale),
+                                this->scaled_tetris_field.width(),
+                                static_cast<int>(side_length*this->graphicsscale)
+                                );
                 }
             }
         }
@@ -563,10 +569,10 @@ void NT3Game::doGameStep(){
 
 
 float32 NT3Game::getRowDensity(uint row){
-    float32 bot = row*this->side_length;
-    float32 top = (row+1)*this->side_length;
 
-    vector<rayCastComplete> ray_casts = this->getRayCasts(top, bot);
+    row_sides_struct sides(row, this->side_length);
+
+    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top, sides.bottom);
 
     float32 total_area = 0;
 
@@ -597,7 +603,7 @@ float32 NT3Game::getRowDensity(uint row){
                 for (int i = 0; i < s->m_count; i++){
 
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
-                    if (p.y <= top && p.y >= bot){
+                    if (p.y <= sides.top && p.y >= sides.bottom){
                         new_points.push_back(p);
                     }
 
@@ -630,7 +636,7 @@ float32 NT3Game::getRowDensity(uint row){
             } else { //If NEITHER of the ray casts hit
 
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
-                if (p.y <= top && p.y >= bot){
+                if (p.y <= sides.top && p.y >= sides.bottom){
                     float32 area = this->poly_area(s->m_vertices, s->m_count);
                     body_area += area;
                 }
@@ -650,22 +656,9 @@ float32 NT3Game::getRowDensity(uint row){
 
 void NT3Game::clearRow(uint row){
 
-    vector<float32> sides;
-    for (uint i = 0; i < num_line_cut_sides; i++){
-        switch(i){
-        case TOP:
-            sides.push_back((row+1)*this->side_length + numeric_limits<float32>::epsilon());
-            break;
-        case BOTTOM:
-            sides.push_back(row*this->side_length - numeric_limits<float32>::epsilon());
-            break;
-        default:
-            fprintf(stderr, "Line clear side %u not defined\n", i);
-            break;
-        }
-    }
+    row_sides_struct sides(row, this->side_length);
 
-    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.at(TOP), sides.at(BOTTOM));
+    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top, sides.bottom);
 
     //make list of bodies affected by this row clear
     //for top and bottom lines:
@@ -681,7 +674,7 @@ void NT3Game::clearRow(uint row){
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
 
             float32 v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
-            if (v0_worldpoint_y >= sides.at(BOTTOM) && v0_worldpoint_y <= sides.at(TOP)){
+            if (v0_worldpoint_y >= sides.bottom && v0_worldpoint_y <= sides.top){
                 affected = true;
                 break;
             }
@@ -729,10 +722,10 @@ void NT3Game::clearRow(uint row){
                     bool outside;
                     switch(side){
                     case TOP:
-                        outside = p.y > sides.at(TOP);
+                        outside = p.y > sides.top;
                         break;
                     case BOTTOM:
-                        outside = p.y < sides.at(BOTTOM);
+                        outside = p.y < sides.bottom;
                         break;
                     default:
                         outside = false;

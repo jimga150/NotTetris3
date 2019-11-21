@@ -87,6 +87,18 @@ enum line_cut_side_enum{
     num_line_cut_sides
 };
 
+struct row_sides_struct{
+    float32 top = 0;
+    float32 bottom = 0;
+
+    row_sides_struct(){}
+
+    row_sides_struct(uint row, float32 side_length){
+        this->top = (row+1)*side_length + numeric_limits<float32>::epsilon();
+        this->bottom = row*side_length - numeric_limits<float32>::epsilon();
+    }
+};
+
 struct rayCastComplete{
     b2RayCastInput input;
     b2RayCastOutput output;
