@@ -431,6 +431,7 @@ void NT3Game::doGameStep(){
                             this->rows_to_clear.at(r) = false;
                         }
                     }
+                    this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
                 }
             }
         }
