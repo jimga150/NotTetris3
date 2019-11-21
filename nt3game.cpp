@@ -418,7 +418,11 @@ void NT3Game::doGameStep(){
 
 #ifdef TIME_GAME_FRAME
     timer.restart();
+#endif
+
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
+
+#ifdef TIME_GAME_FRAME
     printf("World step: %lld ms,\t", timer.elapsed());
     timer.restart();
 #endif
