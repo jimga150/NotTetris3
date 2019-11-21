@@ -887,9 +887,7 @@ void NT3Game::clearRow(uint row){
             tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
             if (orig_body_data != nullptr){
                 tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
-                Q_ASSERT(data->image.hasAlphaChannel());
                 data->image = this->maskImage(data->image, new_body, data->region);
-                Q_ASSERT(data->image.hasAlphaChannel());
                 new_body->SetUserData(data);
             }
         }
