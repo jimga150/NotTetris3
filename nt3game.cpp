@@ -129,29 +129,7 @@ void NT3Game::render(QPainter& painter)
     
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
     
-    this->BOW_font.print(&painter, this->score_display_right*this->graphicsscale, RIGHT_ALIGN,
-                         QString::number(this->current_score), this->graphicsscale);
-    
-    
-    
-    if (this->score_to_add > 0){
-        
-        QPixmap score_add_pm(this->score_add_display.size()*this->graphicsscale);
-        score_add_pm.fill(Qt::black);
-        
-        QPainter score_add_painter(&score_add_pm);
-        
-        score_add_painter.translate(QPoint(0, this->score_add_disp_offset));
-        
-        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->graphicsscale, RIGHT_ALIGN,
-                             "+" + QString::number(this->score_to_add), this->graphicsscale);
-        score_add_painter.end();
-        
-        painter.save();
-        painter.translate(this->score_add_display.topLeft()*this->graphicsscale);
-        painter.drawPixmap(score_add_pm.rect(), score_add_pm);
-        painter.restore();
-    }
+    this->drawScore(&painter);
     
     painter.setPen(Qt::SolidLine);
     painter.setPen(this->debug_line_color);
@@ -318,6 +296,31 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     }
     
     painter->restore();
+}
+
+void NT3Game::drawScore(QPainter* painter){
+    
+    this->BOW_font.print(painter, this->score_display_right*this->graphicsscale, RIGHT_ALIGN,
+                         QString::number(this->current_score), this->graphicsscale);
+    
+    if (this->score_to_add > 0){
+        
+        QPixmap score_add_pm(this->score_add_display.size()*this->graphicsscale);
+        score_add_pm.fill(Qt::black);
+        
+        QPainter score_add_painter(&score_add_pm);
+        
+        score_add_painter.translate(QPoint(0, this->score_add_disp_offset));
+        
+        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->graphicsscale, RIGHT_ALIGN,
+                             "+" + QString::number(this->score_to_add), this->graphicsscale);
+        score_add_painter.end();
+        
+        painter->save();
+        painter->translate(this->score_add_display.topLeft()*this->graphicsscale);
+        painter->drawPixmap(score_add_pm.rect(), score_add_pm);
+        painter->restore();
+    }
 }
 
 

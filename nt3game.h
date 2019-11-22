@@ -138,6 +138,8 @@ public:
     
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);
     
+    void drawScore(QPainter* painter);
+    
     
     //game logic
     void doGameStep() override;
