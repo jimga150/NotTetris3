@@ -117,8 +117,7 @@ void OpenGL2DWindow::renderNow(){
     printf("\n");
 #endif
 
-    if (!this->isExposed())
-        return;
+    if (!this->isExposed()) return;
 
 #ifdef TIME_FRAME_COMPS
     QElapsedTimer timer;
@@ -172,6 +171,8 @@ void OpenGL2DWindow::renderNow(){
     timer.restart();
 #endif
 
+    if (!this->isExposed()) return;
+    
     this->m_context->swapBuffers(this);
 
 #ifdef TIME_FRAME_COMPS
