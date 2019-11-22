@@ -285,16 +285,20 @@ public:
     
     int score_add_disp_offset = 0;
     
+    QPoint lines_cleared_disp_offset = QPoint(144, 80);
+    
     
     //Game state
     nt3_state_enum game_state = gameA;
     nt3_state_enum last_state = gameA;
     
+    const float32 avgarea_divisor = square_area*10;
+    
     int current_score = 0;
     
     int score_to_add = 0;
     
-    const float32 avgarea_divisor = square_area*10;
+    int lines_cleared = 0;
     
     
     //physics constants

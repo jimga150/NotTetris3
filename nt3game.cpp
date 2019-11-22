@@ -321,6 +321,9 @@ void NT3Game::drawScore(QPainter* painter){
         painter->drawPixmap(score_add_pm.rect(), score_add_pm);
         painter->restore();
     }
+    
+    this->BOW_font.print(painter, this->lines_cleared_disp_offset*this->graphicsscale, RIGHT_ALIGN,
+                         QString::number(this->lines_cleared), this->graphicsscale);
 }
 
 
@@ -610,6 +613,8 @@ void NT3Game::doGameStep(){
         
         if (num_lines_removed > 0){
             this->setGameState(row_clear_blinking);
+            
+            this->lines_cleared += num_lines_removed;
             
             average_area /= num_lines_removed*this->avgarea_divisor;
             
