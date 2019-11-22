@@ -287,6 +287,8 @@ public:
     
     QPoint lines_cleared_disp_offset = QPoint(144, 80);
     
+    QPoint level_disp_offset = QPoint(144, 56);
+    
     
     //Game state
     nt3_state_enum game_state = gameA;
@@ -299,6 +301,8 @@ public:
     int score_to_add = 0;
     
     int lines_cleared = 0;
+    
+    int current_level = 0;
     
     
     //physics constants
