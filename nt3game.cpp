@@ -544,13 +544,13 @@ void NT3Game::doGameStep(){
     case ROTATECW:
         //printf("Rotate CW\n");
         if (this->currentPiece->GetAngularVelocity() < this->wmax){
-            this->currentPiece->ApplyTorque(this->torque, true);
+            this->currentPiece->ApplyTorque(this->angular_accel*this->currentPiece->GetInertia(), true);
         }
         break;
     case ROTATECCW:
         //printf("Rotate CCW\n");
         if (this->currentPiece->GetAngularVelocity() > -this->wmax){
-            this->currentPiece->ApplyTorque(-this->torque, true);
+            this->currentPiece->ApplyTorque(-this->angular_accel*this->currentPiece->GetInertia(), true);
         }
         break;
     default:
