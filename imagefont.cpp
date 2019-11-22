@@ -38,7 +38,7 @@ ImageFont::ImageFont(const char* glyphs, QImage font_image){
     }
 }
 
-void ImageFont::print(QPainter* painter, QPoint start, bool right_align, QString string, double sx, double sy){
+void ImageFont::print(QPainter* painter, QPoint start, alignment_enum alignment, QString string, double sx, double sy){
     
     painter->save();
     
@@ -49,7 +49,7 @@ void ImageFont::print(QPainter* painter, QPoint start, bool right_align, QString
     }
     painter->scale(sx, sy);
     
-    if (right_align){
+    if (alignment == RIGHT_ALIGN){
         for (int i = string.length()-1; i >= 0; i--){
             
             QPixmap glyph_pixmap = this->getPixmapFor(static_cast<char>(string[i].unicode()));
