@@ -128,6 +128,9 @@ void NT3Game::render(QPainter& painter)
     }
 
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
+    
+    this->BOW_font.print(&painter, QPoint(151, 24)*this->graphicsscale, RIGHT_ALIGN, //TODO: magic number
+                         QString::number(this->current_score), this->graphicsscale);
 
     painter.setPen(Qt::SolidLine);
     painter.setPen(this->debug_line_color);
@@ -436,12 +439,35 @@ void NT3Game::doGameStep(){
                     this->num_blinks_so_far = 0;
 
                     this->setGameState(gameA);
+                    
+                    float32 average_area = 0;
+                    int num_lines_removed = 0;
+                    
                     for (uint r = 0; r < this->tetris_rows; r++){
+                        
                         if (this->rows_to_clear.at(r)){
+                            average_area += this->row_areas[r];
+                            num_lines_removed++;
+                            
                             this->clearRow(r);
                             this->rows_to_clear.at(r) = false;
                         }
                     }
+                    average_area /= num_lines_removed*this->avgarea_divisor;
+                    
+                    //this equation is:
+                    //(where n = num_lines_removed)
+                    //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
+                    //average_aree becomes very small typically, ~10^-19
+                    //for the usual case of average area, the scores look something like this:
+                    //n = 1: score += 60
+                    //n = 2: score += 180
+                    //n = 3: score += 380
+                    int score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area), 10.0))*20 + 
+                                             qPow(num_lines_removed, 2)*40);
+                    
+                    this->current_score += score_to_add;
+                    
                     this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
                 }
             }

@@ -3,11 +3,13 @@
 
 #include <QRandomGenerator>
 #include <QElapsedTimer>
+#include <QtMath>
 
 #include "Box2D/Box2D.h"
 
 #include "opengl2dwindow.h"
 #include "nt3contactlistener.h"
+#include "imagefont.h"
 
 //#define TIME_GAME_FRAME 1
 
@@ -205,11 +207,6 @@ public:
     double framerate; //seconds
 
 
-    //Game state
-    nt3_state_enum game_state = gameA;
-    nt3_state_enum last_state = gameA;
-
-
     //input states/params
     bool accelDownState = false;
     rotate_state_enum rotateState = NO_ROTATION;
@@ -277,6 +274,15 @@ public:
     double graphicsscale = 1;
 
     float32 piece_start_y = -side_length/2;
+    
+    
+    //Game state
+    nt3_state_enum game_state = gameA;
+    nt3_state_enum last_state = gameA;
+    
+    int current_score = 0;
+    
+    float32 avgarea_divisor = square_area*10;
 
 
     //physics constants
@@ -327,6 +333,9 @@ public:
 
     QPixmap default_piece_image;
     QRect default_piece_rect;
+    
+    QImage black_font_img = QImage(":/resources/graphics/font.png");
+    ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", black_font_img);
 
 
     //Line clear stuff
