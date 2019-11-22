@@ -440,34 +440,13 @@ void NT3Game::doGameStep(){
 
                     this->setGameState(gameA);
                     
-                    float32 average_area = 0;
-                    int num_lines_removed = 0;
-                    
                     for (uint r = 0; r < this->tetris_rows; r++){
                         
                         if (this->rows_to_clear.at(r)){
-                            average_area += this->row_areas[r];
-                            num_lines_removed++;
-                            
                             this->clearRow(r);
                             this->rows_to_clear.at(r) = false;
                         }
                     }
-                    average_area /= num_lines_removed*this->avgarea_divisor;
-                    
-                    //this equation is:
-                    //(where n = num_lines_removed)
-                    //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
-                    //average_aree becomes very small typically, ~10^-19
-                    //for the usual case of average area, the scores look something like this:
-                    //n = 1: score += 60
-                    //n = 2: score += 180
-                    //n = 3: score += 380
-                    int score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area), 10.0))*20 + 
-                                             qPow(num_lines_removed, 2)*40);
-                    
-                    this->current_score += score_to_add;
-                    
                     this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
                 }
             }
@@ -586,13 +565,40 @@ void NT3Game::doGameStep(){
 #endif
 
     if (touchdown){
+        
+        float32 average_area = 0;
+        int num_lines_removed = 0;
+        
         for (uint r = 0; r < this->tetris_rows; r++){
             if (this->row_areas.at(r) > this->line_clear_threshold){
                 this->rows_to_clear.at(r) = true;
-                this->setGameState(row_clear_blinking);
+                ++num_lines_removed;
+                average_area += this->row_areas.at(r);
             }
         }
+        
+        if (num_lines_removed > 0){
+            this->setGameState(row_clear_blinking);
+            
+            average_area /= num_lines_removed*this->avgarea_divisor;
+            
+            //this equation is:
+            //(where n = num_lines_removed)
+            
+            //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
+            
+            //(average_area^10) becomes very small typically, ~10^-19
+            //for the usual case of average area, the scores look something like this:
+            //n = 1: score += 60
+            //n = 2: score += 180
+            //n = 3: score += 380
+            int score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area), 10.0))*20 + 
+                                     qPow(num_lines_removed, 2)*40);
+            
+            this->current_score += score_to_add;
+        }
     }
+    
 #ifdef TIME_GAME_FRAME
     printf("Row clears: %lld ms\n", timer.elapsed());
 #endif
