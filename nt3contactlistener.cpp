@@ -10,21 +10,19 @@ void NT3ContactListener::BeginContact(b2Contact* contact){
     if (this->currentPiece == nullptr) return;
 
     b2Fixture* fixtureA = contact->GetFixtureA();
+    b2Body* bodyA = fixtureA->GetBody();
+    
     b2Fixture* fixtureB = contact->GetFixtureB();
+    b2Body* bodyB = fixtureB->GetBody();
 
     for (b2Body* b : this->exceptions){
-        for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
-            if (f == fixtureA || f == fixtureB){
-                return;
-            }
+        if (b == bodyA || b == bodyB){
+            return;
         }
     }
 
-    for (b2Fixture* f = this->currentPiece->GetFixtureList(); f; f = f->GetNext()){
-        if (f == fixtureA || f == fixtureB){
-            this->currentPieceCollided = true;
-            return;
-        }
+    if (bodyA == this->currentPiece || bodyB == this->currentPiece){
+        this->currentPieceCollided = true;
     }
 }
 
