@@ -27,10 +27,18 @@ ImageFont::ImageFont(const char* glyphs, QImage font_image){
             QPixmap glyph_image = QPixmap::fromImage(font_image.copy(x, 0, past_x - x, font_image.height()));
             
             //pair it with its proper character
-            //printf("Insert %c\n", glyphs[glyph_index]);            
-            this->characters.insert(glyphs[glyph_index++], glyph_image);
+            char c = glyphs[glyph_index];
             
-            if (!glyphs[glyph_index]) break; //null terminator reached
+            if (this->characters.contains(c)){
+                fprintf(stderr, "Font already contains %c (%d), skipping...\n", c, c);
+            } else {
+                //printf("Insert %c (%d)\n", c, c);            
+                this->characters.insert(c, glyph_image);
+            }
+            
+            ++glyph_index;
+            
+            if (!c) break; //null terminator reached
             
             //skip to the next separator
             x = past_x - 1;
