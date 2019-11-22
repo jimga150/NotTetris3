@@ -1310,8 +1310,8 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.linearVelocity = b2Vec2(0, this->downward_velocity_regular);
     this->tetrisBodyDef.angularVelocity = 0;
     
-    this->tetrisBodyDef.linearDamping = 0.5f;
-    this->tetrisBodyDef.angularDamping = 0.1f;
+    this->tetrisBodyDef.linearDamping = this->linear_damping;
+    this->tetrisBodyDef.angularDamping = this->angular_damping;
     
     
     for (uint8 i = 0; i < num_tetris_pieces; i++){

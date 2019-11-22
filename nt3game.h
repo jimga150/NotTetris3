@@ -333,6 +333,9 @@ public:
     
     float32 restitution = 0.01f;
     
+    float32 linear_damping = 0.5f;
+    float32 angular_damping = 0.1f;
+    
     float32 line_clear_threshold = 8.1f*side_length*side_length;
     
     
