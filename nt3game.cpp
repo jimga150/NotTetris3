@@ -615,6 +615,12 @@ void NT3Game::doGameStep(){
         }
         
         if (num_lines_removed > 0){
+            
+            for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+                b->SetLinearVelocity(b2Vec2(0, 0));
+                b->SetAngularVelocity(0);
+            }
+            
             this->setGameState(row_clear_blinking);
             
             this->lines_cleared += num_lines_removed;
