@@ -142,7 +142,7 @@ public:
 
 
     //calculating/removing rows
-    float32 getRowDensity(uint row);
+    float32 getRowArea(uint row);
 
     void clearRow(uint row);
 
@@ -243,8 +243,8 @@ public:
     b2Body* currentPiece = nullptr;
 
     //Index: Row box # (up to tetris_rows-1)
-    vector<float32> row_densities;
-    vector<QHash<b2Body*, float32>> body_density_contributions;
+    vector<float32> row_areas;
+    vector<QHash<b2Body*, float32>> body_area_contributions;
 
 
     //physical properties of graphics and world
@@ -320,7 +320,7 @@ public:
     QPixmap gamebackground = QPixmap(gamebackground_path);
 
     QString gameafield_path = ":/resources/graphics/gameafield.png";
-    QPixmap gameafield = QPixmap(gameafield_path);
+    QPixmap gameafield = QPixmap(gameafield_path); //TODO: might not need this
 
     vector<QPixmap> piece_images;
     vector<QRect> piece_rects;
@@ -347,7 +347,9 @@ public:
 
     //freeze frame data
     bool freeze_frame = false;
+    
     QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
+    
     int last_frame = 0;
 
 protected:

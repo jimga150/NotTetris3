@@ -150,7 +150,7 @@ void NT3Game::render(QPainter& painter)
         double height = static_cast<double>(this->side_length)*this->graphicsscale;
         double top = height*r;
 
-        double fill_fraction = static_cast<double>(this->row_densities.at(r)/this->line_clear_threshold);
+        double fill_fraction = static_cast<double>(this->row_areas.at(r)/this->line_clear_threshold);
         //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
         fill_fraction = qMin(fill_fraction, 1.0);
         double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
@@ -551,7 +551,7 @@ void NT3Game::doGameStep(){
 #endif
 
     for (uint r = 0; r < this->tetris_rows; r++){
-        this->row_densities.at(r) = this->getRowDensity(r);
+        this->row_areas.at(r) = this->getRowArea(r);
     }
 
 #ifdef TIME_GAME_FRAME
@@ -561,7 +561,7 @@ void NT3Game::doGameStep(){
 
     if (touchdown){
         for (uint r = 0; r < this->tetris_rows; r++){
-            if (this->row_densities.at(r) > this->line_clear_threshold){
+            if (this->row_areas.at(r) > this->line_clear_threshold){
                 this->rows_to_clear.at(r) = true;
                 this->setGameState(row_clear_blinking);
             }
@@ -573,7 +573,7 @@ void NT3Game::doGameStep(){
 }
 
 
-float32 NT3Game::getRowDensity(uint row){
+float32 NT3Game::getRowArea(uint row){
 
     row_sides_struct sides(row, this->side_length);
 
@@ -585,12 +585,12 @@ float32 NT3Game::getRowDensity(uint row){
         if (this->isAWall(b)) continue;
         if (b == this->currentPiece) continue;
 
-        if (this->body_density_contributions.at(row).contains(b)){
+        if (this->body_area_contributions.at(row).contains(b)){
             if (!b->IsAwake()){
-                total_area += this->body_density_contributions.at(row).value(b);
+                total_area += this->body_area_contributions.at(row).value(b);
                 continue;
             }
-            this->body_density_contributions.at(row).remove(b);
+            this->body_area_contributions.at(row).remove(b);
         }
 
         float32 body_area = 0;
@@ -650,7 +650,7 @@ float32 NT3Game::getRowDensity(uint row){
 
         } //end fixture loop
 
-        this->body_density_contributions.at(row).insert(b, body_area);
+        this->body_area_contributions.at(row).insert(b, body_area);
         total_area += body_area;
 
     } //end body loop
@@ -1351,10 +1351,10 @@ void NT3Game::initializeWalls(){
 }
 
 void NT3Game::init_BDC(){
-    this->row_densities.clear();
-    this->body_density_contributions.clear();
+    this->row_areas.clear();
+    this->body_area_contributions.clear();
     for (uint r = 0; r < this->tetris_rows; r++){
-        this->row_densities.push_back(0.0f);
-        this->body_density_contributions.push_back(QHash<b2Body*, float32>());
+        this->row_areas.push_back(0.0f);
+        this->body_area_contributions.push_back(QHash<b2Body*, float32>());
     }
 }
