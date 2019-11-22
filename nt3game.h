@@ -275,6 +275,8 @@ public:
 
     float32 piece_start_y = -side_length/2;
     
+    QPoint score_display_right = QPoint(151, 24);
+    
     
     //Game state
     nt3_state_enum game_state = gameA;

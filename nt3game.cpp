@@ -129,7 +129,7 @@ void NT3Game::render(QPainter& painter)
 
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
     
-    this->BOW_font.print(&painter, QPoint(151, 24)*this->graphicsscale, RIGHT_ALIGN, //TODO: magic number
+    this->BOW_font.print(&painter, this->score_display_right*this->graphicsscale, RIGHT_ALIGN,
                          QString::number(this->current_score), this->graphicsscale);
 
     painter.setPen(Qt::SolidLine);
