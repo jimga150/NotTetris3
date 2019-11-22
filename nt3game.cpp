@@ -493,6 +493,7 @@ void NT3Game::doGameStep(){
         if (this->currentPiece->GetWorldCenter().y < 0){
             printf("Game lost!\n");
             this->close();
+            return;
         }
 
         this->makeNewTetrisPiece();
