@@ -132,6 +132,27 @@ void NT3Game::render(QPainter& painter)
     this->BOW_font.print(&painter, this->score_display_right*this->graphicsscale, RIGHT_ALIGN,
                          QString::number(this->current_score), this->graphicsscale);
     
+    
+    
+    if (this->score_to_add > 0){
+        
+        QPixmap score_add_pm(this->score_add_display.size()*this->graphicsscale);
+        score_add_pm.fill(Qt::black);
+        
+        QPainter score_add_painter(&score_add_pm);
+        
+        score_add_painter.translate(QPoint(0, this->score_add_disp_offset));
+        
+        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->graphicsscale, RIGHT_ALIGN,
+                             "+" + QString::number(this->score_to_add), this->graphicsscale);
+        score_add_painter.end();
+        
+        painter.save();
+        painter.translate(this->score_add_display.topLeft()*this->graphicsscale);
+        painter.drawPixmap(score_add_pm.rect(), score_add_pm);
+        painter.restore();
+    }
+    
     painter.setPen(Qt::SolidLine);
     painter.setPen(this->debug_line_color);
     painter.setBrush(Qt::NoBrush);
@@ -485,6 +506,12 @@ void NT3Game::doGameStep(){
     timer.restart();
 #endif
     
+    if (this->score_to_add > 0){
+        if (--this->score_add_disp_offset < -10*this->graphicsscale){
+            this->score_to_add = 0;
+        }
+    }
+    
     bool touchdown = false;
     if (this->contactlistener->hasCurrentPieceCollided()){
         touchdown = true;
@@ -593,10 +620,12 @@ void NT3Game::doGameStep(){
             //n = 1: score += 60
             //n = 2: score += 180
             //n = 3: score += 380
-            int score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area), 10.0))*20 + 
-                                     qPow(num_lines_removed, 2)*40);
+            this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area), 10.0))*20 + 
+                                       qPow(num_lines_removed, 2)*40);
             
-            this->current_score += score_to_add;
+            this->current_score += this->score_to_add;
+            
+            this->score_add_disp_offset = 0;
         }
     }
     

@@ -277,6 +277,12 @@ public:
     
     QPoint score_display_right = QPoint(151, 24);
     
+    QRect score_add_display = QRect(QPoint(109, 35), QSize(46, 10));
+    
+    QPoint sc_add_right_in_disp = QPoint(42, 1);
+    
+    int score_add_disp_offset = 0;
+    
     
     //Game state
     nt3_state_enum game_state = gameA;
@@ -284,7 +290,9 @@ public:
     
     int current_score = 0;
     
-    float32 avgarea_divisor = square_area*10;
+    int score_to_add = 0;
+    
+    const float32 avgarea_divisor = square_area*10;
     
     
     //physics constants
@@ -338,6 +346,9 @@ public:
     
     QImage black_font_img = QImage(":/resources/graphics/font.png");
     ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", black_font_img);
+    
+    QImage white_font_img = QImage(":/resources/graphics/fontwhite.png");
+    ImageFont WOB_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", white_font_img);
     
     
     //Line clear stuff
