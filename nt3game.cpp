@@ -103,15 +103,8 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->graphicsscale = qMax(this->min_graphics_scale, this->graphicsscale);
     //printf("Graphics scale is now %f\n", this->graphicsscale);
     
-    this->scaled_ui_field.setX(static_cast<int>(this->ui_field.x()*this->graphicsscale));
-    this->scaled_ui_field.setY(static_cast<int>(this->ui_field.y()*this->graphicsscale));
-    this->scaled_ui_field.setWidth(static_cast<int>(this->ui_field.width()*this->graphicsscale));
-    this->scaled_ui_field.setHeight(static_cast<int>(this->ui_field.height()*this->graphicsscale));
-    
-    this->scaled_tetris_field.setX(static_cast<int>(this->tetris_field.x()*this->graphicsscale));
-    this->scaled_tetris_field.setY(static_cast<int>(this->tetris_field.y()*this->graphicsscale));
-    this->scaled_tetris_field.setWidth(static_cast<int>(this->tetris_field.width()*this->graphicsscale));
-    this->scaled_tetris_field.setHeight(static_cast<int>(this->tetris_field.height()*this->graphicsscale));
+    this->scaled_ui_field = TO_QRECT(this->ui_field, this->graphicsscale);
+    this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->graphicsscale);
     
     if (!aspect_ratio_respected){
         this->resize(this->scaled_ui_field.width(), this->scaled_ui_field.height());

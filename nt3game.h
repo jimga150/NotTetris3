@@ -21,6 +21,8 @@
     printf("Line %d: vector access failed: %s\n", __LINE__, e.what()); \
     }
 
+#define TO_QRECT(QRF, SCALE) QRect(static_cast<int>(QRF.x()*SCALE), static_cast<int>(QRF.y()*SCALE), static_cast<int>(QRF.width()*SCALE), static_cast<int>(QRF.height()*SCALE))
+
 using namespace std;
 
 enum nt3_state_enum{
