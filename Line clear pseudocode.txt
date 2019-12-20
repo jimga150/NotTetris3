@@ -1,0 +1,44 @@
+For all shapes that aren't the walls:
+For all shapes in body:
+Ray cast the top and bottom rows from both sides to the shape
+
+cut = false
+
+IF top hits:
+	Get list of shape vertices that are ABOVE the top line
+	combine list with the two points where the ray cast hit
+	!!! new body with shape with those points
+	cut = true
+ 
+IF bottom hits:
+	Get list of shape vertices that are BELOW the bottom line
+	combine list with the two points where the ray cast hit
+	!!! new body with shape with those points
+	cut = true
+
+IF cut OR body center lies between rays:
+	delete the original shape
+
+(figure out how to determine when two shapes on the same side of a cut should be part of the same body)
+
+
+
+Volume of the line:
+
+for each shape besides walls:
+
+Ray cast the top and bottom rows from both sides to the shape
+
+IF top hits OR if bottom hits
+	Get list of shape vertices that are BETWEEN the two lines
+	Combine with list of ray vast vertices from both sides
+	Make shape with those vertices
+	Calculate volume of the shape 
+	(you can throw away this shape)
+	add volume to total
+
+ELSE
+	see if first vertex of shape is inside the lines
+	IF it is:
+		add volume of shape to total
+
