@@ -311,8 +311,8 @@ public:
     
     const float32 old_g = 500;
     const float32 old_start_y = -64;
-    const float32 old_game_height = 640;
-    float32 gravity_g = old_g*(-piece_start_y+tetris_field.height())/(-old_start_y+old_game_height);
+    const float32 old_game_height = 640;    
+    float32 gravity_g = old_g*(tetris_field.height() - piece_start.y)/(old_game_height - old_start_y);
     
     float32 density = 1;//1.0f/900.0f;
     
@@ -338,7 +338,7 @@ public:
     float32 linear_damping = 0.5f;
     float32 angular_damping = 0.1f;
     
-    float32 line_clear_threshold = 8.1f*side_length*side_length;
+    float32 line_clear_threshold = 8.1f*square_area;
     
     
     //piece params
