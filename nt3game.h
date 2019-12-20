@@ -314,7 +314,7 @@ public:
     const float32 old_game_height = 640;
     float32 gravity_g = old_g*(-piece_start_y+tetris_field.height())/(-old_start_y+old_game_height);
     
-    float32 density = 1.0f/900.0f;
+    float32 density = 1;//1.0f/900.0f;
     
     float32 mass = density*square_area*4;
     float32 kgm = mass*side_length;
