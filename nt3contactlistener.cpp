@@ -14,13 +14,15 @@ void NT3ContactListener::BeginContact(b2Contact* contact){
     
     b2Fixture* fixtureB = contact->GetFixtureB();
     b2Body* bodyB = fixtureB->GetBody();
-
-    for (b2Body* b : this->exceptions){
-        if (b == bodyA || b == bodyB){
-            return;
-        }
+    
+    if (find(this->exceptions.begin(), this->exceptions.end(), bodyA) != this->exceptions.end()){
+        return;
     }
-
+    
+    if (find(this->exceptions.begin(), this->exceptions.end(), bodyB) != this->exceptions.end()){
+        return;
+    }
+    
     if (bodyA == this->currentPiece || bodyB == this->currentPiece){
         this->currentPieceCollided = true;
     }
