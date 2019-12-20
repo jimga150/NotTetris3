@@ -1296,7 +1296,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     
     this->tetrisBodyDef.bullet = false;
     
-    this->tetrisBodyDef.position.Set(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
+    this->tetrisBodyDef.position = this->piece_start;
     
     this->tetrisBodyDef.gravityScale = 0;
     

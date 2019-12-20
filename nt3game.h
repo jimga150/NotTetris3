@@ -277,7 +277,7 @@ public:
     
     double graphicsscale = 1;
     
-    float32 piece_start_y = -side_length/2;
+    b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
     QPoint score_display_right = QPoint(151, 24);
     
