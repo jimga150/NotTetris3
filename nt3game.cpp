@@ -4,6 +4,11 @@ NT3Game::NT3Game()
 {
     this->setTitle("Not Tetris 3");
     
+    if (this->gamebackground.isNull()){
+        fprintf(stderr, "Resources not present, exiting...\n");
+        this->close();
+    }
+    
     QScreen* screen = this->screen();
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;
@@ -29,11 +34,6 @@ NT3Game::NT3Game()
         
         int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
         this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
-    }
-    
-    if (this->gamebackground.isNull()){
-        fprintf(stderr, "Resources not present, exiting...\n");
-        this->close();
     }
     
     for (uint i = 0; i < this->tetris_rows; i++){
