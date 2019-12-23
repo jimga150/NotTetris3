@@ -255,16 +255,22 @@ public:
     
     const uint row_fill_density_col_width = 6;
     
-    const QRectF tetris_field = QRectF(14, 0, 82, 144);
-    QRect scaled_tetris_field = TO_QRECT(tetris_field, 1);
+    float32 side_length = 4.0f;  //meters
+    double side_length_dbl = static_cast<double>(side_length);
     
-    float32 side_length = static_cast<float32>(tetris_field.height()*1.0/tetris_rows);
+    const QRectF tetris_field = QRectF(
+                                    1.75*side_length_dbl, 
+                                    0, 
+                                    (tetris_cols + 0.25)*side_length_dbl, 
+                                    tetris_rows*side_length_dbl
+                                    );
+    QRect scaled_tetris_field = TO_QRECT(tetris_field, 1);
     
     float32 square_area = side_length*side_length;
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
-    const QRectF ui_field = QRectF(0, tetris_field.y(), 160, tetris_field.height());
+    const QRectF ui_field = QRectF(0, 0, 160, 144);
     QRect scaled_ui_field = TO_QRECT(ui_field, 1);
     
     const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
@@ -276,7 +282,8 @@ public:
     double piece_image_scale = 10; //scale used to make tetris piece cutting smooth
     
     double ui_scale = min_graphics_scale;
-    double physics_to_ui_scale = min_graphics_scale;
+    const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
+    double physics_scale = physics_to_ui_scale*ui_scale;
     
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
