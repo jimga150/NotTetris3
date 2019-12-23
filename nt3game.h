@@ -272,10 +272,11 @@ public:
     
     const double min_graphics_scale = 1;
     
-    const double mgs_factor = 2;
-    double max_graphics_scale = 10;
+    const double pis_factor = 2; //multiplier used on initial graphics scale to deterimine piece_image_scale
+    double piece_image_scale = 10; //scale used to make tetris piece cutting smooth
     
-    double graphicsscale = 1;
+    double ui_scale = min_graphics_scale;
+    double physics_to_ui_scale = min_graphics_scale;
     
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     

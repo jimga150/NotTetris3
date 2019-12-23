@@ -23,14 +23,14 @@ NT3Game::NT3Game()
     
     if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
         
-        this->max_graphics_scale = this->mgs_factor*(screen_height*1.0/this->ui_field.height());
+        this->piece_image_scale = this->pis_factor*(screen_height*1.0/this->ui_field.height());
         
         int window_width = static_cast<int>(screen_height*this->aspect_ratio);
         this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
         
     } else { //screen is relatively taller than app, or it's the same ratio
         
-        this->max_graphics_scale = this->mgs_factor*(screen_width*1.0/this->ui_field.width());
+        this->piece_image_scale = this->pis_factor*(screen_width*1.0/this->ui_field.width());
         
         int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
         this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
@@ -95,16 +95,16 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     bool aspect_ratio_respected = qAbs(ar_error) < this->aspect_ratio_epsilon;
     
     if (ar_error > 0){ //screen is relatively wider than the app
-        this->graphicsscale = height*1.0/this->ui_field.height();
+        this->ui_scale = height*1.0/this->ui_field.height();
     } else if (ar_error < 0){ //screen is relatively skinnier than app
-        this->graphicsscale = width*1.0/this->ui_field.width();
+        this->ui_scale = width*1.0/this->ui_field.width();
     }
     
-    this->graphicsscale = qMax(this->min_graphics_scale, this->graphicsscale);
+    this->ui_scale = qMax(this->min_graphics_scale, this->ui_scale);
     //printf("Graphics scale is now %f\n", this->graphicsscale);
     
-    this->scaled_ui_field = TO_QRECT(this->ui_field, this->graphicsscale);
-    this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->graphicsscale);
+    this->scaled_ui_field = TO_QRECT(this->ui_field, this->ui_scale);
+    this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->ui_scale);
     
     if (!aspect_ratio_respected){
         this->resize(this->scaled_ui_field.width(), this->scaled_ui_field.height());
@@ -142,13 +142,13 @@ void NT3Game::render(QPainter& painter)
     painter.setPen(Qt::NoPen);
     
     for (uint r = 0; r < this->tetris_rows; r++){
-        double height = static_cast<double>(this->side_length)*this->graphicsscale;
+        double height = static_cast<double>(this->side_length)*this->ui_scale;
         double top = height*r;
         
         double fill_fraction = static_cast<double>(this->row_areas.at(r)/this->line_clear_threshold);
         //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
         fill_fraction = qMin(fill_fraction, 1.0);
-        double width = fill_fraction*this->row_fill_density_col_width*this->graphicsscale;
+        double width = fill_fraction*this->row_fill_density_col_width*this->ui_scale;
         
         int grey = static_cast<int>((1-fill_fraction)*255);
         painter.setBrush(QColor(grey, grey, grey));
@@ -170,9 +170,9 @@ void NT3Game::render(QPainter& painter)
                     
                     painter.drawRect(
                                 this->scaled_tetris_field.x(),
-                                static_cast<int>(static_cast<double>(sides.bottom)*this->graphicsscale) - 1,
+                                static_cast<int>(static_cast<double>(sides.bottom)*this->ui_scale) - 1,
                                 this->scaled_tetris_field.width(),
-                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->graphicsscale) + 2
+                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->ui_scale) + 2
                                 );
                 }
             }
@@ -192,8 +192,8 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
     
     painter->save();
     painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->graphicsscale,
-                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->graphicsscale
+                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->ui_scale,
+                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->ui_scale
                 );
     
     //QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
@@ -212,8 +212,8 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
             for (int i = 0; i < numpoints; i++){
                 points.push_back(
                             QPointF(
-                                static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
-                                static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                                static_cast<double>(shape.m_vertices[i].x)*this->ui_scale,
+                                static_cast<double>(shape.m_vertices[i].y)*this->ui_scale
                                 )
                             );
                 //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
@@ -225,23 +225,23 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
         case b2Shape::e_circle:{
             b2CircleShape shape = *static_cast<b2CircleShape*>(f->GetShape());
             QPointF center(
-                        static_cast<double>(shape.m_p.x)*this->graphicsscale,
-                        static_cast<double>(shape.m_p.y)*this->graphicsscale
+                        static_cast<double>(shape.m_p.x)*this->ui_scale,
+                        static_cast<double>(shape.m_p.y)*this->ui_scale
                         );
             double radius = static_cast<double>(shape.m_radius);
-            radius *= this->graphicsscale;
+            radius *= this->ui_scale;
             painter->drawEllipse(center, radius, radius);
         }
             break;
         case b2Shape::e_edge:{
             b2EdgeShape shape = *static_cast<b2EdgeShape*>(f->GetShape());
             QPointF p1 = QPointF(
-                             static_cast<double>(shape.m_vertex1.x)*this->graphicsscale,
-                             static_cast<double>(shape.m_vertex1.y)*this->graphicsscale
+                             static_cast<double>(shape.m_vertex1.x)*this->ui_scale,
+                             static_cast<double>(shape.m_vertex1.y)*this->ui_scale
                              );
             QPointF p2 = QPointF(
-                             static_cast<double>(shape.m_vertex2.x)*this->graphicsscale,
-                             static_cast<double>(shape.m_vertex2.y)*this->graphicsscale
+                             static_cast<double>(shape.m_vertex2.x)*this->ui_scale,
+                             static_cast<double>(shape.m_vertex2.y)*this->ui_scale
                              );
             painter->drawLine(p1, p2);
         }
@@ -255,8 +255,8 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
                     );
             for (int i = 1; i < shape.m_count; i++){
                 path.lineTo(
-                            static_cast<double>(shape.m_vertices[i].x)*this->graphicsscale,
-                            static_cast<double>(shape.m_vertices[i].y)*this->graphicsscale
+                            static_cast<double>(shape.m_vertices[i].x)*this->ui_scale,
+                            static_cast<double>(shape.m_vertices[i].y)*this->ui_scale
                             );
             }
             painter->drawPath(path);
@@ -275,10 +275,10 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->save();
     
     painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->graphicsscale,
-                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->graphicsscale
+                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->ui_scale,
+                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->ui_scale
                 );
-    painter->scale(this->graphicsscale, this->graphicsscale);
+    painter->scale(this->ui_scale, this->ui_scale);
     painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
     
     tetrisPieceData* body_data = this->getTetrisPieceData(piece_body);
@@ -293,33 +293,33 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
 void NT3Game::drawScore(QPainter* painter){
     
-    this->BOW_font.print(painter, this->score_display_right*this->graphicsscale, RIGHT_ALIGN,
-                         QString::number(this->current_score), this->graphicsscale);
+    this->BOW_font.print(painter, this->score_display_right*this->ui_scale, RIGHT_ALIGN,
+                         QString::number(this->current_score), this->ui_scale);
     
     if (this->score_to_add > 0){
         
-        QPixmap score_add_pm(this->score_add_display.size()*this->graphicsscale);
+        QPixmap score_add_pm(this->score_add_display.size()*this->ui_scale);
         score_add_pm.fill(Qt::black);
         
         QPainter score_add_painter(&score_add_pm);
         
         score_add_painter.translate(QPoint(0, this->score_add_disp_offset));
         
-        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->graphicsscale, RIGHT_ALIGN,
-                             "+" + QString::number(this->score_to_add), this->graphicsscale);
+        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->ui_scale, RIGHT_ALIGN,
+                             "+" + QString::number(this->score_to_add), this->ui_scale);
         score_add_painter.end();
         
         painter->save();
-        painter->translate(this->score_add_display.topLeft()*this->graphicsscale);
+        painter->translate(this->score_add_display.topLeft()*this->ui_scale);
         painter->drawPixmap(score_add_pm.rect(), score_add_pm);
         painter->restore();
     }
     
-    this->BOW_font.print(painter, this->level_disp_offset*this->graphicsscale, RIGHT_ALIGN,
-                         QString::number(this->current_level), this->graphicsscale);
+    this->BOW_font.print(painter, this->level_disp_offset*this->ui_scale, RIGHT_ALIGN,
+                         QString::number(this->current_level), this->ui_scale);
     
-    this->BOW_font.print(painter, this->lines_cleared_disp_offset*this->graphicsscale, RIGHT_ALIGN,
-                         QString::number(this->lines_cleared), this->graphicsscale);
+    this->BOW_font.print(painter, this->lines_cleared_disp_offset*this->ui_scale, RIGHT_ALIGN,
+                         QString::number(this->lines_cleared), this->ui_scale);
 }
 
 
@@ -509,7 +509,7 @@ void NT3Game::doGameStep(){
 #endif
     
     if (this->score_to_add > 0){
-        if (--this->score_add_disp_offset < -10*this->graphicsscale){
+        if (--this->score_add_disp_offset < -10*this->ui_scale){
             this->score_to_add = 0;
         }
     }
@@ -987,7 +987,7 @@ QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
     
     QImage image = pixmap.toImage();
     
-    float32 scale = 1.0f/static_cast<float32>(this->max_graphics_scale);
+    float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale);
     
     b2Vec2 offset(rect.x(), rect.y());
     
@@ -1400,7 +1400,7 @@ void NT3Game::initializeTetrisPieceImages(){
         
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
         QPixmap orig_pixmap = QPixmap(path);
-        orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->max_graphics_scale);
+        orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->piece_image_scale);
         
         this->piece_images.push_back(this->enableAlphaChannel(orig_pixmap));
         
