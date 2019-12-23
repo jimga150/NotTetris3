@@ -1046,7 +1046,7 @@ vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     vector<rayCastComplete> ray_casts;
     
     float32 left = -this->side_length;
-    float32 right = this->tetris_field.width() + this->side_length;
+    float32 right = static_cast<float32>(this->tetris_field.width()) + this->side_length;
     
     for (uint8 r = 0; r < num_ray_casts; r++){
         rayCastComplete ray_cast;
@@ -1433,25 +1433,29 @@ void NT3Game::initializeTetrisPieceImages(){
 }
 
 void NT3Game::initializeWalls(){
+    
+    float32 t_height = static_cast<float32>(tetris_field.height());
+    float32 t_width = static_cast<float32>(tetris_field.width());
+    
     b2BodyDef edgeBodyDef;
     edgeBodyDef.position.Set(0, 0);
     
     b2EdgeShape edge;
-    edge.Set(b2Vec2(0, tetris_field.height()), b2Vec2(tetris_field.width(), tetris_field.height()));
+    edge.Set(b2Vec2(0, t_height), b2Vec2(t_width, t_height));
     
     this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
     this->walls[GROUND]->CreateFixture(&edge, 0.0f);
     this->walls[GROUND]->GetFixtureList()->SetFriction(this->ground_friction_k);
     this->walls[GROUND]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(0, 0), b2Vec2(0, tetris_field.height()));
+    edge.Set(b2Vec2(0, 0), b2Vec2(0, t_height));
     
     this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[LEFTWALL]->GetFixtureList()->SetFriction(0);
     this->walls[LEFTWALL]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(tetris_field.width(), 0), b2Vec2(tetris_field.width(), tetris_field.height()));
+    edge.Set(b2Vec2(t_width, 0), b2Vec2(t_width, t_height));
     
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);

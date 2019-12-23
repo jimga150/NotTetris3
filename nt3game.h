@@ -255,8 +255,8 @@ public:
     
     const uint row_fill_density_col_width = 6;
     
-    const QRect tetris_field = QRect(14, 0, 82, 144);
-    QRect scaled_tetris_field = tetris_field;
+    const QRectF tetris_field = QRectF(14, 0, 82, 144);
+    QRect scaled_tetris_field = TO_QRECT(tetris_field, 1);
     
     float32 side_length = static_cast<float32>(tetris_field.height()*1.0/tetris_rows);
     
@@ -264,8 +264,8 @@ public:
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
-    const QRect ui_field = QRect(0, tetris_field.y(), 160, tetris_field.height());
-    QRect scaled_ui_field = ui_field;
+    const QRectF ui_field = QRectF(0, tetris_field.y(), 160, tetris_field.height());
+    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
     
     const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
     const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
@@ -312,7 +312,7 @@ public:
     const float32 old_g = 500;
     const float32 old_start_y = -64;
     const float32 old_game_height = 640;    
-    float32 gravity_g = old_g*(tetris_field.height() - piece_start.y)/(old_game_height - old_start_y);
+    float32 gravity_g = old_g*(static_cast<float32>(tetris_field.height()) - piece_start.y)/(old_game_height - old_start_y);
     
     float32 density = 1;//1.0f/900.0f;
     
