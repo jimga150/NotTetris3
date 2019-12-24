@@ -17,6 +17,9 @@ NT3Game::NT3Game()
     //printf("eft: %d\n", this->expected_frame_time);
     //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
     
+    Q_ASSERT(this->downward_velocity_max < b2_maxTranslation*static_cast<float32>(this->fps));
+    Q_ASSERT(this->downward_velocity_regular < b2_maxTranslation*static_cast<float32>(this->fps));
+    
     QRect screenRect = screen->availableGeometry();
     int screen_width = screenRect.width();
     int screen_height = screenRect.height();
