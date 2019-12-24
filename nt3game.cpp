@@ -573,9 +573,17 @@ void NT3Game::doGameStep(){
         break;
     }
     
-    if (this->accelDownState || this->currentPiece->GetLinearVelocity().y < this->downward_velocity_regular){
+    float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
+    //printf("vel = %f\n", y_velocity);
+    
+    if (!this->accelDownState && qAbs(y_velocity - this->downward_velocity_regular) <= 1){
+        linear_force_vect.y = 0;
+        this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, this->downward_velocity_regular));
+    } else if (this->accelDownState || y_velocity < this->downward_velocity_regular){
+        //printf("forcing downwards\n");
         linear_force_vect.y = this->downward_force;
     } else {
+        //printf("slowing down...\n");
         linear_force_vect.y = -this->upward_correcting_force;
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
