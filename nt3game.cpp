@@ -1331,67 +1331,91 @@ void NT3Game::initializeTetrisPieceDefs(){
     float32 half_length = this->side_length/2;
     
     this->tetrisShapes.at(I).push_back(shape_template);
-    this->tetrisShapes.at(I).push_back(shape_template);
-    this->tetrisShapes.at(I).push_back(shape_template);
-    this->tetrisShapes.at(I).push_back(shape_template);
-    this->tetrisShapes.at(I).at(0).SetAsBox(half_length, half_length, b2Vec2(-3*this->side_length/2, 0), 0);
-    this->tetrisShapes.at(I).at(1).SetAsBox(half_length, half_length, b2Vec2(-this->side_length/2, 0), 0);
-    this->tetrisShapes.at(I).at(2).SetAsBox(half_length, half_length, b2Vec2(this->side_length/2, 0), 0);
-    this->tetrisShapes.at(I).at(3).SetAsBox(half_length, half_length, b2Vec2(3*this->side_length/2, 0), 0);
+    this->tetrisShapes.at(I).at(0).SetAsBox(
+                this->side_length*2 - b2_polygonRadius, 
+                this->side_length*2 - b2_polygonRadius
+                );
     
     this->tetrisShapes.at(O).push_back(shape_template);
-    this->tetrisShapes.at(O).push_back(shape_template);
-    this->tetrisShapes.at(O).push_back(shape_template);
-    this->tetrisShapes.at(O).push_back(shape_template);
-    this->tetrisShapes.at(O).at(0).SetAsBox(half_length, half_length, b2Vec2(-this->side_length/2, -this->side_length/2), 0);
-    this->tetrisShapes.at(O).at(1).SetAsBox(half_length, half_length, b2Vec2(-this->side_length/2, this->side_length/2), 0);
-    this->tetrisShapes.at(O).at(2).SetAsBox(half_length, half_length, b2Vec2(this->side_length/2, -this->side_length/2), 0);
-    this->tetrisShapes.at(O).at(3).SetAsBox(half_length, half_length, b2Vec2(this->side_length/2, this->side_length/2), 0);
+    this->tetrisShapes.at(O).at(0).SetAsBox(
+                this->side_length - b2_polygonRadius, 
+                this->side_length - b2_polygonRadius
+                );
     
     this->tetrisShapes.at(G).push_back(shape_template);
     this->tetrisShapes.at(G).push_back(shape_template);
-    this->tetrisShapes.at(G).push_back(shape_template);
-    this->tetrisShapes.at(G).push_back(shape_template);
-    this->tetrisShapes.at(G).at(0).SetAsBox(half_length, half_length);
-    this->tetrisShapes.at(G).at(1).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, 0), 0);
-    this->tetrisShapes.at(G).at(2).SetAsBox(half_length, half_length, b2Vec2(this->side_length, 0), 0);
-    this->tetrisShapes.at(G).at(3).SetAsBox(half_length, half_length, b2Vec2(this->side_length, this->side_length), 0);
+    this->tetrisShapes.at(G).at(0).SetAsBox(
+                3*half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(0, b2_polygonRadius), 
+                0
+                );
+    this->tetrisShapes.at(G).at(1).SetAsBox(
+                half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(this->side_length, this->side_length - b2_polygonRadius), 
+                0
+                );
     
     this->tetrisShapes.at(L).push_back(shape_template);
     this->tetrisShapes.at(L).push_back(shape_template);
-    this->tetrisShapes.at(L).push_back(shape_template);
-    this->tetrisShapes.at(L).push_back(shape_template);
-    this->tetrisShapes.at(L).at(0).SetAsBox(half_length, half_length);
-    this->tetrisShapes.at(L).at(1).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, 0), 0);
-    this->tetrisShapes.at(L).at(2).SetAsBox(half_length, half_length, b2Vec2(this->side_length, 0), 0);
-    this->tetrisShapes.at(L).at(3).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, this->side_length), 0);
+    this->tetrisShapes.at(L).at(0).SetAsBox(
+                3*half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(0, b2_polygonRadius), 
+                0
+                );
+    this->tetrisShapes.at(L).at(1).SetAsBox(
+                half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(-this->side_length, this->side_length - b2_polygonRadius), 
+                0
+                );
     
     this->tetrisShapes.at(Z).push_back(shape_template);
     this->tetrisShapes.at(Z).push_back(shape_template);
-    this->tetrisShapes.at(Z).push_back(shape_template);
-    this->tetrisShapes.at(Z).push_back(shape_template);
-    this->tetrisShapes.at(Z).at(0).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, -this->side_length/2), 0);
-    this->tetrisShapes.at(Z).at(1).SetAsBox(half_length, half_length, b2Vec2(0, -this->side_length/2), 0);
-    this->tetrisShapes.at(Z).at(2).SetAsBox(half_length, half_length, b2Vec2(0, this->side_length/2), 0);
-    this->tetrisShapes.at(Z).at(3).SetAsBox(half_length, half_length, b2Vec2(this->side_length, this->side_length/2), 0);
+    this->tetrisShapes.at(Z).at(0).SetAsBox(
+                this->side_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(-half_length, -half_length + b2_polygonRadius), 
+                0
+                );
+    this->tetrisShapes.at(Z).at(1).SetAsBox(
+                this->side_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(half_length, half_length - b2_polygonRadius), 
+                0
+                );
     
     this->tetrisShapes.at(S).push_back(shape_template);
     this->tetrisShapes.at(S).push_back(shape_template);
-    this->tetrisShapes.at(S).push_back(shape_template);
-    this->tetrisShapes.at(S).push_back(shape_template);
-    this->tetrisShapes.at(S).at(0).SetAsBox(half_length, half_length, b2Vec2(this->side_length, -this->side_length/2), 0);
-    this->tetrisShapes.at(S).at(1).SetAsBox(half_length, half_length, b2Vec2(0, -this->side_length/2), 0);
-    this->tetrisShapes.at(S).at(2).SetAsBox(half_length, half_length, b2Vec2(0, this->side_length/2), 0);
-    this->tetrisShapes.at(S).at(3).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, this->side_length/2), 0);
+    this->tetrisShapes.at(S).at(0).SetAsBox(
+                this->side_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(half_length, -half_length + b2_polygonRadius), 
+                0
+                );
+    this->tetrisShapes.at(S).at(1).SetAsBox(
+                this->side_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(-half_length, half_length - b2_polygonRadius), 
+                0
+                );
     
     this->tetrisShapes.at(T).push_back(shape_template);
     this->tetrisShapes.at(T).push_back(shape_template);
-    this->tetrisShapes.at(T).push_back(shape_template);
-    this->tetrisShapes.at(T).push_back(shape_template);
-    this->tetrisShapes.at(T).at(0).SetAsBox(half_length, half_length);
-    this->tetrisShapes.at(T).at(1).SetAsBox(half_length, half_length, b2Vec2(-this->side_length, 0), 0);
-    this->tetrisShapes.at(T).at(2).SetAsBox(half_length, half_length, b2Vec2(this->side_length, 0), 0);
-    this->tetrisShapes.at(T).at(3).SetAsBox(half_length, half_length, b2Vec2(0, this->side_length), 0);
+    this->tetrisShapes.at(T).at(0).SetAsBox(
+                3*half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(0, b2_polygonRadius), 
+                0
+                );
+    this->tetrisShapes.at(T).at(1).SetAsBox(
+                half_length - b2_polygonRadius, 
+                half_length - 0.5f*b2_polygonRadius, 
+                b2Vec2(0, this->side_length - b2_polygonRadius), 
+                0
+                );
     
     b2FixtureDef fixture_template;
     fixture_template.density = this->density;
