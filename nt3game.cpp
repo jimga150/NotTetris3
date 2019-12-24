@@ -1400,6 +1400,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     
     vector<b2FixtureDef> fixture_vector_template;
     for (uint32 t = 0; t < this->tetrisShapes.size(); t++){
+        Q_ASSERT(this->tetrisShapes.at(t).size() <= this->max_shapes_per_piece);
         this->tetrisFixtures.push_back(fixture_vector_template);
         for (uint32 s = 0; s < this->max_shapes_per_piece; s++){
             if (this->tetrisShapes.at(t).size() == s) break;
