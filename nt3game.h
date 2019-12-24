@@ -332,11 +332,14 @@ public:
     
     float32 lateral_force = 11.25f*kgm;
     
-    float32 downward_force = 106.98306486005f*mass;
-    float32 upward_correcting_force = 225.0f*mass; 
+    float32 downward_accel = 14.441875f*side_length;
+    float32 downward_force = downward_accel*mass;
     
-    float32 downward_velocity_max = 15.625f*side_length; 
-    float32 downward_velocity_regular = 2.85249375f*side_length;
+    float32 upward_correcting_accel = 50.87875f*side_length;
+    float32 upward_correcting_force = upward_correcting_accel*mass; 
+    
+    float32 downward_velocity_max = 15.753125f*side_length; 
+    float32 downward_velocity_regular = 2.86853125f*side_length;
     
     float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
     float32 ground_friction_k = 0.5f;
