@@ -532,6 +532,8 @@ void NT3Game::doGameStep(){
         this->makeNewTetrisPiece();
     }
     
+    float32 inertia = this->currentPiece->GetInertia();
+    
     switch(this->rotateState){
     case NO_ROTATION:
     case BOTH_ROTATIONS:
@@ -541,13 +543,13 @@ void NT3Game::doGameStep(){
     case ROTATECW:
         //printf("Rotate CW\n");
         if (this->currentPiece->GetAngularVelocity() < this->wmax){
-            this->currentPiece->ApplyTorque(this->angular_accel*this->currentPiece->GetInertia(), true);
+            this->currentPiece->ApplyTorque(this->angular_accel*inertia, true);
         }
         break;
     case ROTATECCW:
         //printf("Rotate CCW\n");
         if (this->currentPiece->GetAngularVelocity() > -this->wmax){
-            this->currentPiece->ApplyTorque(-this->angular_accel*this->currentPiece->GetInertia(), true);
+            this->currentPiece->ApplyTorque(-this->angular_accel*inertia, true);
         }
         break;
     default:
@@ -555,6 +557,7 @@ void NT3Game::doGameStep(){
         break;
     }
     
+    float32 mass = this->currentPiece->GetMass();
     b2Vec2 linear_force_vect = b2Vec2(0, 0);
     
     switch(this->lateralMovementState){
@@ -563,10 +566,10 @@ void NT3Game::doGameStep(){
         //do nothing
         break;
     case MOVELEFT:
-        linear_force_vect.x = -this->lateral_force;
+        linear_force_vect.x = -this->lateral_accel*mass;
         break;
     case MOVERIGHT:
-        linear_force_vect.x = this->lateral_force;
+        linear_force_vect.x = this->lateral_accel*mass;
         break;
     default:
         fprintf(stderr, "Invalid Lateral Movement state\n");
@@ -581,10 +584,10 @@ void NT3Game::doGameStep(){
         this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, this->downward_velocity_regular));
     } else if (this->accelDownState || y_velocity < this->downward_velocity_regular){
         //printf("forcing downwards\n");
-        linear_force_vect.y = this->downward_force;
+        linear_force_vect.y = this->downward_accel*mass;
     } else {
         //printf("slowing down...\n");
-        linear_force_vect.y = -this->upward_correcting_force;
+        linear_force_vect.y = -this->upward_correcting_accel*mass;
     }
     this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     

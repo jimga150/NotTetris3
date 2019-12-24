@@ -326,19 +326,16 @@ public:
     
     float32 density = 1;//1.0f/900.0f;
     
-    float32 mass = density*square_area*4;
-    float32 kgm = mass*side_length;
+     
     
     float32 wmax = 3.0f;
     float32 angular_accel = 9.55342974715892f;
     
-    float32 lateral_force = 11.25f*kgm;
+    float32 lateral_accel = 11.25f*side_length;
     
     float32 downward_accel = 14.441875f*side_length;
-    float32 downward_force = downward_accel*mass;
     
-    float32 upward_correcting_accel = 50.87875f*side_length;
-    float32 upward_correcting_force = upward_correcting_accel*mass; 
+    float32 upward_correcting_accel = 50.87875f*side_length; 
     
     float32 downward_velocity_max = 15.753125f*side_length; 
     float32 downward_velocity_regular = 2.86853125f*side_length;
