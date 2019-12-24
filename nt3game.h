@@ -255,7 +255,9 @@ public:
     
     const uint row_fill_density_col_width = 6;
     
-    float32 side_length = 4.0f;  //meters
+    //must be an even number greater than 1 and less than 7.6175362031343
+    //so basically 2, 4, or 6 meters is it right now
+    float32 side_length = 2.0f;  //meters
     double side_length_dbl = static_cast<double>(side_length);
     
     const QRectF tetris_field = QRectF(
