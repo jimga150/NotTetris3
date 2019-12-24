@@ -366,9 +366,6 @@ public:
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);
     
-    QString gameafield_path = ":/resources/graphics/gameafield.png";
-    QPixmap gameafield = QPixmap(gameafield_path); //TODO: might not need this
-    
     vector<QPixmap> piece_images;
     vector<QRect> piece_rects;
     

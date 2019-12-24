@@ -72,7 +72,6 @@
         <file>sounds/themeC.ogg</file>
         <file>sounds/titlemusic.ogg</file>
         <file>sounds/turn.ogg</file>
-        <file>graphics/gameafield.png</file>
         <file>graphics/pieces/0.png</file>
     </qresource>
 </RCC>
