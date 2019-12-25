@@ -15,12 +15,6 @@
 
 #define NUM_FRAMES_TO_SAVE 20
 
-#define STD_VECTOR_ACCESS_TRYCATCH(STATEMENT) try { \
-    STATEMENT; \
-    } catch (std::out_of_range e) { \
-    printf("Line %d: vector access failed: %s\n", __LINE__, e.what()); \
-    }
-
 #define TO_QRECT(QRF, SCALE) QRect(static_cast<int>(QRF.x()*SCALE), static_cast<int>(QRF.y()*SCALE), static_cast<int>(QRF.width()*SCALE), static_cast<int>(QRF.height()*SCALE))
 
 using namespace std;
