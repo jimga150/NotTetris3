@@ -170,6 +170,8 @@ public:
     
     void setGameState(nt3_state_enum newstate);
     
+    void destroyTetrisPiece(b2Body* b);
+    
     
     //initialization functions
     void initializeTetrisPieceDefs();
@@ -308,8 +310,6 @@ public:
     float32 gravity_g = old_g*(static_cast<float32>(tetris_field.height()) - piece_start.y)/(old_game_height - old_start_y);
     
     float32 density = 1;//1.0f/900.0f;
-    
-     
     
     float32 wmax = 3.0f;
     float32 angular_accel = 9.55342974715892f;

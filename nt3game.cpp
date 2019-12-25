@@ -86,6 +86,7 @@ NT3Game::~NT3Game()
 }
 
 void NT3Game::freeUserDataOn(b2Body* b){
+    if (!b) return;
     tetrisPieceData* data = this->getTetrisPieceData(b);
     if (data) delete data;
     b->SetUserData(nullptr);
@@ -1005,8 +1006,7 @@ void NT3Game::clearRow(uint row){
     } //end body separation loop
     
     for (b2Body* b : bodies_to_destroy){
-        this->freeUserDataOn(b);
-        this->world->DestroyBody(b);
+        this->destroyTetrisPiece(b);
     }
     
     //fflush(stdout);
@@ -1039,7 +1039,7 @@ QPixmap NT3Game::maskImage(b2Body* b, tetrisPieceData* data){
     }*/
     
     b2Vec2 corners[4];
-        
+    
     for (int y = 0; y < image.height(); y++){
         for (int x = 0; x < image.width(); x++){
             if (qAlpha(image.pixel(x, y)) == 0){
@@ -1329,6 +1329,12 @@ QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
 void NT3Game::setGameState(nt3_state_enum newstate){
     this->last_state = this->game_state;
     this->game_state = newstate;
+}
+
+void NT3Game::destroyTetrisPiece(b2Body* b){
+    if (!b) return;
+    this->freeUserDataOn(b);
+    this->world->DestroyBody(b);
 }
 
 
