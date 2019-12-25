@@ -194,7 +194,7 @@ public:
     
     bool debug_box2d = false;
     
-    bool save_frames = false;
+    bool frame_review = false;
     
     
     //constants

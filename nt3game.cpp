@@ -126,14 +126,14 @@ void NT3Game::render(QPainter& painter)
     if (this->freeze_frame){
         painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
         return;
-    } else if (this->save_frames){
+    } else if (this->frame_review){
         this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
         this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
         QPainter sf_painter(&this->saved_frames[this->last_frame]);
         
-        this->save_frames = false;
+        this->frame_review = false;
         this->render(sf_painter);
-        this->save_frames = true;
+        this->frame_review = true;
         
         sf_painter.end();
     }
@@ -347,7 +347,7 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
     
     int key = ev->key();
     
-    if (this->save_frames && this->freeze_frame){
+    if (this->frame_review && this->freeze_frame){
         if (key == Qt::Key_Left){ //previous frame
             this->last_frame--;
             if (this->last_frame < 0) this->last_frame = NUM_FRAMES_TO_SAVE - 1;
@@ -400,7 +400,7 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
         }
     } else if (key == this->accelDownKey){
         this->accelDownState = true;
-    } else if (this->save_frames && key == this->freeze_key){
+    } else if (this->frame_review && key == this->freeze_key){
         
         this->freeze_frame = !this->freeze_frame;
         
