@@ -114,7 +114,8 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
     
     if (!aspect_ratio_respected){
-        this->resize(this->scaled_ui_field.width(), this->scaled_ui_field.height());
+        
+        this->resize(this->scaled_ui_field.size());
     }
 }
 
