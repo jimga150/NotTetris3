@@ -126,6 +126,16 @@ void NT3Game::render(QPainter& painter)
     if (this->freeze_frame){
         painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
         return;
+    } else if (this->save_frames){
+        this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
+        this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
+        QPainter sf_painter(&this->saved_frames[this->last_frame]);
+        
+        this->save_frames = false;
+        this->render(sf_painter);
+        this->save_frames = true;
+        
+        sf_painter.end();
     }
     
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
@@ -504,17 +514,6 @@ void NT3Game::doGameStep(){
     QElapsedTimer timer;
     timer.start();
 #endif
-    
-    if (save_frames){
-        this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
-        this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
-        QPainter sf_painter(&this->saved_frames[this->last_frame]);
-        this->render(sf_painter);
-        sf_painter.end();
-#ifdef TIME_GAME_FRAME
-        printf("Re-render: %lld ms,\t", timer.elapsed());
-#endif
-    }
     
     /*if (this->row_cleared){
         this->freeze_frame = true;
