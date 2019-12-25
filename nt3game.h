@@ -272,6 +272,8 @@ public:
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
+    int polygon_radius_px = 1;
+    
     const QRectF ui_field = QRectF(0, 0, 160, 144);
     QRect scaled_ui_field = TO_QRECT(ui_field, 1);
     

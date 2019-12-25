@@ -39,6 +39,9 @@ NT3Game::NT3Game()
         this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
     
+    this->polygon_radius_px = qCeil(this->piece_image_scale*this->physics_to_ui_scale);
+    //printf("Pixels in radius is %d px\n", this->polygon_radius_px);    
+    
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
     }
@@ -1020,29 +1023,42 @@ QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
         }
     }*/
     
+    b2Vec2 corners[4];
+        
     for (int y = 0; y < image.height(); y++){
         for (int x = 0; x < image.width(); x++){
             if (qAlpha(image.pixel(x, y)) == 0){
                 continue;
             }
             
-            b2Vec2 vec(x, y);
-            //printf("%s --> ", this->b2Vec2String(vec).toUtf8().constData());
-            vec *= scale;
-            vec += offset;
-            //printf("%s\n", this->b2Vec2String(vec).toUtf8().constData());
-            //vec = b->GetWorldPoint(vec);
+            b2Vec2 center(x, y);
+            center *= scale;
+            center += offset;
+            
+            corners[0] = b2Vec2(x + this->polygon_radius_px, y + this->polygon_radius_px);
+            corners[1] = b2Vec2(x + this->polygon_radius_px, y - this->polygon_radius_px);
+            corners[2] = b2Vec2(x - this->polygon_radius_px, y + this->polygon_radius_px);
+            corners[3] = b2Vec2(x - this->polygon_radius_px, y - this->polygon_radius_px);
             
             bool pass = false;
             for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
                 Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
                 b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
                 
-                if (s->TestPoint(t, vec)){
+                if (s->TestPoint(t, center)){
                     pass = true;
                     //printf("Pass!\n");
                     break;
                 }
+                
+                for (uint c = 0; c < 4; c++){ //hey, that's the name of this language!
+                    if (s->TestPoint(t, corners[c])){
+                        pass = true;
+                        //printf("Pass!\n");
+                        break;
+                    }
+                }
+                if (pass) break;
             }
             
             if (!pass){
