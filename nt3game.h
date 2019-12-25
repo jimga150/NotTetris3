@@ -377,7 +377,7 @@ public:
     //Line clear stuff
     QColor line_clear_color = QColor(0xd2af8f);
     
-    const double lc_blink_toggle_time = 0.1875; //seconds
+    const double lc_blink_toggle_time = 0.17142857142857; //seconds
     
     const uint num_blinks = 4; //number of blinks to do on row clear
     

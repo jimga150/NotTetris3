@@ -491,7 +491,7 @@ void NT3Game::doGameStep(){
             this->row_blink_accumulator = 0;
             
             this->blink_on = !this->blink_on;
-            if (this->blink_on){
+            if (!this->blink_on){
                 
                 ++this->num_blinks_so_far;
                 if (this->num_blinks_so_far >= this->num_blinks){
