@@ -199,6 +199,8 @@ public:
     
     //constants
     const int millis_per_second = 1000;
+    const int micros_per_second = millis_per_second*1000;
+    const int nanos_per_second = micros_per_second*1000;
     
     const double rad_to_deg = 180.0/M_PI;
     

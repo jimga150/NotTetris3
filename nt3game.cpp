@@ -456,8 +456,26 @@ void NT3Game::doGameStep(){
     if (this->freeze_frame) return;
     
     if (this->game_state == row_clear_blinking){
+        qint64 elapsed = 0;
+        //if we are on the last blink before things start rolling again
+        if (this->blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
+            QElapsedTimer timer;
+            timer.start();
+            this->setGameState(row_clear_blinking);
+            //int num_rows_cleared = 0;
+            for (uint r = 0; r < this->tetris_rows; r++){
+                
+                if (this->rows_to_clear.at(r)){
+                    this->clearRow(r);
+                    //num_rows_cleared++;
+                }
+            }
+            this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
+            elapsed = timer.elapsed();
+            //printf("Row clears (%d rows) took %lld ns (%lld ns/row)\n", num_rows_cleared, elapsed, elapsed/num_rows_cleared);
+        }
         
-        this->row_blink_accumulator += this->framerate;
+        this->row_blink_accumulator += this->framerate + elapsed*1.0/this->nanos_per_second;
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){
             this->row_blink_accumulator = 0;
             
@@ -468,16 +486,13 @@ void NT3Game::doGameStep(){
                 if (this->num_blinks_so_far >= this->num_blinks){
                     this->num_blinks_so_far = 0;
                     
-                    this->setGameState(gameA);
-                    
                     for (uint r = 0; r < this->tetris_rows; r++){
-                        
                         if (this->rows_to_clear.at(r)){
-                            this->clearRow(r);
                             this->rows_to_clear.at(r) = false;
                         }
                     }
-                    this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
+                    
+                    this->setGameState(gameA);
                 }
             }
         }
