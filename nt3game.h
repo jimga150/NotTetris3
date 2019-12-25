@@ -300,21 +300,6 @@ public:
     QPoint level_disp_offset = QPoint(144, 56);
     
     
-    //Game state
-    nt3_state_enum game_state = gameA;
-    nt3_state_enum last_state = gameA;
-    
-    const float32 avgarea_divisor = square_area*10;
-    
-    int current_score = 0;
-    
-    int score_to_add = 0;
-    
-    int lines_cleared = 0;
-    
-    int current_level = 0;
-    
-    
     //physics constants
     
     const float32 old_g = 500;
@@ -347,6 +332,21 @@ public:
     float32 angular_damping = 0.1f;
     
     float32 line_clear_threshold = 8.1f*square_area;
+    
+    
+    //Game state
+    nt3_state_enum game_state = gameA;
+    nt3_state_enum last_state = gameA;
+    
+    const float32 avgarea_divisor = square_area*10;
+    
+    int current_score = 0;
+    
+    int score_to_add = 0;
+    
+    int lines_cleared = 0;
+    
+    int current_level = 0;
     
     
     //piece params
