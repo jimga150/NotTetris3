@@ -1333,7 +1333,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     this->tetrisShapes.at(I).push_back(shape_template);
     this->tetrisShapes.at(I).at(0).SetAsBox(
                 this->side_length*2 - b2_polygonRadius, 
-                this->side_length*2 - b2_polygonRadius
+                half_length - b2_polygonRadius
                 );
     
     this->tetrisShapes.at(O).push_back(shape_template);
