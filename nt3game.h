@@ -152,7 +152,7 @@ public:
     
     void clearRow(uint row);
     
-    QPixmap maskImage(QPixmap pixmap, b2Body* b, QRect rect);
+    QPixmap maskImage(b2Body* b, tetrisPieceData* data);
     
     vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
     

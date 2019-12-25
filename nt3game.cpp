@@ -994,7 +994,7 @@ void NT3Game::clearRow(uint row){
             tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
             if (orig_body_data != nullptr){
                 tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
-                data->image = this->maskImage(data->image, new_body, data->region);
+                data->image = this->maskImage(new_body, data);
                 new_body->SetUserData(data);
             }
         }
@@ -1012,17 +1012,17 @@ void NT3Game::clearRow(uint row){
     //fflush(stdout);
 }
 
-QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
-    if (!pixmap.hasAlphaChannel()){
-        printf("Piece has no alpha channel!\n");
+QPixmap NT3Game::maskImage(b2Body* b, tetrisPieceData* data){
+    if (!data->image.hasAlphaChannel()){
+        printf("Image has no alpha channel!\n");
         fflush(stdout);
     }
     
-    QImage image = pixmap.toImage();
+    QImage image = data->image.toImage();
     
     float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale*this->physics_to_ui_scale);
     
-    b2Vec2 offset(rect.x(), rect.y());
+    b2Vec2 offset(data->region.x(), data->region.y());
     
     b2Transform t;
     t.SetIdentity();
@@ -1081,7 +1081,7 @@ QPixmap NT3Game::maskImage(QPixmap pixmap, b2Body* b, QRect rect){
             }
         }
     }
-    pixmap = QPixmap::fromImage(image);
+    QPixmap pixmap = QPixmap::fromImage(image);
     if (!pixmap.hasAlphaChannel()){
         pixmap = this->enableAlphaChannel(pixmap);
     }
