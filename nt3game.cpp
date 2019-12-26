@@ -799,6 +799,7 @@ void NT3Game::clearRow(uint row){
     //find all bodies with shapes that cross the line
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
+        if (this->next_piece_for_display == b) continue;
         
         bool affected = false;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
