@@ -790,6 +790,10 @@ void NT3Game::clearRow(uint row){
     
     row_sides_struct sides(row, this->side_length);
     
+    if (row == this->tetris_rows - 1){
+        sides.top *= 2; //no pieces should leave fragments on the ground, so clear the area far below that
+    }
+    
     vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top, sides.bottom);
     
     //make list of bodies affected by this row clear
