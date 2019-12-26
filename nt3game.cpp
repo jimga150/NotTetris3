@@ -28,8 +28,6 @@ void NT3Game::startGame(QScreen* screen){
     this->framerate = 1.0/this->fps;
     this->timeStep = static_cast<float32>(this->framerate); //seconds
     emit this->setExpectedFrameTime(static_cast<int>(ceil(this->framerate*this->millis_per_second)));
-    //printf("eft: %d\n", this->expected_frame_time);
-    //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
     
     Q_ASSERT(this->downward_velocity_max < b2_maxTranslation*static_cast<float32>(this->fps));
     Q_ASSERT(this->downward_velocity_regular < b2_maxTranslation*static_cast<float32>(this->fps));
@@ -54,7 +52,6 @@ void NT3Game::startGame(QScreen* screen){
     }
     
     this->polygon_radius_px = qCeil(this->piece_image_scale*this->physics_to_ui_scale);
-    //printf("Pixels in radius is %d px\n", this->polygon_radius_px);    
     
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
@@ -94,13 +91,10 @@ void NT3Game::startGame(QScreen* screen){
 void NT3Game::freeUserDataOn(b2Body* b){
     if (!b) return;
     int numremoved = this->userData.remove(b);
-    if (numremoved == 0 && !this->isAWall(b)){
+    /*if (numremoved == 0 && !this->isAWall(b)){
         printf("%p had no user data!\n", (void*)b);
         Q_ASSERT(false);
-    }
-    /*tetrisPieceData* data = this->getTetrisPieceData(b);
-    if (data) delete data;
-    b->SetUserData(nullptr);*/
+    }*/
 }
 
 
@@ -120,7 +114,6 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     
     this->ui_scale = qMax(this->min_graphics_scale, this->ui_scale);
     this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
-    //printf("Graphics scale is now %f\n", this->graphicsscale);
     
     this->scaled_ui_field = TO_QRECT(this->ui_field, this->ui_scale);
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
@@ -312,12 +305,7 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    /*if (body_data == nullptr){
-        printf("null data on body %p\n", (void*)piece_body);
-        painter->drawPixmap(this->default_piece_rect, this->default_piece_image);
-    } else {*/
     painter->drawPixmap(body_data.region, body_data.image);
-    //}
     
     painter->restore();
 }
@@ -483,24 +471,16 @@ void NT3Game::doGameStep(){
         qint64 elapsed = 0;
         //if we are on the last blink before things start rolling again
         if (this->blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
-            //QElapsedTimer timer;
-            //timer.start();
+            
             this->setGameState(row_clear_blinking);
-            //int num_rows_cleared = 0;
+            
             for (uint r = 0; r < this->tetris_rows; r++){
                 
                 if (this->rows_to_clear.at(r)){
-                    //printf("Clearing row %u\n", r);
                     this->clearRow(r);
-                    //num_rows_cleared++;
                 }
-            }
-            
-            //this->printAllBodies();
-            
+            }   
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
-            //elapsed = timer.elapsed();
-            //printf("Row clears (%d rows) took %lld ns (%lld ns/row)\n", num_rows_cleared, elapsed, elapsed/num_rows_cleared);
         }
         
         this->row_blink_accumulator += this->framerate + elapsed*1.0/this->nanos_per_second;
@@ -534,14 +514,6 @@ void NT3Game::doGameStep(){
 #ifdef TIME_GAME_FRAME
     QElapsedTimer timer;
     timer.start();
-#endif
-    
-    /*if (this->row_cleared){
-        this->freeze_frame = true;
-    }*/
-    
-#ifdef TIME_GAME_FRAME
-    timer.restart();
 #endif
     
     world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
@@ -614,7 +586,6 @@ void NT3Game::doGameStep(){
     }
     
     float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
-    //printf("vel = %f\n", y_velocity);
     
     if (!this->accelDownState && qAbs(y_velocity - this->downward_velocity_regular) <= 1){
         linear_force_vect.y = 0;
@@ -839,7 +810,6 @@ void NT3Game::clearRow(uint row){
         vector<b2Fixture*> fixtures_to_destroy;
         vector<b2PolygonShape> shapes_to_make;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
-            //printf("New Fixture\n");
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
             
@@ -1053,17 +1023,6 @@ QPixmap NT3Game::maskImage(b2Body* b, tetrisPieceData* data){
     
     b2Transform t;
     t.SetIdentity();
-    
-    /*printf("New body:\n");
-    for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
-        printf("New fixture:\n");
-        Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
-        b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
-        
-        for (int i = 0; i < s->m_count; i++){
-            printf("%s\n", this->b2Vec2String(s->m_vertices[i]).toUtf8().constData());
-        }
-    }*/
     
     b2Vec2 corners[4];
     
@@ -1333,7 +1292,6 @@ void NT3Game::makeNewTetrisPiece(){
                                                 this->tetris_field.y()
                                                 )
                                             ) - this->center_of_mass_offsets.at(this->next_piece_type);
-    //printf("%s\n", this->b2Vec2String(this->center_of_mass_offsets.at(this->next_piece_type)).toUtf8().constData());
     this->next_piece_bodydef.angularVelocity = this->next_piece_w;
     
     this->next_piece_for_display = this->world->CreateBody(&this->next_piece_bodydef);

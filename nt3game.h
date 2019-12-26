@@ -391,8 +391,8 @@ public:
     //piece params
     const uint32 max_shapes_per_piece = 4;
     
-    //QRandomGenerator rng = QRandomGenerator::securelySeeded();
-    QRandomGenerator rng = QRandomGenerator(9003);
+    QRandomGenerator rng = QRandomGenerator::securelySeeded();
+    //QRandomGenerator rng = QRandomGenerator(9003);
     
     
     //resources
