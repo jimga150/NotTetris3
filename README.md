@@ -7,7 +7,6 @@ Known bugs:
 
 Todo:
 * keep optimizing for many shapes
-* Add next piece preview
 * Add menu
 * Add settings
 * Add gamemode B
