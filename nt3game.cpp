@@ -483,19 +483,23 @@ void NT3Game::doGameStep(){
         qint64 elapsed = 0;
         //if we are on the last blink before things start rolling again
         if (this->blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
-            QElapsedTimer timer;
-            timer.start();
+            //QElapsedTimer timer;
+            //timer.start();
             this->setGameState(row_clear_blinking);
             //int num_rows_cleared = 0;
             for (uint r = 0; r < this->tetris_rows; r++){
                 
                 if (this->rows_to_clear.at(r)){
+                    //printf("Clearing row %u\n", r);
                     this->clearRow(r);
                     //num_rows_cleared++;
                 }
             }
+            
+            //this->printAllBodies();
+            
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
-            elapsed = timer.elapsed();
+            //elapsed = timer.elapsed();
             //printf("Row clears (%d rows) took %lld ns (%lld ns/row)\n", num_rows_cleared, elapsed, elapsed/num_rows_cleared);
         }
         
