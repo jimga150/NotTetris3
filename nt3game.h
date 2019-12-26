@@ -232,6 +232,7 @@ public:
     b2BodyDef tetrisBodyDef;
     vector<vector<b2FixtureDef>> tetrisFixtures;
     vector<vector<b2PolygonShape>> tetrisShapes;
+    vector<b2Vec2> center_of_mass_offsets;
     
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
@@ -332,6 +333,18 @@ public:
     float32 angular_damping = 0.1f;
     
     float32 line_clear_threshold = 8.1f*square_area;
+    
+    
+    //next piece stuff
+    float32 next_piece_w = 1.0; //rad/s
+    
+    tetris_piece_enum next_piece_type = default_tetris_piece;
+    
+    b2BodyDef next_piece_bodydef;
+    
+    b2Body* next_piece_for_display = nullptr;
+    
+    QPoint next_piece_display_center = QPoint(136, 120);
     
     
     //Game state

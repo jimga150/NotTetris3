@@ -71,6 +71,8 @@ NT3Game::NT3Game()
     this->contactlistener->exceptions.push_back(this->walls[LEFTWALL]);
     this->contactlistener->exceptions.push_back(this->walls[RIGHTWALL]);
     
+    this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+    
     this->makeNewTetrisPiece();
 }
 
@@ -157,6 +159,15 @@ void NT3Game::render(QPainter& painter)
             this->drawBodyTo(&painter, b);
         }
     }
+    
+    /*painter.drawEllipse(this->next_piece_display_center*this->ui_scale, 3, 3);
+    b2Vec2 npc = this->next_piece_for_display->GetWorldCenter();
+    painter.setPen(QColor(0, 255, 0));
+    painter.drawEllipse(QPointF(npc.x, npc.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
+    b2Vec2 npp = this->next_piece_for_display->GetWorldPoint(b2Vec2(0, 0));
+    painter.setPen(QColor(0, 0, 255));
+    painter.drawEllipse(QPointF(npp.x, npp.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
+    */
     
     painter.setPen(Qt::NoPen);
     
@@ -503,13 +514,17 @@ void NT3Game::doGameStep(){
                             this->rows_to_clear.at(r) = false;
                         }
                     }
-                    
                     this->setGameState(gameA);
+                    
+                    this->makeNewTetrisPiece();
                 }
             }
         }
         return;
     }
+    
+    this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
+    this->next_piece_for_display->SetAngularVelocity(this->next_piece_w);
     
 #ifdef TIME_GAME_FRAME
     QElapsedTimer timer;
@@ -547,8 +562,6 @@ void NT3Game::doGameStep(){
             this->close();
             return;
         }
-        
-        this->makeNewTetrisPiece();
     }
     
     float32 inertia = this->currentPiece->GetInertia();
@@ -644,6 +657,7 @@ void NT3Game::doGameStep(){
         if (num_lines_removed > 0){
             
             for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+                if (b == this->next_piece_for_display) continue;
                 b->SetLinearVelocity(b2Vec2(0, 0));
                 b->SetAngularVelocity(0);
             }
@@ -673,6 +687,8 @@ void NT3Game::doGameStep(){
             this->current_score += this->score_to_add;
             
             this->score_add_disp_offset = 0;
+        } else {
+            this->makeNewTetrisPiece();
         }
     }
     
@@ -693,6 +709,7 @@ float32 NT3Game::getRowArea(uint row){
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
         if (b == this->currentPiece) continue;
+        if (b == this->next_piece_for_display) continue;
         
         if (this->body_area_contributions.at(row).contains(b)){
             if (!b->IsAwake()){
@@ -1276,7 +1293,8 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 
 void NT3Game::makeNewTetrisPiece(){
     
-    tetris_piece_enum type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+    //set up current piece
+    tetris_piece_enum type = this->next_piece_type;
     
     this->currentPiece = world->CreateBody(&this->tetrisBodyDef);
     this->contactlistener->currentPiece = this->currentPiece;
@@ -1289,6 +1307,37 @@ void NT3Game::makeNewTetrisPiece(){
     data->image = this->piece_images.at(type);
     data->region = this->piece_rects.at(type);
     this->currentPiece->SetUserData(data);
+    
+    
+    //set up next piece
+    this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
+    
+    this->destroyTetrisPiece(this->next_piece_for_display);
+    
+    this->next_piece_bodydef.position = b2Vec2(
+                                            static_cast<float32>(
+                                                this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
+                                                this->tetris_field.x()
+                                                ), 
+                                            static_cast<float32>(
+                                                this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
+                                                this->tetris_field.y()
+                                                )
+                                            ) - this->center_of_mass_offsets.at(this->next_piece_type);
+    //printf("%s\n", this->b2Vec2String(this->center_of_mass_offsets.at(this->next_piece_type)).toUtf8().constData());
+    this->next_piece_bodydef.angularVelocity = this->next_piece_w;
+    
+    this->next_piece_for_display = this->world->CreateBody(&this->next_piece_bodydef);
+    this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
+    
+    for (b2FixtureDef f : this->tetrisFixtures.at(this->next_piece_type)){
+        this->next_piece_for_display->CreateFixture(&f);
+    }
+    
+    data = new tetrisPieceData;
+    data->image = this->piece_images.at(this->next_piece_type);
+    data->region = this->piece_rects.at(this->next_piece_type);
+    this->next_piece_for_display->SetUserData(data);
 }
 
 
@@ -1340,7 +1389,6 @@ void NT3Game::destroyTetrisPiece(b2Body* b){
 
 void NT3Game::initializeTetrisPieceDefs(){
     
-    
     this->tetrisBodyDef.type = b2_dynamicBody;
     
     this->tetrisBodyDef.allowSleep = true;
@@ -1357,6 +1405,23 @@ void NT3Game::initializeTetrisPieceDefs(){
     
     this->tetrisBodyDef.linearDamping = this->linear_damping;
     this->tetrisBodyDef.angularDamping = this->angular_damping;
+    
+    
+    this->next_piece_bodydef = this->tetrisBodyDef;
+    this->next_piece_bodydef.position = b2Vec2(
+                                            static_cast<float32>(
+                                                this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
+                                                this->tetris_field.x()
+                                                ), 
+                                            static_cast<float32>(
+                                                this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
+                                                this->tetris_field.y()
+                                                )
+                                            );
+    this->next_piece_bodydef.linearVelocity.SetZero();
+    
+    this->tetrisBodyDef.linearDamping = 0;
+    this->tetrisBodyDef.angularDamping = 0;
     
     
     for (uint8 i = 0; i < num_tetris_pieces; i++){
@@ -1468,6 +1533,13 @@ void NT3Game::initializeTetrisPieceDefs(){
             fixture_template.shape = &this->tetrisShapes.at(t).at(s);
             this->tetrisFixtures.at(t).push_back(fixture_template);
         }
+        
+        b2Body* testBody = this->world->CreateBody(&this->tetrisBodyDef);
+        for (b2FixtureDef f : this->tetrisFixtures.at(t)){
+            testBody->CreateFixture(&f);
+        }
+        this->center_of_mass_offsets.push_back(testBody->GetWorldCenter() - this->tetrisBodyDef.position);
+        this->world->DestroyBody(testBody);
     }
 }
 
