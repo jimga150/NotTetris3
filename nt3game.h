@@ -112,6 +112,18 @@ struct rayCastComplete{
 struct tetrisPieceData{
     QPixmap image;
     QRect region;
+    
+    tetrisPieceData(){}
+    
+    tetrisPieceData(QPixmap image, QRect region){
+        this->image = image;
+        this->region = region;
+    }
+    
+    bool operator==(const tetrisPieceData& other) const
+    {
+        return this->image == other.image && this->region == other.region;
+    }
 };
 
 class NT3Game : public QObject
@@ -176,7 +188,7 @@ public:
     
     QString b2Vec2String(b2Vec2 vec);
     
-    tetrisPieceData *getTetrisPieceData(b2Body* b);
+    tetrisPieceData getTetrisPieceData(b2Body* b);
     
     QPixmap enableAlphaChannel(QPixmap pixmap);
     
@@ -249,6 +261,8 @@ public:
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
     vector<b2Body*> bodies;
+    
+    QHash<b2Body*, tetrisPieceData> userData;
     
     b2Body* walls[num_walls];
     
@@ -392,6 +406,7 @@ public:
     
     QPixmap default_piece_image;
     QRect default_piece_rect;
+    tetrisPieceData default_data;
     
     QImage black_font_img = QImage(":/resources/graphics/font.png");
     ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", black_font_img);

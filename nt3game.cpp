@@ -93,9 +93,14 @@ void NT3Game::startGame(QScreen* screen){
 
 void NT3Game::freeUserDataOn(b2Body* b){
     if (!b) return;
-    tetrisPieceData* data = this->getTetrisPieceData(b);
+    int numremoved = this->userData.remove(b);
+    if (numremoved == 0 && !this->isAWall(b)){
+        printf("%p had no user data!\n", (void*)b);
+        Q_ASSERT(false);
+    }
+    /*tetrisPieceData* data = this->getTetrisPieceData(b);
     if (data) delete data;
-    b->SetUserData(nullptr);
+    b->SetUserData(nullptr);*/
 }
 
 
@@ -306,12 +311,13 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->scale(this->physics_scale, this->physics_scale);
     painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
     
-    tetrisPieceData* body_data = this->getTetrisPieceData(piece_body);
-    if (body_data == nullptr){
+    tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
+    /*if (body_data == nullptr){
+        printf("null data on body %p\n", (void*)piece_body);
         painter->drawPixmap(this->default_piece_rect, this->default_piece_image);
-    } else {
-        painter->drawPixmap(body_data->region, body_data->image);
-    }
+    } else {*/
+    painter->drawPixmap(body_data.region, body_data.image);
+    //}
     
     painter->restore();
 }
@@ -1004,12 +1010,12 @@ void NT3Game::clearRow(uint row){
                 new_body->CreateFixture(&fixture_def);
             }
             
-            tetrisPieceData* orig_body_data = this->getTetrisPieceData(b);
-            if (orig_body_data != nullptr){
-                tetrisPieceData* data = new tetrisPieceData(*orig_body_data);
-                data->image = this->maskImage(new_body, data);
-                new_body->SetUserData(data);
-            }
+            tetrisPieceData orig_body_data = this->getTetrisPieceData(b);
+            tetrisPieceData data = tetrisPieceData(orig_body_data);
+            data.image = this->maskImage(new_body, &data);
+            this->userData.insert(new_body, data);
+            //new_body->SetUserData(data);
+            
         }
         
         //delete original body (later)
@@ -1298,10 +1304,9 @@ void NT3Game::makeNewTetrisPiece(){
         this->currentPiece->CreateFixture(&f);
     }
     
-    tetrisPieceData* data = new tetrisPieceData;
-    data->image = this->piece_images.at(type);
-    data->region = this->piece_rects.at(type);
-    this->currentPiece->SetUserData(data);
+    tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type));
+    this->userData.insert(this->currentPiece, data);
+    //this->currentPiece->SetUserData(data);
     
     
     //set up next piece
@@ -1329,10 +1334,10 @@ void NT3Game::makeNewTetrisPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    data = new tetrisPieceData;
-    data->image = this->piece_images.at(this->next_piece_type);
-    data->region = this->piece_rects.at(this->next_piece_type);
-    this->next_piece_for_display->SetUserData(data);
+    data.image = this->piece_images.at(this->next_piece_type);
+    data.region = this->piece_rects.at(this->next_piece_type);
+    this->userData.insert(this->next_piece_for_display, data);
+    //this->next_piece_for_display->SetUserData(data);
 }
 
 
@@ -1349,12 +1354,20 @@ QString NT3Game::b2Vec2String(b2Vec2 vec){
     return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
 }
 
-tetrisPieceData* NT3Game::getTetrisPieceData(b2Body* b){
+tetrisPieceData NT3Game::getTetrisPieceData(b2Body* b){
     
-    void* data = b->GetUserData();
+    tetrisPieceData ans = this->userData.value(b, this->default_data);
+    
+    /*if (ans == this->default_data && !this->isAWall(b)){
+        printf("%p has no data!!\n", (void*)b);
+    }*/
+    
+    return ans;
+    
+    /*void* data = b->GetUserData();
     if (data == nullptr) return nullptr;
     
-    return static_cast<tetrisPieceData*>(data);
+    return static_cast<tetrisPieceData*>(data);*/
 }
 
 QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
@@ -1574,6 +1587,8 @@ void NT3Game::initializeTetrisPieceImages(){
     }
     this->default_piece_image = this->piece_images.at(default_tetris_piece);
     this->default_piece_rect = this->piece_rects.at(default_tetris_piece);
+    this->default_data.image = this->default_piece_image;
+    this->default_data.region = this->default_piece_rect;
 }
 
 void NT3Game::initializeWalls(){
