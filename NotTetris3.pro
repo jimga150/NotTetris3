@@ -73,6 +73,7 @@ SOURCES += \
     main.cpp \
     nt3game.cpp \
     nt3contactlistener.cpp \
+    nt3window.cpp \
     opengl2dwindow.cpp
 
 HEADERS += \
@@ -126,6 +127,7 @@ HEADERS += \
     imagefont.h \
     nt3game.h \
     nt3contactlistener.h \
+    nt3window.h \
     opengl2dwindow.h
 
 # Default rules for deployment.

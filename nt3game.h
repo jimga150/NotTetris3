@@ -114,13 +114,19 @@ struct tetrisPieceData{
     QRect region;
 };
 
-class NT3Game : public OpenGL2DWindow
-{
-public:
+class NT3Game : public QObject
+{    
+    Q_OBJECT
     
+public:
+
     //constructor/destructor
-    explicit NT3Game();
-    ~NT3Game() override;
+    explicit NT3Game(QObject* parent = nullptr);
+    ~NT3Game();
+    
+    
+    //initialization
+    void startGame(QScreen* screen);
     
     
     //Destructor utility
@@ -128,7 +134,9 @@ public:
     
     
     //graphics
-    void render(QPainter& painter) override;
+    void resizeEvent(QResizeEvent* event);    
+    
+    void render(QPainter& painter);
     
     void drawBodyTo(QPainter* painter, b2Body *body);
     
@@ -137,8 +145,12 @@ public:
     void drawScore(QPainter* painter);
     
     
-    //game logic
-    void doGameStep() override;
+    //game logic    
+    void keyPressEvent(QKeyEvent* ev);
+    
+    void keyReleaseEvent(QKeyEvent* ev);
+    
+    void doGameStep();
     
     
     //calculating/removing rows
@@ -411,12 +423,15 @@ public:
     
     int last_frame = 0;
     
-protected:
-    void resizeEvent(QResizeEvent* event) override;
+signals:
+    void setTitle(QString title);
     
-    void keyPressEvent(QKeyEvent* ev) override;
+    void close();
     
-    void keyReleaseEvent(QKeyEvent* ev) override;
+    void setGeometry(int x, int y, int w, int h);
     
+    void resize(const QSize size);
+    
+    void setExpectedFrameTime(int millis);
 };
 

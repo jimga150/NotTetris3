@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-#include "nt3game.h"
+#include "nt3window.h"
 
 #include <QGuiApplication>
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     QSurfaceFormat format;
     format.setSamples(16);
 
-    NT3Game gamewindow;
+    NT3Window gamewindow;
     gamewindow.setFormat(format);
 
     gamewindow.show();

@@ -1,19 +1,33 @@
 #include "nt3game.h"
 
-NT3Game::NT3Game()
+NT3Game::NT3Game(QObject *parent) : QObject(parent)
 {
-    this->setTitle("Not Tetris 3");
+    emit this->setTitle("Not Tetris 3");
     
     if (this->gamebackground.isNull()){
         fprintf(stderr, "Resources not present, exiting...\n");
-        this->close();
+        emit this->close();
     }
+}
+
+NT3Game::~NT3Game()
+{
+    if (this->world){
+        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            this->freeUserDataOn(b);
+        }
+        delete world;
+    }
+    if (this->contactlistener) delete contactlistener;
+}
+
+
+void NT3Game::startGame(QScreen* screen){
     
-    QScreen* screen = this->screen();
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;
     this->timeStep = static_cast<float32>(this->framerate); //seconds
-    this->expected_frame_time = static_cast<int>(ceil(this->framerate*this->millis_per_second));
+    emit this->setExpectedFrameTime(static_cast<int>(ceil(this->framerate*this->millis_per_second)));
     //printf("eft: %d\n", this->expected_frame_time);
     //printf("Using time step of %f ms\n", window.timeStep*window.millis_per_second);
     
@@ -29,14 +43,14 @@ NT3Game::NT3Game()
         this->piece_image_scale = this->pis_factor*(screen_height*1.0/this->ui_field.height());
         
         int window_width = static_cast<int>(screen_height*this->aspect_ratio);
-        this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+        emit this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
         
     } else { //screen is relatively taller than app, or it's the same ratio
         
         this->piece_image_scale = this->pis_factor*(screen_width*1.0/this->ui_field.width());
         
         int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
-        this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
+        emit this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
     
     this->polygon_radius_px = qCeil(this->piece_image_scale*this->physics_to_ui_scale);
@@ -76,16 +90,6 @@ NT3Game::NT3Game()
     this->makeNewTetrisPiece();
 }
 
-NT3Game::~NT3Game()
-{
-    if (this->world){
-        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-            this->freeUserDataOn(b);
-        }
-        delete world;
-    }
-    if (this->contactlistener) delete contactlistener;
-}
 
 void NT3Game::freeUserDataOn(b2Body* b){
     if (!b) return;
@@ -117,8 +121,7 @@ void NT3Game::resizeEvent(QResizeEvent* event){
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
     
     if (!aspect_ratio_respected){
-        
-        this->resize(this->scaled_ui_field.size());
+        emit this->resize(this->scaled_ui_field.size());
     }
 }
 
@@ -208,14 +211,6 @@ void NT3Game::render(QPainter& painter)
             }
         }
     }
-    
-#ifdef TIME_FRAME_COMPS
-    if (this->debug_framerate){
-        painter.setPen(this->debug_line_color);
-        painter.drawText(QPointF(3*this->graphicsscale, 12*this->graphicsscale), QString::number(this->frame_times.render_time));
-        painter.drawText(QPointF(3*this->graphicsscale, 14*this->graphicsscale), QString::number(this->frame_times.game_frame_time));
-    }
-#endif
 }
 
 void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
@@ -559,7 +554,7 @@ void NT3Game::doGameStep(){
         
         if (this->currentPiece->GetWorldCenter().y < 0){
             printf("Game lost!\n");
-            this->close();
+            emit this->close();
             return;
         }
     }
