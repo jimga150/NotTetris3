@@ -10,6 +10,8 @@ Logo::~Logo(){
 }   
 
 void Logo::init(QScreen* screen){
+    this->framerate = 1.0/screen->refreshRate();
+    
     QRect screenRect = screen->availableGeometry();
     int screen_width = screenRect.width();
     int screen_height = screenRect.height();
@@ -60,7 +62,6 @@ void Logo::render(QPainter& painter){
 
 void Logo::keyPressEvent(QKeyEvent* ev){
     if (ev->key() == Qt::Key_Return || ev->key() == Qt::Key_Enter){
-        printf("Got it!\n");
         emit this->stateEnd(MAINMENU);
     }
 }   
@@ -72,6 +73,14 @@ void Logo::keyReleaseEvent(QKeyEvent* ev){
 
 void Logo::doGameStep(){
     if (this->logo_offset_y < 0){
-        this->logo_offset_y++;        
+        this->logo_offset_y += this->framerate*this->logo_offset_delta; //seconds * pixels/sec = pixels
+        if (this->logo_offset_y > 0){
+            this->logo_offset_y = 0;
+        }
+    }
+    
+    this->time_passed += this->framerate;
+    if (this->time_passed > this->logo_slide_duration + this->logo_delay){
+        emit this->stateEnd(MAINMENU);
     }
 }   

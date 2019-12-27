@@ -27,6 +27,9 @@ public:
     void doGameStep();
     
     
+    double framerate;
+    double time_passed = 0; //seconds
+    
     const QRectF ui_field = QRectF(0, 0, 160, 144);
     QRect scaled_ui_field = TO_QRECT(ui_field, 1);
     
@@ -41,9 +44,13 @@ public:
     QString logo_path = ":/resources/graphics/stabyourselflogo.png";
     QPixmap logo = QPixmap(logo_path);
     
+    double logo_slide_duration = 1.5; //seconds
+    double logo_delay = 1; //seconds
+    
     QRect logo_rect_final = QRect(QPoint(7, 58), logo.size());
     QRect scaled_logo_rect_final = TO_QRECT(logo_rect_final, 1);
-    int logo_offset_y = -logo_rect_final.y() - logo_rect_final.height();
+    double logo_offset_y = -logo_rect_final.y() - logo_rect_final.height();
+    double logo_offset_delta = -logo_offset_y/logo_slide_duration; //UI pixels/sec
     
 signals:
     void setTitle(QString title);
