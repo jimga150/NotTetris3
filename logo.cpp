@@ -17,15 +17,19 @@ void Logo::init(QScreen* screen){
     int screen_height = screenRect.height();
     
     if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
-                
+        
         int window_width = static_cast<int>(screen_height*this->aspect_ratio);
         emit this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
         
     } else { //screen is relatively taller than app, or it's the same ratio
-                
+        
         int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
         emit this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
+    
+    this->scaled_logo_rect_final = TO_QRECT(logo_rect_final, 1);
+    this->logo_offset_y = -logo_rect_final.y() - logo_rect_final.height();
+    this->logo_offset_delta = -logo_offset_y/logo_slide_duration; //UI pixels/sec
 }
 
 void Logo::resizeEvent(QResizeEvent* event){
@@ -35,7 +39,7 @@ void Logo::resizeEvent(QResizeEvent* event){
     
     double ar_error = width*1.0/height - aspect_ratio;
     bool aspect_ratio_respected = qAbs(ar_error) < this->aspect_ratio_epsilon;
-        
+    
     if (ar_error > 0){ //screen is relatively wider than the app
         this->ui_scale = height*1.0/this->ui_field.height();
     } else if (ar_error < 0){ //screen is relatively skinnier than app
