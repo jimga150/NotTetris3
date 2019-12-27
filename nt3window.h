@@ -6,6 +6,7 @@
 #include "opengl2dwindow.h"
 
 #include "nt3game.h"
+#include "logo.h"
 
 class NT3Window : public OpenGL2DWindow
 {
@@ -17,10 +18,17 @@ public:
     
     void doGameStep() override;
     
+    
+    NT3_state_enum NT3state = LOGO;
+    
+    Logo logo;
+    
     NT3Game game;
     
 public slots:
     void setExpectedFrameTime(int eft);
+    
+    void stateEnd(NT3_state_enum next);
     
 protected:
     void resizeEvent(QResizeEvent* event) override;

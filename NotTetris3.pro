@@ -70,6 +70,7 @@ SOURCES += \
     Box2D/Dynamics/b2WorldCallbacks.cpp \
     Box2D/Rope/b2Rope.cpp \
     imagefont.cpp \
+    logo.cpp \
     main.cpp \
     nt3game.cpp \
     nt3contactlistener.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
     Box2D/Rope/b2Rope.h \
     common.h \
     imagefont.h \
+    logo.h \
     nt3game.h \
     nt3contactlistener.h \
     nt3window.h \
