@@ -19,11 +19,11 @@
 
 using namespace std;
 
-enum nt3_state_enum{
+enum gamea_state_enum{
     gameA = 0,
     row_clear_blinking,
     
-    num_nt3_states
+    num_gamea_states
 };
 
 enum tetris_piece_enum{
@@ -192,7 +192,7 @@ public:
     
     QPixmap enableAlphaChannel(QPixmap pixmap);
     
-    void setGameState(nt3_state_enum newstate);
+    void setGameState(gamea_state_enum newstate);
     
     void destroyTetrisPiece(b2Body* b);
     
@@ -374,8 +374,8 @@ public:
     
     
     //Game state
-    nt3_state_enum game_state = gameA;
-    nt3_state_enum last_state = gameA;
+    gamea_state_enum game_state = gameA;
+    gamea_state_enum last_state = gameA;
     
     const float32 avgarea_divisor = square_area*10;
     

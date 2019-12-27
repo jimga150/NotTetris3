@@ -1350,7 +1350,7 @@ QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
     return ans;
 }
 
-void NT3Game::setGameState(nt3_state_enum newstate){
+void NT3Game::setGameState(gamea_state_enum newstate){
     this->last_state = this->game_state;
     this->game_state = newstate;
 }
