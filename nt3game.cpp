@@ -1325,7 +1325,7 @@ tetrisPieceData NT3Game::getTetrisPieceData(b2Body* b){
     
     tetrisPieceData ans = this->userData.value(b, this->default_data);
     
-    /*if (ans == this->default_data && !this->isAWall(b)){
+    /*if (ans == this->default_data && !this->isAWall(b)){ //VERY SLOW
         printf("%p has no data!!\n", (void*)b);
     }*/
     

@@ -122,7 +122,7 @@ struct tetrisPieceData{
     
     bool operator==(const tetrisPieceData& other) const
     {
-        return this->image == other.image && this->region == other.region;
+        return this->image.toImage() == other.image.toImage() && this->region == other.region;
     }
 };
 
