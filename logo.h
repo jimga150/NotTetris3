@@ -1,34 +1,26 @@
 #ifndef LOGO_H
 #define LOGO_H
 
-#include <QScreen>
-#include <QPainter>
-#include <QResizeEvent>
+#include "nt3screen.h"
 
-#include "common.h"
-
-class Logo : public QObject
+class Logo : public NT3Screen
 {
     Q_OBJECT
 public:
     explicit Logo(QObject *parent = nullptr);
-    ~Logo();
     
-    void init(QScreen* screen);
+    void init(QScreen* screen) override;
     
-    void resizeEvent(QResizeEvent* event);    
+    void resizeEvent(QResizeEvent* event) override;    
     
-    void render(QPainter& painter);
+    void render(QPainter& painter) override;
     
-    void keyPressEvent(QKeyEvent* ev);
+    void keyPressEvent(QKeyEvent* ev) override;
     
-    void keyReleaseEvent(QKeyEvent* ev);
+    void keyReleaseEvent(QKeyEvent* ev) override;
     
-    void doGameStep();
+    void doGameStep() override;
     
-    
-    double framerate;
-    double time_passed = 0; //seconds
     
     const QRectF ui_field = QRectF(0, 0, 160, 144);
     QRect scaled_ui_field = TO_QRECT(ui_field, 1);
@@ -41,6 +33,9 @@ public:
     double ui_scale = min_graphics_scale;
     
     
+    double framerate;
+    double time_passed = 0; //seconds
+    
     const QString logo_path = ":/resources/graphics/stabyourselflogo.png";
     const QPixmap logo = QPixmap(logo_path);
     
@@ -52,20 +47,6 @@ public:
     QRect scaled_logo_rect_final;
     double logo_offset_y;
     double logo_offset_delta; //UI pixels/sec
-    
-signals:
-    void setTitle(QString title);
-    
-    void close();
-    
-    void stateEnd(NT3_state_enum nextState);
-    
-    void setGeometry(int x, int y, int w, int h);
-    
-    void resize(const QSize size);
-    
-    void setExpectedFrameTime(int millis);
-    
 };
 
 #endif // LOGO_H

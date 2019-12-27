@@ -35,7 +35,7 @@ void NT3Window::stateEnd(NT3_state_enum next){
         
         break;
     case GAMEA:
-        this->game.startGame(this->screen());
+        this->game.init(this->screen());
         break;
     default:
         fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);

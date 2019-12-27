@@ -1,7 +1,8 @@
 #include "nt3game.h"
 
-NT3Game::NT3Game(QObject *parent) : QObject(parent)
+NT3Game::NT3Game(QObject *parent)
 {
+    Q_UNUSED(parent)
     emit this->setTitle("Not Tetris 3");
     
     if (this->gamebackground.isNull()){
@@ -22,7 +23,7 @@ NT3Game::~NT3Game()
 }
 
 
-void NT3Game::startGame(QScreen* screen){
+void NT3Game::init(QScreen* screen){
     
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;

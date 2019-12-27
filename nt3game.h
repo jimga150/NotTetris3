@@ -1,13 +1,10 @@
-#include <QScreen>
-#include <QResizeEvent>
-
 #include <QRandomGenerator>
 #include <QElapsedTimer>
 #include <QtMath>
 
 #include "Box2D/Box2D.h"
 
-#include "common.h"
+#include "nt3screen.h"
 #include "nt3contactlistener.h"
 #include "imagefont.h"
 
@@ -124,7 +121,7 @@ struct tetrisPieceData{
     }
 };
 
-class NT3Game : public QObject
+class NT3Game : public NT3Screen
 {    
     Q_OBJECT
     
@@ -132,11 +129,11 @@ public:
 
     //constructor/destructor
     explicit NT3Game(QObject* parent = nullptr);
-    ~NT3Game();
+    ~NT3Game() override;
     
     
     //initialization
-    void startGame(QScreen* screen);
+    void init(QScreen* screen) override;
     
     
     //Destructor utility
@@ -144,9 +141,9 @@ public:
     
     
     //graphics
-    void resizeEvent(QResizeEvent* event);    
+    void resizeEvent(QResizeEvent* event) override;    
     
-    void render(QPainter& painter);
+    void render(QPainter& painter) override;
     
     void drawBodyTo(QPainter* painter, b2Body *body);
     
@@ -156,11 +153,11 @@ public:
     
     
     //game logic    
-    void keyPressEvent(QKeyEvent* ev);
+    void keyPressEvent(QKeyEvent* ev) override;
     
-    void keyReleaseEvent(QKeyEvent* ev);
+    void keyReleaseEvent(QKeyEvent* ev) override;
     
-    void doGameStep();
+    void doGameStep() override;
     
     
     //calculating/removing rows
@@ -435,16 +432,5 @@ public:
     QPixmap saved_frames[NUM_FRAMES_TO_SAVE];
     
     int last_frame = 0;
-    
-signals:
-    void setTitle(QString title);
-    
-    void close();
-    
-    void setGeometry(int x, int y, int w, int h);
-    
-    void resize(const QSize size);
-    
-    void setExpectedFrameTime(int millis);
 };
 

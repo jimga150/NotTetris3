@@ -1,13 +1,9 @@
 #include "logo.h"
 
-Logo::Logo(QObject *parent) : QObject(parent)
+Logo::Logo(QObject *parent)
 {
-    
+    Q_UNUSED(parent)
 }
-
-Logo::~Logo(){
-    
-}   
 
 void Logo::init(QScreen* screen){
     this->framerate = 1.0/screen->refreshRate();
