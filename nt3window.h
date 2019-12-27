@@ -5,8 +5,10 @@
 
 #include "opengl2dwindow.h"
 
-#include "nt3game.h"
+#include "nt3screen.h"
+
 #include "logo.h"
+#include "nt3game.h"
 
 class NT3Window : public OpenGL2DWindow
 {
@@ -21,9 +23,7 @@ public:
     
     NT3_state_enum NT3state = LOGO;
     
-    Logo logo;
-    
-    NT3Game game;
+    NT3Screen* screens[num_nt3_states];
     
 public slots:
     void setExpectedFrameTime(int eft);

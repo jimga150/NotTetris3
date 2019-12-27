@@ -2,159 +2,81 @@
 
 NT3Window::NT3Window()
 {    
-    connect(&this->game, &NT3Game::close, this, &QWindow::close);
-    connect(&this->game, &NT3Game::setTitle, this, &QWindow::setTitle); //TODO: move this to nt3window only
-    connect(&this->game, &NT3Game::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
-    connect(&this->game, &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
-    connect(&this->game, &NT3Game::setExpectedFrameTime, this, &NT3Window::setExpectedFrameTime);
+    for (uint s = 0; s < num_nt3_states; ++s){
+        switch(s){
+        case LOGO:
+            this->screens[s] = new Logo(this);
+            break;
+        case CREDITS:
+            this->screens[s] = new NT3Screen(this); //TODO: make credits screen
+            break;
+        case MAINMENU:
+            this->screens[s] = new NT3Screen(this); //TODO: make main menu screen
+            break;
+        case GAMEA:
+            this->screens[s] = new NT3Game(this);
+            break;
+        default:
+            fprintf(stderr, "Invalid NT3 state: %u\n", s);
+            this->close();
+            break;
+        }
+        connect(this->screens[s], &NT3Game::close, this, &QWindow::close);
+        connect(this->screens[s], &NT3Game::setTitle, this, &QWindow::setTitle); //TODO: move this to nt3window only
+        connect(this->screens[s], &NT3Game::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
+        connect(this->screens[s], &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
+        connect(this->screens[s], &NT3Game::setExpectedFrameTime, this, &NT3Window::setExpectedFrameTime);
+        connect(this->screens[s], &NT3Game::stateEnd, this, &NT3Window::stateEnd);
+    }
     
-    connect(&this->logo, &Logo::close, this, &QWindow::close);
-    connect(&this->logo, &Logo::setTitle, this, &QWindow::setTitle); //TODO: move this to nt3window only
-    connect(&this->logo, &Logo::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
-    connect(&this->logo, &Logo::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
-    connect(&this->logo, &Logo::setExpectedFrameTime, this, &NT3Window::setExpectedFrameTime);
-    connect(&this->logo, &Logo::stateEnd, this, &NT3Window::stateEnd);
-    
-    this->logo.init(this->screen());
+    this->screens[this->NT3state]->init(this->screen());
 }
 
 NT3Window::~NT3Window(){
-    
+    for (uint s = 0; s < num_nt3_states; ++s){
+        delete this->screens[s];
+    }
 }
 
 void NT3Window::stateEnd(NT3_state_enum next){
+    Q_ASSERT(next < num_nt3_states);
     this->NT3state = next;
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.init(this->screen());
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.init(this->screen());
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
-    }
+    this->screens[next]->init(this->screen());
 }
 
 void NT3Window::render(QPainter &painter){
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.render(painter);
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.render(painter);
-        
-    #ifdef TIME_FRAME_COMPS
-        if (this->game.debug_framerate){
-            painter.setPen(this->game.debug_line_color);
-            painter.drawText(QPointF(3*this->game.ui_scale, 12*this->game.ui_scale), QString::number(this->frame_times.render_time));
-            painter.drawText(QPointF(3*this->game.ui_scale, 14*this->game.ui_scale), QString::number(this->frame_times.game_frame_time));
+    Q_ASSERT(this->NT3state < num_nt3_states);
+    this->screens[this->NT3state]->render(painter);
+#ifdef TIME_FRAME_COMPS
+    if (this->NT3state == GAMEA){
+        NT3Game* game = static_cast<NT3Game*>(this->screens[GAMEA]);
+        if (game->debug_framerate){
+            painter.setPen(game->debug_line_color);
+            painter.drawText(QPointF(3*game->ui_scale, 12*game->ui_scale), QString::number(this->frame_times.render_time));
+            painter.drawText(QPointF(3*game->ui_scale, 14*game->ui_scale), QString::number(this->frame_times.game_frame_time));
         }
-    #endif
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
     }
+#endif
 }
 
 void NT3Window::doGameStep(){
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.doGameStep();
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.doGameStep();
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
-    }
+    Q_ASSERT(this->NT3state < num_nt3_states);
+    this->screens[this->NT3state]->doGameStep();
 }
 
 void NT3Window::resizeEvent(QResizeEvent* event){
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.resizeEvent(event);
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.resizeEvent(event);
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
-    }
+    Q_ASSERT(this->NT3state < num_nt3_states);
+    this->screens[this->NT3state]->resizeEvent(event);
 }
 
 void NT3Window::keyPressEvent(QKeyEvent* ev){
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.keyPressEvent(ev);
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.keyPressEvent(ev);
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
-    }
+    Q_ASSERT(this->NT3state < num_nt3_states);
+    this->screens[this->NT3state]->keyPressEvent(ev);
 }
 
 void NT3Window::keyReleaseEvent(QKeyEvent* ev){
-    switch(this->NT3state){
-    case LOGO:
-        this->logo.keyReleaseEvent(ev);
-        break;
-    case CREDITS:
-        
-        break;
-    case MAINMENU:
-        
-        break;
-    case GAMEA:
-        this->game.keyReleaseEvent(ev);
-        break;
-    default:
-        fprintf(stderr, "Invalid NT3 state: %u\n", this->NT3state);
-        this->close();
-        break;
-    }
+    Q_ASSERT(this->NT3state < num_nt3_states);
+    this->screens[this->NT3state]->keyReleaseEvent(ev);
 }
 
 void NT3Window::setExpectedFrameTime(int eft){
