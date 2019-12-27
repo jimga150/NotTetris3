@@ -1,6 +1,8 @@
 #ifndef NT3WINDOW_H
 #define NT3WINDOW_H
 
+#include "common.h"
+
 #include "opengl2dwindow.h"
 
 #include "nt3game.h"
