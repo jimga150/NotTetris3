@@ -15,7 +15,7 @@ public:
     explicit NT3Screen(QObject *parent = nullptr);
     virtual ~NT3Screen();
     
-    virtual void init(QScreen* screen);
+    virtual void init();
     
     
     virtual void resizeEvent(QResizeEvent* event);    
@@ -50,14 +50,12 @@ public:
     const double min_graphics_scale = 1;
     
     double ui_scale = min_graphics_scale;
-    
+        
 signals:    
     void close();
     
     void stateEnd(NT3_state_enum nextState);
-    
-    void setGeometry(int x, int y, int w, int h);
-    
+        
     void resize(const QSize size);    
 };
 

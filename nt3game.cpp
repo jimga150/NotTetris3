@@ -20,33 +20,17 @@ NT3Game::~NT3Game()
 }
 
 
-void NT3Game::init(QScreen* screen){
+void NT3Game::init(){
     
-    this->fps = screen->refreshRate();
-    this->framerate = 1.0/this->fps;
-    this->timeStep = static_cast<float32>(this->framerate); //seconds
+    double fps = 1.0/framerate;
+    this->timeStep = static_cast<float32>(framerate); //seconds
     
-    Q_ASSERT(this->downward_velocity_max < b2_maxTranslation*static_cast<float32>(this->fps));
-    Q_ASSERT(this->downward_velocity_regular < b2_maxTranslation*static_cast<float32>(this->fps));
+    float32 box2d_max_velocity = b2_maxTranslation*static_cast<float32>(fps);
     
-    QRect screenRect = screen->availableGeometry();
-    int screen_width = screenRect.width();
-    int screen_height = screenRect.height();
+    Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
+    Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
     
-    if (screen_width*1.0/screen_height > this->aspect_ratio){ //screen is relatively wider than the app
-        
-        this->piece_image_scale = this->pis_factor*(screen_height*1.0/this->ui_field.height());
-        
-        int window_width = static_cast<int>(screen_height*this->aspect_ratio);
-        emit this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
-        
-    } else { //screen is relatively taller than app, or it's the same ratio
-        
-        this->piece_image_scale = this->pis_factor*(screen_width*1.0/this->ui_field.width());
-        
-        int window_height = static_cast<int>(screen_width*1.0/this->aspect_ratio);
-        emit this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
-    }
+    this->piece_image_scale = this->pis_factor*this->ui_scale;
     
     this->polygon_radius_px = qCeil(this->piece_image_scale*this->physics_to_ui_scale);
     
@@ -461,7 +445,7 @@ void NT3Game::doGameStep(){
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
         }
         
-        this->row_blink_accumulator += this->framerate + elapsed*1.0/NANOS_PER_SECOND;
+        this->row_blink_accumulator += framerate + elapsed*1.0/NANOS_PER_SECOND;
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){
             this->row_blink_accumulator = 0;
             

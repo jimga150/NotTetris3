@@ -1,5 +1,7 @@
 #include "nt3window.h"
 
+double framerate; //going to assign this variable in this file
+
 NT3Window::NT3Window()
 {   
     this->setTitle("Not Tetris 3");
@@ -24,12 +26,14 @@ NT3Window::NT3Window()
             break;
         }
         connect(this->screens[s], &NT3Game::close, this, &QWindow::close);
-        connect(this->screens[s], &NT3Game::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
         connect(this->screens[s], &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
         connect(this->screens[s], &NT3Game::stateEnd, this, &NT3Window::stateEnd);
     }
     
     QScreen* screen = this->screen();
+    
+    framerate = 1.0/screen->refreshRate();
+    
     QRect screenRect = screen->availableGeometry();
     int screen_width = screenRect.width();
     int screen_height = screenRect.height();
@@ -37,15 +41,15 @@ NT3Window::NT3Window()
     if (screen_width*1.0/screen_height > this->screens[this->NT3state]->aspect_ratio){ //screen is relatively wider than the app
         
         int window_width = static_cast<int>(screen_height*this->screens[this->NT3state]->aspect_ratio);
-        emit this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+        this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
         
     } else { //screen is relatively taller than app, or it's the same ratio
         
         int window_height = static_cast<int>(screen_width*1.0/this->screens[this->NT3state]->aspect_ratio);
-        emit this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
+        this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
     }
     
-    this->screens[this->NT3state]->init(this->screen());
+    this->screens[this->NT3state]->init();
 }
 
 NT3Window::~NT3Window(){
@@ -57,7 +61,7 @@ NT3Window::~NT3Window(){
 void NT3Window::stateEnd(NT3_state_enum next){
     Q_ASSERT(next < num_nt3_states);
     this->NT3state = next;
-    this->screens[next]->init(this->screen());
+    this->screens[next]->init();
     
     //forces the new screen object to consider the current window size
     QResizeEvent ev(this->size(), this->size()/2);

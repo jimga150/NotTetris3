@@ -9,7 +9,7 @@ class Logo : public NT3Screen
 public:
     explicit Logo(QObject *parent = nullptr);
     
-    void init(QScreen* screen) override;
+    void init() override;
     
     void resizeEvent(QResizeEvent* event) override;    
     
@@ -20,7 +20,6 @@ public:
     void doGameStep() override;
     
     
-    double framerate;
     double time_passed = 0; //seconds
     
     const QString logo_path = ":/resources/graphics/stabyourselflogo.png";

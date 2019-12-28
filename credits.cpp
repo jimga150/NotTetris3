@@ -5,8 +5,7 @@ Credits::Credits(QObject *parent) : NT3Screen(parent)
     
 }
 
-void Credits::init(QScreen* screen){
-    this->framerate = 1.0/screen->refreshRate();
+void Credits::init(){
     this->time_passed = 0;
 }
 
@@ -28,7 +27,7 @@ void Credits::keyPressEvent(QKeyEvent* ev){
 }  
 
 void Credits::doGameStep(){
-    this->time_passed += this->framerate;
+    this->time_passed += framerate;
     if (this->time_passed > this->credits_delay){
         emit this->stateEnd(MAINMENU);
     }

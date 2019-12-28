@@ -2,15 +2,14 @@
 
 NT3Screen::NT3Screen(QObject *parent) : QObject(parent)
 {
-    //one-time initialization
+    //one-time initialization per screen
 }
 
 NT3Screen::~NT3Screen(){
     //one-time destruction at end of application's life
 }
 
-void NT3Screen::init(QScreen* screen){
-    Q_UNUSED(screen)
+void NT3Screen::init(){
     //init is called every time this screen becomes active, so this should also reset any dirty variables
 }
 

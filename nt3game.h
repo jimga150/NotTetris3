@@ -131,7 +131,7 @@ public:
     
     
     //initialization
-    void init(QScreen* screen) override;
+    void init() override;
     
     
     //Destructor utility
@@ -210,13 +210,9 @@ public:
     bool frame_review = false;
     
     
-    //calculated timings
-    double fps;
-    
+    //calculated timings    
     float32 timeStep;
-    
-    double framerate; //seconds
-    
+        
     
     //input states/params
     bool accelDownState = false;

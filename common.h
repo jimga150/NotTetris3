@@ -21,4 +21,6 @@ enum NT3_state_enum{
     num_nt3_states
 };
 
+extern double framerate;
+
 #endif // COMMON_H

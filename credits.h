@@ -9,7 +9,7 @@ class Credits : public NT3Screen
 public:
     explicit Credits(QObject *parent = nullptr);
     
-    void init(QScreen* screen) override;
+    void init() override;
         
     void render(QPainter& painter) override;
     
@@ -40,7 +40,6 @@ public:
     };
         
     const double credits_delay = 2; //seconds
-    double framerate;
     double time_passed = 0;
     
     const QString logo_path = ":/resources/graphics/logo.png";
