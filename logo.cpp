@@ -1,8 +1,8 @@
 #include "logo.h"
 
-Logo::Logo(QObject *parent)
+Logo::Logo(QObject *parent) : NT3Screen(parent)
 {
-    Q_UNUSED(parent)
+    
 }
 
 void Logo::init(QScreen* screen){

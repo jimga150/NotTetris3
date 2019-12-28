@@ -1,9 +1,7 @@
 #include "nt3game.h"
 
-NT3Game::NT3Game(QObject *parent)
-{
-    Q_UNUSED(parent)
-    
+NT3Game::NT3Game(QObject *parent) : NT3Screen(parent)
+{    
     if (this->gamebackground.isNull()){
         fprintf(stderr, "Resources not present, exiting...\n");
         emit this->close();
