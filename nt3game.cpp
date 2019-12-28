@@ -27,7 +27,6 @@ void NT3Game::init(QScreen* screen){
     this->fps = screen->refreshRate();
     this->framerate = 1.0/this->fps;
     this->timeStep = static_cast<float32>(this->framerate); //seconds
-    emit this->setExpectedFrameTime(static_cast<int>(ceil(this->framerate*this->millis_per_second)));
     
     Q_ASSERT(this->downward_velocity_max < b2_maxTranslation*static_cast<float32>(this->fps));
     Q_ASSERT(this->downward_velocity_regular < b2_maxTranslation*static_cast<float32>(this->fps));

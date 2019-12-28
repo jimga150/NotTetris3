@@ -56,6 +56,9 @@
 #include <QOpenGLPaintDevice>
 
 #include <QPainter>
+#include <QScreen>
+
+#include "common.h"
 
 #if defined(TIME_FRAMES) || defined(TIME_FRAME_COMPS)
 #include <QElapsedTimer>
@@ -82,8 +85,6 @@ public:
 
     virtual void doGameStep();
 
-    int expected_frame_time = 0;
-
 protected:
     bool event(QEvent *event) override;
 
@@ -99,6 +100,8 @@ protected:
     std::vector<long long> frame_times_vect;
     std::string frame_toolong_suffix = "!!!";
     std::string frame_normal_suffix = "";
+    
+    int expected_frame_time = 0;
 #endif
 
     frame_times_struct frame_times;

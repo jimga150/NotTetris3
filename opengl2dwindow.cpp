@@ -54,6 +54,8 @@ OpenGL2DWindow::OpenGL2DWindow(){
     this->setSurfaceType(QWindow::OpenGLSurface);
 
 #ifdef TIME_FRAMES
+    double framerate = 1.0/this->screen()->refreshRate();
+    this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
     this->frameTimer.start();
 #endif
 }

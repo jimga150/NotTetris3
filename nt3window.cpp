@@ -26,7 +26,6 @@ NT3Window::NT3Window()
         connect(this->screens[s], &NT3Game::close, this, &QWindow::close);
         connect(this->screens[s], &NT3Game::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
         connect(this->screens[s], &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
-        connect(this->screens[s], &NT3Game::setExpectedFrameTime, this, &NT3Window::setExpectedFrameTime);
         connect(this->screens[s], &NT3Game::stateEnd, this, &NT3Window::stateEnd);
     }
     
@@ -78,8 +77,4 @@ void NT3Window::keyPressEvent(QKeyEvent* ev){
 void NT3Window::keyReleaseEvent(QKeyEvent* ev){
     Q_ASSERT(this->NT3state < num_nt3_states);
     this->screens[this->NT3state]->keyReleaseEvent(ev);
-}
-
-void NT3Window::setExpectedFrameTime(int eft){
-    this->expected_frame_time = eft;
 }

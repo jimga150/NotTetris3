@@ -34,10 +34,7 @@ signals:
     
     void setGeometry(int x, int y, int w, int h);
     
-    void resize(const QSize size);
-    
-    void setExpectedFrameTime(int millis);
-    
+    void resize(const QSize size);    
 };
 
 #endif // NT3SCREEN_H
