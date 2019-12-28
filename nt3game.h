@@ -1,6 +1,5 @@
 #include <QRandomGenerator>
 #include <QElapsedTimer>
-#include <QtMath>
 
 #include "Box2D/Box2D.h"
 
@@ -210,14 +209,6 @@ public:
     bool debug_box2d = false;
     
     bool frame_review = false;
-    
-    
-    //constants
-    const int millis_per_second = 1000;
-    const int micros_per_second = millis_per_second*1000;
-    const int nanos_per_second = micros_per_second*1000;
-    
-    const double rad_to_deg = 180.0/M_PI;
     
     
     //calculated timings

@@ -223,7 +223,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
     //painter->drawText(QPoint(0, 0), ptrStr);
     //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
     
-    painter->rotate(static_cast<double>(body->GetAngle())*rad_to_deg);
+    painter->rotate(static_cast<double>(body->GetAngle())*RAD_TO_DEG);
     
     for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
         switch(f->GetType()){
@@ -301,7 +301,7 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
                 this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->physics_scale
                 );
     painter->scale(this->physics_scale, this->physics_scale);
-    painter->rotate(static_cast<double>(piece_body->GetAngle())*rad_to_deg);
+    painter->rotate(static_cast<double>(piece_body->GetAngle())*RAD_TO_DEG);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
     painter->drawPixmap(body_data.region, body_data.image);
@@ -482,7 +482,7 @@ void NT3Game::doGameStep(){
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
         }
         
-        this->row_blink_accumulator += this->framerate + elapsed*1.0/this->nanos_per_second;
+        this->row_blink_accumulator += this->framerate + elapsed*1.0/NANOS_PER_SECOND;
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){
             this->row_blink_accumulator = 0;
             
