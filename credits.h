@@ -52,9 +52,12 @@ public:
     
     double ui_scale;
     
-    const double credits_delay = 200; //seconds
+    const double credits_delay = 2; //seconds
     double framerate;
     double time_passed = 0;
+    
+    const QString logo_path = ":/resources/graphics/logo.png";
+    const QPixmap logo = QPixmap(logo_path);
 };
 
 #endif // CREDITS_H

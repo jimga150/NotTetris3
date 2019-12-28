@@ -55,7 +55,8 @@ void Credits::render(QPainter& painter){
     for (int r = 0; r < this->credits_numlines; r++){
         this->BOW_font.print(&painter, QPoint(0, (r+1)*this->font_height)*this->ui_scale, LEFT_ALIGN, 
                              this->credits_text[r], this->ui_scale);
-    } //TODO: add copyright image to middle of this (??)
+    }
+    painter.drawPixmap(QRect(QPoint(32, 80)*this->ui_scale, this->logo.size()*this->ui_scale), this->logo);
 }   
 
 void Credits::keyPressEvent(QKeyEvent* ev){
