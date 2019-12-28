@@ -20,17 +20,6 @@ public:
     void doGameStep() override;
     
     
-    const QRectF ui_field = QRectF(0, 0, 160, 144);
-    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
-    
-    const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
-    const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
-    
-    const double min_graphics_scale = 1;
-    
-    double ui_scale = min_graphics_scale;
-    
-    
     double framerate;
     double time_passed = 0; //seconds
     

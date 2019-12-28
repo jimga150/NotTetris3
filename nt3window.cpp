@@ -29,6 +29,22 @@ NT3Window::NT3Window()
         connect(this->screens[s], &NT3Game::stateEnd, this, &NT3Window::stateEnd);
     }
     
+    QScreen* screen = this->screen();
+    QRect screenRect = screen->availableGeometry();
+    int screen_width = screenRect.width();
+    int screen_height = screenRect.height();
+    
+    if (screen_width*1.0/screen_height > this->screens[this->NT3state]->aspect_ratio){ //screen is relatively wider than the app
+        
+        int window_width = static_cast<int>(screen_height*this->screens[this->NT3state]->aspect_ratio);
+        emit this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+        
+    } else { //screen is relatively taller than app, or it's the same ratio
+        
+        int window_height = static_cast<int>(screen_width*1.0/this->screens[this->NT3state]->aspect_ratio);
+        emit this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
+    }
+    
     this->screens[this->NT3state]->init(this->screen());
 }
 
@@ -42,6 +58,10 @@ void NT3Window::stateEnd(NT3_state_enum next){
     Q_ASSERT(next < num_nt3_states);
     this->NT3state = next;
     this->screens[next]->init(this->screen());
+    
+    //forces the new screen object to consider the current window size
+    QResizeEvent ev(this->size(), this->size()/2);
+    this->resizeEvent(&ev);
 }
 
 void NT3Window::render(QPainter &painter){
@@ -66,7 +86,9 @@ void NT3Window::doGameStep(){
 
 void NT3Window::resizeEvent(QResizeEvent* event){
     Q_ASSERT(this->NT3state < num_nt3_states);
-    this->screens[this->NT3state]->resizeEvent(event);
+    if (this->screens[this->NT3state]->lockAR(event->size())){
+        this->screens[this->NT3state]->resizeEvent(event);
+    }
 }
 
 void NT3Window::keyPressEvent(QKeyEvent* ev){

@@ -17,6 +17,7 @@ public:
     
     virtual void init(QScreen* screen);
     
+    
     virtual void resizeEvent(QResizeEvent* event);    
     
     virtual void render(QPainter& painter);
@@ -28,9 +29,27 @@ public:
     
     virtual void doGameStep();
     
+    bool lockAR(QSize newSize);
     
-    ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", QImage(":/resources/graphics/font.png"));
-    ImageFont WOB_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", QImage(":/resources/graphics/fontwhite.png"));
+    
+    ImageFont BOW_font = ImageFont(
+                             "0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", 
+                             QImage(":/resources/graphics/font.png")
+                             );
+    ImageFont WOB_font = ImageFont(
+                             "0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", 
+                             QImage(":/resources/graphics/fontwhite.png")
+                             );
+    
+    QRectF ui_field = QRectF(0, 0, 160, 144);
+    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
+    
+    double aspect_ratio = ui_field.width()*1.0/ui_field.height();
+    double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
+    
+    const double min_graphics_scale = 1;
+    
+    double ui_scale = min_graphics_scale;
     
 signals:    
     void close();

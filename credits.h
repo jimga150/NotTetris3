@@ -10,9 +10,7 @@ public:
     explicit Credits(QObject *parent = nullptr);
     
     void init(QScreen* screen) override;
-    
-    void resizeEvent(QResizeEvent* event) override;    
-    
+        
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
@@ -42,15 +40,6 @@ public:
     };
     
     int font_height;
-    
-    const QRectF ui_field = QRectF(0, 0, 160, 144);
-    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
-    
-    const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
-    const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();    
-    const double min_graphics_scale = 1;
-    
-    double ui_scale;
     
     const double credits_delay = 2; //seconds
     double framerate;

@@ -96,28 +96,9 @@ void NT3Game::freeUserDataOn(b2Body* b){
 
 
 void NT3Game::resizeEvent(QResizeEvent* event){
-    QSize newSize = event->size();
-    int width = newSize.width();
-    int height = newSize.height();
-    
-    double ar_error = width*1.0/height - aspect_ratio;
-    bool aspect_ratio_respected = qAbs(ar_error) < this->aspect_ratio_epsilon;
-    
-    if (ar_error > 0){ //screen is relatively wider than the app
-        this->ui_scale = height*1.0/this->ui_field.height();
-    } else if (ar_error < 0){ //screen is relatively skinnier than app
-        this->ui_scale = width*1.0/this->ui_field.width();
-    }
-    
-    this->ui_scale = qMax(this->min_graphics_scale, this->ui_scale);
+    Q_UNUSED(event)
     this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
-    
-    this->scaled_ui_field = TO_QRECT(this->ui_field, this->ui_scale);
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
-    
-    if (!aspect_ratio_respected){
-        emit this->resize(this->scaled_ui_field.size());
-    }
 }
 
 void NT3Game::render(QPainter& painter)

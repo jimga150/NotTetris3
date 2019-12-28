@@ -284,18 +284,9 @@ public:
     
     int polygon_radius_px = 1;
     
-    const QRectF ui_field = QRectF(0, 0, 160, 144);
-    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
-    
-    const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
-    const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
-    
-    const double min_graphics_scale = 1;
-    
     const double pis_factor = 2; //multiplier used on initial graphics scale to deterimine piece_image_scale
     double piece_image_scale = 10; //scale used to make tetris piece cutting smooth
     
-    double ui_scale = min_graphics_scale;
     const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
     double physics_scale = physics_to_ui_scale*ui_scale;
     
