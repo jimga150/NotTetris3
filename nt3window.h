@@ -10,6 +10,7 @@
 #include "logo.h"
 #include "nt3game.h"
 #include "credits.h"
+#include "mainmenu.h"
 
 class NT3Window : public OpenGL2DWindow
 {

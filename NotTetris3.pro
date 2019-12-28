@@ -73,6 +73,7 @@ SOURCES += \
     imagefont.cpp \
     logo.cpp \
     main.cpp \
+    mainmenu.cpp \
     nt3game.cpp \
     nt3contactlistener.cpp \
     nt3screen.cpp \
@@ -131,6 +132,7 @@ HEADERS += \
     credits.h \
     imagefont.h \
     logo.h \
+    mainmenu.h \
     nt3game.h \
     nt3contactlistener.h \
     nt3screen.h \
