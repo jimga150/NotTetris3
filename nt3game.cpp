@@ -3,7 +3,6 @@
 NT3Game::NT3Game(QObject *parent)
 {
     Q_UNUSED(parent)
-    emit this->setTitle("Not Tetris 3");
     
     if (this->gamebackground.isNull()){
         fprintf(stderr, "Resources not present, exiting...\n");

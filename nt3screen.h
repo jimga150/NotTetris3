@@ -27,9 +27,7 @@ public:
     
     virtual void doGameStep();
     
-signals:
-    void setTitle(QString title);
-    
+signals:    
     void close();
     
     void stateEnd(NT3_state_enum nextState);

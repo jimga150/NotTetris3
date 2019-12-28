@@ -1,7 +1,9 @@
 #include "nt3window.h"
 
 NT3Window::NT3Window()
-{    
+{
+    this->setTitle("Not Tetris 3");
+    
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
         case LOGO:
@@ -22,7 +24,6 @@ NT3Window::NT3Window()
             break;
         }
         connect(this->screens[s], &NT3Game::close, this, &QWindow::close);
-        connect(this->screens[s], &NT3Game::setTitle, this, &QWindow::setTitle); //TODO: move this to nt3window only
         connect(this->screens[s], &NT3Game::setGeometry, this, QOverload<int, int, int, int>::of(&QWindow::setGeometry));
         connect(this->screens[s], &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
         connect(this->screens[s], &NT3Game::setExpectedFrameTime, this, &NT3Window::setExpectedFrameTime);
