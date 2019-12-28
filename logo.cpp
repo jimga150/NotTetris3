@@ -76,6 +76,6 @@ void Logo::doGameStep(){
     
     this->time_passed += this->framerate;
     if (this->time_passed > this->logo_slide_duration + this->logo_delay){
-        emit this->stateEnd(MAINMENU);
+        emit this->stateEnd(CREDITS);
     }
 }   

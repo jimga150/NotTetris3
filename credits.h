@@ -16,27 +16,45 @@ public:
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
-        
+    
     void doGameStep() override;
     
-    QString credits_text[16] = {
-        "'Tm and C2011 sy,not",
-        "tetris 2 licensed to",
-        "  stabyourself.net  ",
-        "         and        ",
-        "  sub-licensed to   ",
-        "      maurice.      ",
+    
+    static const int credits_numlines = 16;
+    QString credits_text[credits_numlines] = {
+        "'TM AND c2011 SY,NOT",
+        "TETRIS 2 LICENSED TO",
+        "  STABYOURSELF.NET  ",
+        "         AND        ",
+        "  SUB-LICENSED TO   ",
+        "      MAURICE.      ",
         "                    ",
-        " C2011 stabyourself ",
-        "       dot net.     ",
+        " c2011 STABYOURSELF ",
+        "       DOT NET.     ",
         "                    ",
         "                    ",
-        "all rights reserved.",
+        "ALL RIGHTS RESERVED.",
         "                    ",
-        "  original concept, ",
-        " design and program ",
-        "by alexey pazhitnov#"
+        "  ORIGINAL CONCEPT, ",
+        " DESIGN AND PROGRAM ",
+        "BY ALEXEY PAZHITNOV#"
+        
     };
+    
+    int font_height;
+    
+    const QRectF ui_field = QRectF(0, 0, 160, 144);
+    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
+    
+    const double aspect_ratio = ui_field.width()*1.0/ui_field.height();
+    const double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();    
+    const double min_graphics_scale = 1;
+    
+    double ui_scale;
+    
+    const double credits_delay = 200; //seconds
+    double framerate;
+    double time_passed = 0;
 };
 
 #endif // CREDITS_H
