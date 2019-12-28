@@ -21,7 +21,7 @@ void Credits::render(QPainter& painter){
 }   
 
 void Credits::keyPressEvent(QKeyEvent* ev){
-    if (ev->key() == Qt::Key_Return || ev->key() == Qt::Key_Enter){
+    if (ev->key() == Qt::Key_Return){
         emit this->stateEnd(MAINMENU);
     }
 }  
