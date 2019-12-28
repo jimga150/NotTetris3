@@ -15,7 +15,16 @@ NT3Window::NT3Window()
             this->screens[s] = new Credits(this);
             break;
         case MAINMENU:
-            this->screens[s] = new NT3Screen(this); //TODO: make main menu screen
+            this->screens[s] = new MainMenu(this);
+            break;
+        case P_GAMEOPTIONS:
+            this->screens[s] = new NT3Screen(this);
+            break;
+        case PP_GAMEOPTIONS:
+            this->screens[s] = new NT3Screen(this);
+            break;
+        case GLOBAL_OPTIONS:
+            this->screens[s] = new NT3Screen(this);
             break;
         case GAMEA:
             this->screens[s] = new NT3Game(this);

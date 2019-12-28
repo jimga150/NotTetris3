@@ -16,6 +16,9 @@ enum NT3_state_enum{
     LOGO = 0,
     CREDITS,
     MAINMENU,
+    P_GAMEOPTIONS,
+    PP_GAMEOPTIONS,
+    GLOBAL_OPTIONS,
     GAMEA,
     
     num_nt3_states
