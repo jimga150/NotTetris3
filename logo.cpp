@@ -66,11 +66,6 @@ void Logo::keyPressEvent(QKeyEvent* ev){
     }
 }   
 
-void Logo::keyReleaseEvent(QKeyEvent* ev){
-    Q_UNUSED(ev)
-    //do nothing
-}   
-
 void Logo::doGameStep(){
     if (this->logo_offset_y < 0){
         this->logo_offset_y += this->framerate*this->logo_offset_delta; //seconds * pixels/sec = pixels

@@ -16,9 +16,7 @@ public:
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
-    
-    void keyReleaseEvent(QKeyEvent* ev) override;
-    
+        
     void doGameStep() override;
     
     
