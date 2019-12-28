@@ -18,17 +18,11 @@ class MainMenu : public NT3Screen
     
 public:
     explicit MainMenu(QObject* parent = nullptr);
-    
-    void init() override;
-    
-    void calcScaleFactors() override;    
-    
+        
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
-        
-    void doGameStep() override;
-    
+            
     
     const QString background_path = ":/resources/graphics/title.png";
     const QPixmap background = QPixmap(background_path);
