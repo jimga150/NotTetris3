@@ -6,6 +6,7 @@
 #include <QScreen>
 
 #include "common.h"
+#include "imagefont.h"
 
 class NT3Screen : public QObject
 {
@@ -26,6 +27,10 @@ public:
     virtual void keyReleaseEvent(QKeyEvent* ev);
     
     virtual void doGameStep();
+    
+    
+    ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", QImage(":/resources/graphics/font.png"));
+    ImageFont WOB_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", QImage(":/resources/graphics/fontwhite.png"));
     
 signals:    
     void close();

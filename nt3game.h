@@ -5,7 +5,6 @@
 
 #include "nt3screen.h"
 #include "nt3contactlistener.h"
-#include "imagefont.h"
 
 //#define TIME_GAME_FRAME 1
 
@@ -393,12 +392,6 @@ public:
     QPixmap default_piece_image;
     QRect default_piece_rect;
     tetrisPieceData default_data;
-    
-    QImage black_font_img = QImage(":/resources/graphics/font.png");
-    ImageFont BOW_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", black_font_img);
-    
-    QImage white_font_img = QImage(":/resources/graphics/fontwhite.png");
-    ImageFont WOB_font = ImageFont("0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", white_font_img);
     
     
     //Line clear stuff

@@ -1,7 +1,7 @@
 #include "nt3window.h"
 
 NT3Window::NT3Window()
-{
+{   
     this->setTitle("Not Tetris 3");
     
     for (uint s = 0; s < num_nt3_states; ++s){
