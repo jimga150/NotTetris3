@@ -69,6 +69,7 @@ SOURCES += \
     Box2D/Dynamics/b2World.cpp \
     Box2D/Dynamics/b2WorldCallbacks.cpp \
     Box2D/Rope/b2Rope.cpp \
+    credits.cpp \
     imagefont.cpp \
     logo.cpp \
     main.cpp \
@@ -127,6 +128,7 @@ HEADERS += \
     Box2D/Dynamics/b2WorldCallbacks.h \
     Box2D/Rope/b2Rope.h \
     common.h \
+    credits.h \
     imagefont.h \
     logo.h \
     nt3game.h \

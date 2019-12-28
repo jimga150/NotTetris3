@@ -10,7 +10,7 @@ NT3Window::NT3Window()
             this->screens[s] = new Logo(this);
             break;
         case CREDITS:
-            this->screens[s] = new NT3Screen(this); //TODO: make credits screen
+            this->screens[s] = new Credits(this);
             break;
         case MAINMENU:
             this->screens[s] = new NT3Screen(this); //TODO: make main menu screen
