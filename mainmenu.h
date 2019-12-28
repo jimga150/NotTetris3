@@ -22,7 +22,7 @@ public:
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
-            
+    
     
     const QString background_path = ":/resources/graphics/title.png";
     const QPixmap background = QPixmap(background_path);

@@ -27,16 +27,16 @@ NT3Window::NT3Window()
             this->screens[s] = new NT3Screen(this);
             break;
         case GAMEA:
-            this->screens[s] = new NT3Game(this);
+            this->screens[s] = new GameA(this);
             break;
         default:
             fprintf(stderr, "Invalid NT3 state: %u\n", s);
             this->close();
             break;
         }
-        connect(this->screens[s], &NT3Game::close, this, &QWindow::close);
-        connect(this->screens[s], &NT3Game::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
-        connect(this->screens[s], &NT3Game::stateEnd, this, &NT3Window::stateEnd);
+        connect(this->screens[s], &GameA::close, this, &QWindow::close);
+        connect(this->screens[s], &GameA::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
+        connect(this->screens[s], &GameA::stateEnd, this, &NT3Window::stateEnd);
     }
     
     QScreen* screen = this->screen();

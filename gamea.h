@@ -119,15 +119,15 @@ struct tetrisPieceData{
     }
 };
 
-class NT3Game : public NT3Screen
+class GameA : public NT3Screen
 {    
     Q_OBJECT
     
 public:
 
     //constructor/destructor
-    explicit NT3Game(QObject* parent = nullptr);
-    ~NT3Game() override;
+    explicit GameA(QObject* parent = nullptr);
+    ~GameA() override;
     
     
     //initialization

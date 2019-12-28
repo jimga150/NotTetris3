@@ -70,11 +70,11 @@ SOURCES += \
     Box2D/Dynamics/b2WorldCallbacks.cpp \
     Box2D/Rope/b2Rope.cpp \
     credits.cpp \
+    gamea.cpp \
     imagefont.cpp \
     logo.cpp \
     main.cpp \
     mainmenu.cpp \
-    nt3game.cpp \
     nt3contactlistener.cpp \
     nt3screen.cpp \
     nt3window.cpp \
@@ -130,10 +130,10 @@ HEADERS += \
     Box2D/Rope/b2Rope.h \
     common.h \
     credits.h \
+    gamea.h \
     imagefont.h \
     logo.h \
     mainmenu.h \
-    nt3game.h \
     nt3contactlistener.h \
     nt3screen.h \
     nt3window.h \

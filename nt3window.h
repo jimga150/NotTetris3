@@ -8,7 +8,7 @@
 #include "nt3screen.h"
 
 #include "logo.h"
-#include "nt3game.h"
+#include "gamea.h"
 #include "credits.h"
 #include "mainmenu.h"
 

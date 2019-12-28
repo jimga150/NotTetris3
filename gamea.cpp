@@ -1,6 +1,6 @@
-#include "nt3game.h"
+#include "gamea.h"
 
-NT3Game::NT3Game(QObject *parent) : NT3Screen(parent)
+GameA::GameA(QObject *parent) : NT3Screen(parent)
 {    
     if (this->gamebackground.isNull()){
         fprintf(stderr, "Resources not present, exiting...\n");
@@ -8,7 +8,7 @@ NT3Game::NT3Game(QObject *parent) : NT3Screen(parent)
     }
 }
 
-NT3Game::~NT3Game()
+GameA::~GameA()
 {
     if (this->world){
         for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
@@ -20,7 +20,7 @@ NT3Game::~NT3Game()
 }
 
 
-void NT3Game::init(){
+void GameA::init(){
     
     double fps = 1.0/framerate;
     this->timeStep = static_cast<float32>(framerate); //seconds
@@ -69,7 +69,7 @@ void NT3Game::init(){
 }
 
 
-void NT3Game::freeUserDataOn(b2Body* b){
+void GameA::freeUserDataOn(b2Body* b){
     if (!b) return;
     int numremoved = this->userData.remove(b);
     /*if (numremoved == 0 && !this->isAWall(b)){
@@ -79,12 +79,12 @@ void NT3Game::freeUserDataOn(b2Body* b){
 }
 
 
-void NT3Game::calcScaleFactors(){
+void GameA::calcScaleFactors(){
     this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
 }
 
-void NT3Game::render(QPainter& painter)
+void GameA::render(QPainter& painter)
 {
     painter.setRenderHint(QPainter::Antialiasing);
     
@@ -172,7 +172,7 @@ void NT3Game::render(QPainter& painter)
     }
 }
 
-void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
+void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     
     painter->save();
     painter->translate(
@@ -254,7 +254,7 @@ void NT3Game::drawBodyTo(QPainter* painter, b2Body* body){
     painter->restore();
 }
 
-void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
+void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     
     painter->save();
     
@@ -271,7 +271,7 @@ void NT3Game::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->restore();
 }
 
-void NT3Game::drawScore(QPainter* painter){
+void GameA::drawScore(QPainter* painter){
     
     this->BOW_font.print(painter, this->score_display_right*this->ui_scale, RIGHT_ALIGN,
                          QString::number(this->current_score), this->ui_scale);
@@ -303,7 +303,7 @@ void NT3Game::drawScore(QPainter* painter){
 }
 
 
-void NT3Game::keyPressEvent(QKeyEvent* ev){
+void GameA::keyPressEvent(QKeyEvent* ev){
     //printf("Key pressed: %s\n", ev->text().toUtf8().constData());
     //fflush(stdout);
     
@@ -372,7 +372,7 @@ void NT3Game::keyPressEvent(QKeyEvent* ev){
     }
 }
 
-void NT3Game::keyReleaseEvent(QKeyEvent* ev){
+void GameA::keyReleaseEvent(QKeyEvent* ev){
     //printf("Key released: %s\n", ev->text().toUtf8().constData());
     
     int key = ev->key();
@@ -424,7 +424,7 @@ void NT3Game::keyReleaseEvent(QKeyEvent* ev){
     }
 }
 
-void NT3Game::doGameStep(){
+void GameA::doGameStep(){
     
     if (this->freeze_frame) return;
     
@@ -635,7 +635,7 @@ void NT3Game::doGameStep(){
 }
 
 
-float32 NT3Game::getRowArea(uint row){
+float32 GameA::getRowArea(uint row){
     
     row_sides_struct sides(row, this->side_length);
     
@@ -722,7 +722,7 @@ float32 NT3Game::getRowArea(uint row){
     return total_area;
 }
 
-void NT3Game::clearRow(uint row){
+void GameA::clearRow(uint row){
     
     row_sides_struct sides(row, this->side_length);
     
@@ -970,7 +970,7 @@ void NT3Game::clearRow(uint row){
     //fflush(stdout);
 }
 
-QPixmap NT3Game::maskImage(b2Body* b, tetrisPieceData* data){
+QPixmap GameA::maskImage(b2Body* b, tetrisPieceData* data){
     if (!data->image.hasAlphaChannel()){
         printf("Image has no alpha channel!\n");
         fflush(stdout);
@@ -1035,7 +1035,7 @@ QPixmap NT3Game::maskImage(b2Body* b, tetrisPieceData* data){
     return pixmap;
 }
 
-vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
+vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot){
     vector<rayCastComplete> ray_casts;
     
     float32 left = -this->side_length;
@@ -1071,14 +1071,14 @@ vector<rayCastComplete> NT3Game::getRayCasts(float32 top, float32 bot){
     return ray_casts;
 }
 
-b2Vec2 NT3Game::hit_point(rayCastComplete ray_cast){
+b2Vec2 GameA::hit_point(rayCastComplete ray_cast){
     Q_ASSERT(ray_cast.hit);
     return ray_cast.input.p1 + ray_cast.output.fraction * (ray_cast.input.p2 - ray_cast.input.p1);
 }
 
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
 //so that it returns 0 on error whereas the original function fails an assert, crashing the program.
-float32 NT3Game::poly_area(b2Vec2* vertices, int count){
+float32 GameA::poly_area(b2Vec2* vertices, int count){
     
     if(3 > count && count > b2_maxPolygonVertices){
         //printf("Polygon count is out of range: %d\n", count);
@@ -1221,7 +1221,7 @@ float32 NT3Game::poly_area(b2Vec2* vertices, int count){
 }
 
 
-void NT3Game::makeNewTetrisPiece(){
+void GameA::makeNewTetrisPiece(){
     
     //set up current piece
     tetris_piece_enum type = this->next_piece_type;
@@ -1269,7 +1269,7 @@ void NT3Game::makeNewTetrisPiece(){
 }
 
 
-bool NT3Game::isAWall(b2Body* b){
+bool GameA::isAWall(b2Body* b){
     for (uint i = 0; i < num_walls; i++){
         if (b == this->walls[i]){
             return true;
@@ -1278,11 +1278,11 @@ bool NT3Game::isAWall(b2Body* b){
     return false;
 }
 
-QString NT3Game::b2Vec2String(b2Vec2 vec){
+QString GameA::b2Vec2String(b2Vec2 vec){
     return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
 }
 
-tetrisPieceData NT3Game::getTetrisPieceData(b2Body* b){
+tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
     
     tetrisPieceData ans = this->userData.value(b, this->default_data);
     
@@ -1298,7 +1298,7 @@ tetrisPieceData NT3Game::getTetrisPieceData(b2Body* b){
     return static_cast<tetrisPieceData*>(data);*/
 }
 
-QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
+QPixmap GameA::enableAlphaChannel(QPixmap pixmap){
     if (pixmap.hasAlphaChannel()) return pixmap;
     
     QPixmap ans(pixmap.size());
@@ -1311,19 +1311,19 @@ QPixmap NT3Game::enableAlphaChannel(QPixmap pixmap){
     return ans;
 }
 
-void NT3Game::setGameState(gamea_state_enum newstate){
+void GameA::setGameState(gamea_state_enum newstate){
     this->last_state = this->game_state;
     this->game_state = newstate;
 }
 
-void NT3Game::destroyTetrisPiece(b2Body* b){
+void GameA::destroyTetrisPiece(b2Body* b){
     if (!b) return;
     this->freeUserDataOn(b);
     this->world->DestroyBody(b);
 }
 
 
-void NT3Game::initializeTetrisPieceDefs(){
+void GameA::initializeTetrisPieceDefs(){
     
     this->tetrisBodyDef.type = b2_dynamicBody;
     
@@ -1479,7 +1479,7 @@ void NT3Game::initializeTetrisPieceDefs(){
     }
 }
 
-void NT3Game::initializeTetrisPieceImages(){
+void GameA::initializeTetrisPieceImages(){
     int side_length = static_cast<int>(this->side_length);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         
@@ -1519,7 +1519,7 @@ void NT3Game::initializeTetrisPieceImages(){
     this->default_data.region = this->default_piece_rect;
 }
 
-void NT3Game::initializeWalls(){
+void GameA::initializeWalls(){
     
     float32 t_height = static_cast<float32>(tetris_field.height());
     float32 t_width = static_cast<float32>(tetris_field.width());
@@ -1550,7 +1550,7 @@ void NT3Game::initializeWalls(){
     this->walls[RIGHTWALL]->GetFixtureList()->SetRestitution(this->restitution);
 }
 
-void NT3Game::init_BDC(){
+void GameA::init_BDC(){
     this->row_areas.clear();
     this->body_area_contributions.clear();
     for (uint r = 0; r < this->tetris_rows; r++){
