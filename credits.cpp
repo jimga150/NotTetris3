@@ -2,8 +2,7 @@
 
 Credits::Credits(QObject *parent) : NT3Screen(parent)
 {
-    //TODO: move this information to imagefont
-    this->font_height = this->BOW_font.characters.value('A').height();
+    
 }
 
 void Credits::init(QScreen* screen){
@@ -16,7 +15,7 @@ void Credits::render(QPainter& painter){
     painter.drawRect(this->scaled_ui_field);
     
     for (int r = 0; r < this->credits_numlines; r++){
-        this->BOW_font.print(&painter, QPoint(0, (r+1)*this->font_height)*this->ui_scale, LEFT_ALIGN, 
+        this->BOW_font.print(&painter, QPoint(0, (r+1)*this->BOW_font.height_px)*this->ui_scale, LEFT_ALIGN, 
                              this->credits_text[r], this->ui_scale);
     }
     painter.drawPixmap(QRect(QPoint(32, 80)*this->ui_scale, this->logo.size()*this->ui_scale), this->logo);

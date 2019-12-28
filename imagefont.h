@@ -25,6 +25,8 @@ public:
 
     QHash<char, QPixmap> characters;
     
+    int height_px;
+    
 private:
     
     QPixmap getPixmapFor(char c);

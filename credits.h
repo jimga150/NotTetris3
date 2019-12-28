@@ -38,9 +38,7 @@ public:
         "BY ALEXEY PAZHITNOV#"
         
     };
-    
-    int font_height;
-    
+        
     const double credits_delay = 2; //seconds
     double framerate;
     double time_passed = 0;

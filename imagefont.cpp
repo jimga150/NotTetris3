@@ -2,6 +2,8 @@
 
 ImageFont::ImageFont(const char* glyphs, QImage font_image){
     
+    this->height_px = font_image.height();
+    
     int glyph_index = 0;
     
     //printf("Glyph string is %s\n", glyphs);
