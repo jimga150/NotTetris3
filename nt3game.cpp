@@ -79,8 +79,7 @@ void NT3Game::freeUserDataOn(b2Body* b){
 }
 
 
-void NT3Game::resizeEvent(QResizeEvent* event){
-    Q_UNUSED(event)
+void NT3Game::calcScaleFactors(){
     this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
 }

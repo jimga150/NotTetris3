@@ -13,8 +13,7 @@ void NT3Screen::init(){
     //init is called every time this screen becomes active, so this should also reset any dirty variables
 }
 
-void NT3Screen::resizeEvent(QResizeEvent* event){
-    Q_UNUSED(event)
+void NT3Screen::calcScaleFactors(){
     //set any variables needed
     //Dont override this if you don't need to do anything not already done in lockAR()
 }    

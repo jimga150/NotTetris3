@@ -139,7 +139,7 @@ public:
     
     
     //graphics
-    void resizeEvent(QResizeEvent* event) override;    
+    void calcScaleFactors() override;    
     
     void render(QPainter& painter) override;
     

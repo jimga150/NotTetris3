@@ -91,7 +91,7 @@ void NT3Window::doGameStep(){
 void NT3Window::resizeEvent(QResizeEvent* event){
     Q_ASSERT(this->NT3state < num_nt3_states);
     if (this->screens[this->NT3state]->lockAR(event->size())){
-        this->screens[this->NT3state]->resizeEvent(event);
+        this->screens[this->NT3state]->calcScaleFactors();
     }
 }
 

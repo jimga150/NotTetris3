@@ -18,7 +18,7 @@ public:
     virtual void init();
     
     
-    virtual void resizeEvent(QResizeEvent* event);    
+    virtual void calcScaleFactors();    
     
     virtual void render(QPainter& painter);
     

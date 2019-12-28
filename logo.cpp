@@ -10,8 +10,7 @@ void Logo::init(){
     this->logo_offset_delta = -logo_offset_y/logo_slide_duration; //UI pixels/sec
 }
 
-void Logo::resizeEvent(QResizeEvent* event){
-    Q_UNUSED(event) //TODO: do any objects need the event after the UI scale is calculated?
+void Logo::calcScaleFactors(){
     this->scaled_logo_rect_final = TO_QRECT(this->logo_rect_final, this->ui_scale);
 }    
 
