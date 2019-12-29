@@ -134,6 +134,23 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         break;
     case Qt::Key_Return:
         //TODO: set current option to default
+        switch(this->currentSelection){
+        case VOLUME:
+            volume = DEFAULT_VOLUME;
+            break;
+        case COLOR:
+            hue = DEFAULT_HUE;
+            break;
+        case SCALE:
+            
+            break;
+        case FULLSCREEN:
+            fullscreen = DEFAULT_FULLSCREEN;
+            break;
+        default:
+            fprintf(stderr, "Unknown option selection type: %u\n", this->currentSelection);
+            break;
+        }
         break;
     case Qt::Key_Escape:
         emit this->stateEnd(MAINMENU);

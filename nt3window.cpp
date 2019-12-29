@@ -10,9 +10,9 @@ NT3Window::NT3Window()
 {   
     this->setTitle("Not Tetris 3");
     
-    volume = 1;
-    hue = 0.08;
-    fullscreen = false;
+    volume = DEFAULT_VOLUME;
+    hue = DEFAULT_HUE;
+    fullscreen = DEFAULT_FULLSCREEN;
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
