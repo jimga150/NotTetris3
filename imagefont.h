@@ -30,6 +30,13 @@ public:
 private:
     
     QPixmap getPixmapFor(char c);
+    
+    char switchCase(char c);
+    
+    bool isAlpha(char c);
+    
+    
+    char case_difference = 'a' - 'A';
 };
 
 #endif // IMAGEFONT_H

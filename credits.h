@@ -10,7 +10,7 @@ public:
     explicit Credits(QObject *parent = nullptr);
     
     void init() override;
-        
+    
     void render(QPainter& painter) override;
     
     void keyPressEvent(QKeyEvent* ev) override;
@@ -20,25 +20,24 @@ public:
     
     static const int credits_numlines = 16;
     QString credits_text[credits_numlines] = {
-        "'TM AND c2011 SY,NOT",
-        "TETRIS 2 LICENSED TO",
-        "  STABYOURSELF.NET  ",
-        "         AND        ",
-        "  SUB-LICENSED TO   ",
-        "      MAURICE.      ",
+        "'Tm and C2011 sy,not",
+        "tetris 2 licensed to",
+        "  stabyourself.net  ",
+        "         and        ",
+        "  sub-licensed to   ",
+        "      maurice.      ",
         "                    ",
-        " c2011 STABYOURSELF ",
-        "       DOT NET.     ",
+        " C2011 stabyourself ",
+        "       dot net.     ",
         "                    ",
         "                    ",
-        "ALL RIGHTS RESERVED.",
+        "all rights reserved.",
         "                    ",
-        "  ORIGINAL CONCEPT, ",
-        " DESIGN AND PROGRAM ",
-        "BY ALEXEY PAZHITNOV#"
-        
+        "  original concept, ",
+        " design and program ",
+        "by alexey pazhitnov#"
     };
-        
+    
     const double credits_delay = 2; //seconds
     double time_passed = 0;
     

@@ -33,11 +33,11 @@ public:
     
     
     ImageFont BOW_font = ImageFont(
-                             "0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<! ", 
+                             "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<! ", 
                              QImage(":/resources/graphics/font.png")
                              );
     ImageFont WOB_font = ImageFont(
-                             "0123456789ABCDEFGHIJKLMNOPQRStTUVWXYZ.,'c-#_>:<!+ ", 
+                             "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<! ", 
                              QImage(":/resources/graphics/fontwhite.png")
                              );
     

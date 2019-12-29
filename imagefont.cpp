@@ -80,15 +80,31 @@ void ImageFont::print(QPainter* painter, QPoint start, alignment_enum alignment,
     painter->restore();
 }
 
-QPixmap ImageFont::getPixmapFor(char c){
-    QPixmap ans;
+QPixmap ImageFont::getPixmapFor(char c){    
+    if (this->characters.contains(c)){
+        return this->characters.value(c);
+    } 
     
-    if (!this->characters.contains(c)){
+    if (this->isAlpha(c)){
+        char othercase = this->switchCase(c);        
+        if (this->characters.contains(othercase)){
+            return this->characters.value(othercase);
+        }
+        fprintf(stderr, "\'%c\' (%u) AND \'%c\' (%u) not found in glyph list for Image Font!\n", 
+                c, c, othercase, othercase);
+    } else {
         fprintf(stderr, "\'%c\' (%u) not found in glyph list for Image Font!\n", c, c);
-        return ans;
     }
-    
-    ans = this->characters.value(c);
-    
-    return ans;
+    return QPixmap();
+}
+
+char ImageFont::switchCase(char c){
+    if (c <= 'Z'){
+        return c + this->case_difference;
+    }
+    return c - this->case_difference;
+}
+
+bool ImageFont::isAlpha(char c){
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
