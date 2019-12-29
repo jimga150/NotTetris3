@@ -18,13 +18,13 @@ NT3Window::NT3Window()
             this->screens[s] = new MainMenu(this);
             break;
         case P_GAMEOPTIONS:
-            this->screens[s] = new NT3Screen(this);
+            this->screens[s] = new NT3Screen(this); //TODO: make 1p game options screen
             break;
         case PP_GAMEOPTIONS:
-            this->screens[s] = new NT3Screen(this);
+            this->screens[s] = new NT3Screen(this); //TODO: make 2p game options screen
             break;
         case GLOBAL_OPTIONS:
-            this->screens[s] = new NT3Screen(this);
+            this->screens[s] = new NT3Screen(this); //TODO: make global game options screen
             break;
         case GAMEA:
             this->screens[s] = new GameA(this);
@@ -34,9 +34,9 @@ NT3Window::NT3Window()
             this->close();
             break;
         }
-        connect(this->screens[s], &GameA::close, this, &QWindow::close);
-        connect(this->screens[s], &GameA::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
-        connect(this->screens[s], &GameA::stateEnd, this, &NT3Window::stateEnd);
+        connect(this->screens[s], &NT3Screen::close, this, &QWindow::close);
+        connect(this->screens[s], &NT3Screen::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
+        connect(this->screens[s], &NT3Screen::stateEnd, this, &NT3Window::stateEnd);
     }
     
     QScreen* screen = this->screen();
