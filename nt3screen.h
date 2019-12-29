@@ -32,12 +32,14 @@ public:
     bool lockAR(QSize newSize);
     
     
+    const double select_blink_rate = 0.29; //seconds
+    
     ImageFont BOW_font = ImageFont(
                              "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<! ", 
                              QImage(":/resources/graphics/font.png")
                              );
     ImageFont WOB_font = ImageFont(
-                             "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<! ", 
+                             "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<!+ ", 
                              QImage(":/resources/graphics/fontwhite.png")
                              );
     

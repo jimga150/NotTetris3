@@ -1,10 +1,13 @@
 #include "nt3window.h"
 
 double framerate; //going to assign this variable in this file
+double volume;
 
 NT3Window::NT3Window()
 {   
     this->setTitle("Not Tetris 3");
+    
+    volume = 1;
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
@@ -24,7 +27,7 @@ NT3Window::NT3Window()
             this->screens[s] = new NT3Screen(this); //TODO: make 2p game options screen
             break;
         case GLOBAL_OPTIONS:
-            this->screens[s] = new NT3Screen(this); //TODO: make global game options screen
+            this->screens[s] = new GlobalOptions(this);
             break;
         case GAMEA:
             this->screens[s] = new GameA(this);

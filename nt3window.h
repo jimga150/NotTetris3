@@ -11,6 +11,7 @@
 #include "gamea.h"
 #include "credits.h"
 #include "mainmenu.h"
+#include "globaloptions.h"
 
 class NT3Window : public OpenGL2DWindow
 {

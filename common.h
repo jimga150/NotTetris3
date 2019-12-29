@@ -26,4 +26,6 @@ enum NT3_state_enum{
 
 extern double framerate;
 
+extern double volume; //{0->1}
+
 #endif // COMMON_H
