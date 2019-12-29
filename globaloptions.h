@@ -34,6 +34,8 @@ public:
     QString option_strings[num_glob_options];
     
     QPixmap background = QPixmap(":/resources/graphics/options.png");
+    QPixmap volume_slider = QPixmap(":/resources/graphics/volumeslider.png");
+    QPixmap gradient = QPixmap(":/resources/graphics/rainbow.png");
     
     double time_passed;
     

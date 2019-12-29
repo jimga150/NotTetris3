@@ -26,6 +26,9 @@ enum NT3_state_enum{
 
 extern double framerate;
 
+//global options
 extern double volume; //{0->1}
+extern double hue; //{0->1}, 0.08 is default
+extern bool fullscreen;
 
 #endif // COMMON_H

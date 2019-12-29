@@ -1,13 +1,18 @@
 #include "nt3window.h"
 
-double framerate; //going to assign this variable in this file
+double framerate;
+
 double volume;
+double hue;
+bool fullscreen;
 
 NT3Window::NT3Window()
 {   
     this->setTitle("Not Tetris 3");
     
     volume = 1;
+    hue = 0.08;
+    fullscreen = false;
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){

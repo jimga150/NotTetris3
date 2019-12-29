@@ -52,7 +52,7 @@
 
 OpenGL2DWindow::OpenGL2DWindow(){
     this->setSurfaceType(QWindow::OpenGLSurface);
-
+    
 #ifdef TIME_FRAMES
     double framerate = 1.0/this->screen()->refreshRate();
     this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
@@ -75,7 +75,7 @@ OpenGL2DWindow::~OpenGL2DWindow(){
 
 void OpenGL2DWindow::setAnimating(bool animating){
     this->m_animating = animating;
-
+    
     if (animating)
         this->renderLater();
 }
@@ -92,7 +92,7 @@ bool OpenGL2DWindow::event(QEvent *event){
 
 void OpenGL2DWindow::exposeEvent(QExposeEvent *event){
     Q_UNUSED(event)
-
+    
     if (this->isExposed())
         this->renderNow();
 }
@@ -102,13 +102,13 @@ void OpenGL2DWindow::renderLater(){
 }
 
 void OpenGL2DWindow::renderNow(){
-
+    
 #ifdef TIME_FRAME_COMPS
     printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
            this->frame_times.openGL_init_time, this->frame_times.render_time,
            this->frame_times.game_frame_time, this->frame_times.buffer_time);
 #endif
-
+    
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
     this->frame_times_vect.push_back(elapsed);
@@ -118,71 +118,71 @@ void OpenGL2DWindow::renderNow(){
 #elif defined(TIME_FRAME_COMPS)
     printf("\n");
 #endif
-
+    
     if (!this->isExposed()) return;
-
+    
 #ifdef TIME_FRAME_COMPS
     QElapsedTimer timer;
     timer.start();
 #endif
-
+    
     bool needsInitialize = false;
-
+    
     if (!m_context) {
         this->m_context = new QOpenGLContext(this);
         this->m_context->setFormat(this->requestedFormat());
         this->m_context->create();
-
+        
         needsInitialize = true;
     }
-
+    
     this->m_context->makeCurrent(this);
-
+    
     if (needsInitialize) {
         QOpenGLFunctions::initializeOpenGLFunctions();
     }
-
+    
     if (!this->m_device)
         this->m_device = new QOpenGLPaintDevice;
-
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+    
     this->m_device->setSize(this->size() * this->devicePixelRatio());
     this->m_device->setDevicePixelRatio(this->devicePixelRatio());
-
+    
 #ifdef TIME_FRAME_COMPS
     this->frame_times.openGL_init_time = timer.elapsed();
     timer.restart();
 #endif
-
+    
     QPainter painter(this->m_device);
-
+    
     this->render(painter);
-
+    
     painter.end();
-
+    
 #ifdef TIME_FRAME_COMPS
     this->frame_times.render_time = timer.elapsed();
     timer.restart();
 #endif
-
+    
     this->doGameStep();
-
+    
 #ifdef TIME_FRAME_COMPS
     this->frame_times.game_frame_time = timer.elapsed();
     timer.restart();
 #endif
-
+    
     if (!this->isExposed()) return;
     
     this->m_context->swapBuffers(this);
-
+    
 #ifdef TIME_FRAME_COMPS
     this->frame_times.buffer_time = timer.elapsed();
 #endif
-
+    
     if (this->m_animating) this->renderLater();
-
+    
 }
 
 void OpenGL2DWindow::render(QPainter& painter){
