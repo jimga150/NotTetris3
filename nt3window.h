@@ -23,10 +23,14 @@ public:
     
     void doGameStep() override;
     
+    void setupWindow();
+    
     
     NT3_state_enum NT3state = LOGO;
     
     NT3Screen* screens[num_nt3_states];
+    
+    QPoint fullscreen_offset;
     
 public slots:
     void setExpectedFrameTime(int eft);

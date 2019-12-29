@@ -50,7 +50,7 @@ bool NT3Screen::lockAR(QSize newSize){
     this->ui_scale = qMax(this->min_graphics_scale, this->ui_scale);    
     this->scaled_ui_field = TO_QRECT(this->ui_field, this->ui_scale);
     
-    if (!aspect_ratio_respected){
+    if (!aspect_ratio_respected && !fullscreen){
         emit this->resize(this->scaled_ui_field.size());
         return false;
     }

@@ -47,6 +47,18 @@ NT3Window::NT3Window()
         connect(this->screens[s], &NT3Screen::stateEnd, this, &NT3Window::stateEnd);
     }
     
+    this->setupWindow();
+    
+    this->screens[this->NT3state]->init();
+}
+
+NT3Window::~NT3Window(){
+    for (uint s = 0; s < num_nt3_states; ++s){
+        delete this->screens[s];
+    }
+}
+
+void NT3Window::setupWindow(){
     QScreen* screen = this->screen();
     
     framerate = 1.0/screen->refreshRate();
@@ -58,20 +70,14 @@ NT3Window::NT3Window()
     if (screen_width*1.0/screen_height > this->screens[this->NT3state]->aspect_ratio){ //screen is relatively wider than the app
         
         int window_width = static_cast<int>(screen_height*this->screens[this->NT3state]->aspect_ratio);
-        this->setGeometry((screen_width - window_width)/2, 0, window_width, screen_height);
+        this->fullscreen_offset = QPoint((screen_width - window_width)/2, 0);
+        this->setGeometry(QRect(this->fullscreen_offset, QSize(window_width, screen_height)));
         
     } else { //screen is relatively taller than app, or it's the same ratio
         
         int window_height = static_cast<int>(screen_width*1.0/this->screens[this->NT3state]->aspect_ratio);
-        this->setGeometry(0, (screen_height - window_height)/2, screen_width, window_height);
-    }
-    
-    this->screens[this->NT3state]->init();
-}
-
-NT3Window::~NT3Window(){
-    for (uint s = 0; s < num_nt3_states; ++s){
-        delete this->screens[s];
+        this->fullscreen_offset = QPoint(0, (screen_height - window_height)/2);
+        this->setGeometry(QRect(this->fullscreen_offset, QSize(screen_width, window_height)));
     }
 }
 
@@ -87,6 +93,11 @@ void NT3Window::stateEnd(NT3_state_enum next){
 
 void NT3Window::render(QPainter &painter){
     Q_ASSERT(this->NT3state < num_nt3_states);
+    
+    if (fullscreen){
+        painter.translate(this->fullscreen_offset);
+    }
+    
     this->screens[this->NT3state]->render(painter);
 #ifdef TIME_FRAME_COMPS
     if (this->NT3state == GAMEA){
@@ -102,6 +113,15 @@ void NT3Window::render(QPainter &painter){
 
 void NT3Window::doGameStep(){
     Q_ASSERT(this->NT3state < num_nt3_states);
+    
+    bool isfullscreennow = this->windowStates().testFlag(Qt::WindowMaximized);
+    if (fullscreen && !isfullscreennow){
+        this->setWindowState(Qt::WindowMaximized);
+    } else if (!fullscreen && isfullscreennow){
+        this->setWindowState(Qt::WindowNoState);
+        this->setupWindow();
+    }
+    
     this->screens[this->NT3state]->doGameStep();
 }
 
