@@ -31,6 +31,26 @@ public:
     void colorizeResources() override; 
     
     
+    const double volume_increment = 0.1;
+    
+    const double hue_time_factor = 0.5; //don't ask me why this is.
+    
+    const int option_labels_x = 19;
+    const int option_labels_y_start = 18;
+    const int option_labels_y_separation = 16;
+    
+    const int slider_x = 71;
+    const int slider_length = 76;
+    
+    const int volume_slider_y = 15;
+    const int hue_slider_y = 31;
+    
+    const int fullscreen_options_y = 66;
+    const int fullscreen_yes_x = 96;
+    const int fullscreen_no_x = 133;
+    
+    const QPoint gradient_pos = QPoint(73, 33);
+    
     glob_option_enum currentSelection = VOLUME;
     
     QString option_strings[num_glob_options];

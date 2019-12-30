@@ -43,6 +43,8 @@ public:
     
     const QString logo_path = ":/resources/graphics/logo.png";
     const QPixmap logo = QPixmap(logo_path);
+    
+    const QPoint logo_pos = QPoint(32, 80);
 };
 
 #endif // CREDITS_H
