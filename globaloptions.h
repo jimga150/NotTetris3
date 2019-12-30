@@ -49,7 +49,8 @@ public:
     
     const QPoint gradient_pos = QPoint(73, 33);
     
-    glob_option_enum currentSelection = VOLUME;
+    const glob_option_enum defaultSelection = VOLUME;
+    glob_option_enum currentSelection = defaultSelection;
     
     QString option_strings[num_glob_options];
     

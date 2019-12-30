@@ -26,7 +26,7 @@ GlobalOptions::GlobalOptions(QObject* parent) : NT3Screen(parent)
 
 void GlobalOptions::init(){
     this->resetBlinkTimer();
-    this->currentSelection = VOLUME; //TODO: make a default for this
+    this->currentSelection = defaultSelection;
 }
 
 void GlobalOptions::calcScaleFactors(){
