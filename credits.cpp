@@ -12,7 +12,7 @@ void Credits::init(){
 void Credits::render(QPainter& painter){
     painter.setBrush(QColor(255, 255, 255));
     painter.drawRect(this->scaled_ui_field);
-    
+    //TODO: remove magic numbers
     for (int r = 0; r < this->credits_numlines; r++){
         this->BOW_font.print(&painter, QPoint(0, (r+1)*this->BOW_font.height_px)*this->ui_scale, LEFT_ALIGN, 
                              this->credits_text[r], this->ui_scale);

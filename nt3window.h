@@ -32,6 +32,8 @@ public:
     
     QPoint fullscreen_offset;
     
+    double oldHue;
+    
 public slots:
     void setExpectedFrameTime(int eft);
     

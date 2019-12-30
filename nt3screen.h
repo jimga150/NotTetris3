@@ -29,7 +29,12 @@ public:
     
     virtual void doGameStep();
     
+    virtual void colorizeResources();
+    
+    
     bool lockAR(QSize newSize);
+    
+    QPixmap colorize(QPixmap pixmap);
     
     
     const double select_blink_rate = 0.29; //seconds

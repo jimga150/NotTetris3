@@ -28,6 +28,8 @@ public:
         
     void doGameStep() override;
     
+    void colorizeResources() override; 
+    
     
     glob_option_enum currentSelection = VOLUME;
     

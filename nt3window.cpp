@@ -6,12 +6,13 @@ double volume;
 double hue;
 bool fullscreen;
 
-NT3Window::NT3Window()
+NT3Window::NT3Window() //TODO: sounds
 {   
     this->setTitle("Not Tetris 3");
     
     volume = DEFAULT_VOLUME;
     hue = DEFAULT_HUE;
+    this->oldHue = hue;
     fullscreen = DEFAULT_FULLSCREEN;
     
     for (uint s = 0; s < num_nt3_states; ++s){
@@ -120,6 +121,13 @@ void NT3Window::doGameStep(){
     } else if (!fullscreen && isfullscreennow){
         this->setWindowState(Qt::WindowNoState);
         this->setupWindow();
+    }
+    
+    if (this->oldHue != hue){
+        for (uint s = 0; s < num_nt3_states; ++s){
+            this->screens[s]->colorizeResources();
+        }
+        this->oldHue = hue;
     }
     
     this->screens[this->NT3state]->doGameStep();

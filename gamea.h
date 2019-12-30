@@ -143,6 +143,8 @@ public:
     
     void render(QPainter& painter) override;
     
+    void colorizeResources() override;
+    
     void drawBodyTo(QPainter* painter, b2Body *body);
     
     void drawTetrisPiece(QPainter* painter, b2Body *piece_body);

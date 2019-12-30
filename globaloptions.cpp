@@ -36,7 +36,7 @@ void GlobalOptions::calcScaleFactors(){
 void GlobalOptions::render(QPainter& painter){
     painter.drawPixmap(this->scaled_ui_field, this->background);
     
-    if (this->blink_on){
+    if (this->blink_on){//TODO: remove magic numbers
         this->BOW_font.print(&painter, QPoint(19, 18+(this->currentSelection)*16)*this->ui_scale, 
                              LEFT_ALIGN, this->option_strings[this->currentSelection], this->ui_scale);
     }
@@ -89,7 +89,6 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         this->blink_on = true;
         break;
     case Qt::Key_Left:
-        //TODO: Decrement current option
         switch(this->currentSelection){
         case VOLUME:
             volume -= 0.1;
@@ -111,7 +110,6 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         }
         break;
     case Qt::Key_Right:
-        //TODO: Increment current option
         switch(this->currentSelection){
         case VOLUME:
             volume += 0.1;
@@ -133,7 +131,6 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         }
         break;
     case Qt::Key_Return:
-        //TODO: set current option to default
         switch(this->currentSelection){
         case VOLUME:
             volume = DEFAULT_VOLUME;
@@ -164,4 +161,9 @@ void GlobalOptions::doGameStep(){
         this->blink_on = !this->blink_on; //TODO: generalize blinking and the resetting of the state and timer
         this->time_passed = 0;
     }
+}
+
+void GlobalOptions::colorizeResources(){
+    this->background = this->colorize(this->background);
+    this->volume_slider = this->colorize(this->volume_slider);
 }

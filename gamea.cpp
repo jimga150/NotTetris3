@@ -172,6 +172,23 @@ void GameA::render(QPainter& painter)
     }
 }
 
+void GameA::colorizeResources(){
+    this->gamebackground = this->colorize(this->gamebackground);
+    this->default_piece_image = this->colorize(this->default_piece_image);
+    for (QPixmap p : this->piece_images){
+        p = this->colorize(p);
+    }
+    
+    if (!this->world) return;
+    
+    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+        tetrisPieceData tpd = this->userData.value(b);
+        tpd.image = this->colorize(tpd.image);
+        this->userData.remove(b);
+        this->userData.insert(b, tpd);
+    }
+}
+
 void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     
     painter->save();
