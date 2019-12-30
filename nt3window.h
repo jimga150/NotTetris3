@@ -12,6 +12,7 @@
 #include "credits.h"
 #include "mainmenu.h"
 #include "globaloptions.h"
+#include "menu1p.h"
 
 class NT3Window : public OpenGL2DWindow
 {

@@ -27,7 +27,7 @@ NT3Window::NT3Window() //TODO: sounds
             this->screens[s] = new MainMenu(this);
             break;
         case P_GAMEOPTIONS:
-            this->screens[s] = new NT3Screen(this); //TODO: make 1p game options screen
+            this->screens[s] = new Menu1P(this); //TODO: make 1p game options screen
             break;
         case PP_GAMEOPTIONS:
             this->screens[s] = new NT3Screen(this); //TODO: make 2p game options screen

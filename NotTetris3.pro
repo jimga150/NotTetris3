@@ -76,6 +76,7 @@ SOURCES += \
     logo.cpp \
     main.cpp \
     mainmenu.cpp \
+    menu1p.cpp \
     nt3contactlistener.cpp \
     nt3screen.cpp \
     nt3window.cpp \
@@ -136,6 +137,7 @@ HEADERS += \
     imagefont.h \
     logo.h \
     mainmenu.h \
+    menu1p.h \
     nt3contactlistener.h \
     nt3screen.h \
     nt3window.h \
