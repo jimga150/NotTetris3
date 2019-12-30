@@ -25,9 +25,8 @@ GlobalOptions::GlobalOptions(QObject* parent) : NT3Screen(parent)
 }
 
 void GlobalOptions::init(){
-    this->time_passed = 0;
-    this->blink_on = true;
-    this->currentSelection = VOLUME;
+    this->resetBlinkTimer();
+    this->currentSelection = VOLUME; //TODO: make a default for this
 }
 
 void GlobalOptions::calcScaleFactors(){
@@ -89,8 +88,7 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         } else {
             this->currentSelection = static_cast<glob_option_enum>(this->currentSelection - 1);
         }
-        this->time_passed = 0;
-        this->blink_on = true;
+        this->resetBlinkTimer();
         break;
     case Qt::Key_Down:
         if (this->currentSelection == last_option){
@@ -98,8 +96,7 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         } else {
             this->currentSelection = static_cast<glob_option_enum>(this->currentSelection + 1);
         }
-        this->time_passed = 0;
-        this->blink_on = true;
+        this->resetBlinkTimer();
         break;
     case Qt::Key_Left:
         switch(this->currentSelection){
@@ -165,14 +162,6 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
     case Qt::Key_Escape:
         emit this->stateEnd(MAINMENU);
         break;
-    }
-}
-
-void GlobalOptions::doGameStep(){
-    this->time_passed += framerate;
-    if (this->time_passed > this->select_blink_rate){
-        this->blink_on = !this->blink_on; //TODO: generalize blinking and the resetting of the state and timer
-        this->time_passed = 0;
     }
 }
 

@@ -31,7 +31,16 @@ void NT3Screen::keyReleaseEvent(QKeyEvent* ev){
 }
 
 void NT3Screen::doGameStep(){
-    
+    this->blink_timer += framerate;
+    if (this->blink_timer > this->select_blink_rate){
+        this->blink_on = !this->blink_on;
+        this->blink_timer = 0;
+    }
+}
+
+void NT3Screen::resetBlinkTimer(){
+    this->blink_timer = 0;
+    this->blink_on = true;
 }
 
 void NT3Screen::colorizeResources(){

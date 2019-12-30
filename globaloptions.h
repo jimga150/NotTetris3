@@ -24,11 +24,9 @@ public:
     
     void render(QPainter& painter) override;
     
-    void keyPressEvent(QKeyEvent* ev) override;
-        
-    void doGameStep() override;
+    void colorizeResources() override;     
     
-    void colorizeResources() override; 
+    void keyPressEvent(QKeyEvent* ev) override;    
     
     
     const double volume_increment = 0.1;
@@ -58,10 +56,6 @@ public:
     QPixmap background = QPixmap(":/resources/graphics/options.png");
     QPixmap volume_slider = QPixmap(":/resources/graphics/volumeslider.png");
     QPixmap gradient = QPixmap(":/resources/graphics/rainbow.png");
-    
-    double time_passed;
-    
-    bool blink_on;
 };
 
 #endif // GLOBALOPTIONS_H

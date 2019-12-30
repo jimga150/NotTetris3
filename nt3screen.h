@@ -22,6 +22,8 @@ public:
     
     virtual void render(QPainter& painter);
     
+    virtual void colorizeResources();
+    
     
     virtual void keyPressEvent(QKeyEvent* ev);
     
@@ -29,7 +31,7 @@ public:
     
     virtual void doGameStep();
     
-    virtual void colorizeResources();
+    void resetBlinkTimer();
     
     
     bool lockAR(QSize newSize);
@@ -38,6 +40,8 @@ public:
     
     
     const double select_blink_rate = 0.29; //seconds
+    double blink_timer = 0;
+    bool blink_on;
     
     ImageFont BOW_font = ImageFont(
                              "0123456789abcdefghijklmnopqrstTuvwxyz.,'C-#_>:<! ", 
