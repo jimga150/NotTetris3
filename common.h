@@ -12,6 +12,18 @@
 
 #define TO_QRECT(QRF, SCALE) QRect(static_cast<int>(QRF.x()*SCALE), static_cast<int>(QRF.y()*SCALE), static_cast<int>(QRF.width()*SCALE), static_cast<int>(QRF.height()*SCALE))
 
+
+#define DEFAULT_VOLUME (1.0)
+#define DEFAULT_HUE (0.08)
+#define DEFAULT_FULLSCREEN false
+
+//global options
+extern double volume; //{0->1}
+extern double hue; //{0->1}, 0.08 is default
+extern bool fullscreen;
+
+extern double framerate;
+
 enum NT3_state_enum{
     LOGO = 0,
     CREDITS,
@@ -24,15 +36,34 @@ enum NT3_state_enum{
     num_nt3_states
 };
 
-extern double framerate;
-
-//global options
-extern double volume; //{0->1}
-extern double hue; //{0->1}, 0.08 is default
-extern bool fullscreen;
-
-#define DEFAULT_VOLUME (1.0)
-#define DEFAULT_HUE (0.08)
-#define DEFAULT_FULLSCREEN false
+struct optionTracker{
+    uint default_opt;
+    uint current_opt;
+    uint first = 0;
+    uint last;
+    
+    optionTracker(){}
+    
+    optionTracker(uint num_options, uint default_opt){
+        this->first = 0;
+        this->last = num_options - 1;
+        this->current_opt = default_opt;
+        this->default_opt = default_opt;
+    }
+    
+    void increment(){
+        if (this->current_opt == this->last) this->current_opt = this->first;
+        else this->current_opt++;
+    }
+    
+    void decrement(){
+        if (this->current_opt == this->first) this->current_opt = this->last;
+        else this->current_opt--;
+    }
+    
+    void reset(){
+        this->current_opt = this->default_opt;
+    }
+};
 
 #endif // COMMON_H

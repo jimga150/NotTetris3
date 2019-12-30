@@ -26,7 +26,7 @@ GlobalOptions::GlobalOptions(QObject* parent) : NT3Screen(parent)
 
 void GlobalOptions::init(){
     this->resetBlinkTimer();
-    this->currentSelection = defaultSelection;
+    this->options.reset();
 }
 
 void GlobalOptions::calcScaleFactors(){
@@ -40,9 +40,10 @@ void GlobalOptions::render(QPainter& painter){
         this->BOW_font.print(&painter, 
                              QPoint(
                                  this->option_labels_x, 
-                                 this->option_labels_y_start+(this->currentSelection)*this->option_labels_y_separation
+                                 this->option_labels_y_start + 
+                                 static_cast<int>(this->options.current_opt)*this->option_labels_y_separation
                                  )*this->ui_scale, 
-                             LEFT_ALIGN, this->option_strings[this->currentSelection], this->ui_scale);
+                             LEFT_ALIGN, this->option_strings[this->options.current_opt], this->ui_scale);
     }
     
     painter.drawPixmap(
@@ -78,28 +79,18 @@ void GlobalOptions::render(QPainter& painter){
     }
 }
 
-void GlobalOptions::keyPressEvent(QKeyEvent* ev){
-    glob_option_enum last_option = static_cast<glob_option_enum>(num_glob_options - 1);
-    
+void GlobalOptions::keyPressEvent(QKeyEvent* ev){    
     switch (ev->key()) {
     case Qt::Key_Up:
-        if (!this->currentSelection){
-            this->currentSelection = last_option;
-        } else {
-            this->currentSelection = static_cast<glob_option_enum>(this->currentSelection - 1);
-        }
+        this->options.decrement();
         this->resetBlinkTimer();
         break;
     case Qt::Key_Down:
-        if (this->currentSelection == last_option){
-            this->currentSelection = static_cast<glob_option_enum>(0);
-        } else {
-            this->currentSelection = static_cast<glob_option_enum>(this->currentSelection + 1);
-        }
+        this->options.increment();
         this->resetBlinkTimer();
         break;
     case Qt::Key_Left:
-        switch(this->currentSelection){
+        switch(this->options.current_opt){
         case VOLUME:
             volume -= this->volume_increment;
             if (volume < this->volume_increment) volume = 0;
@@ -115,12 +106,12 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
             fullscreen = true;
             break;
         default:
-            fprintf(stderr, "Unknown option selection type: %u\n", this->currentSelection);
+            fprintf(stderr, "Unknown option selection type: %u\n", this->options.current_opt);
             break;
         }
         break;
     case Qt::Key_Right:
-        switch(this->currentSelection){
+        switch(this->options.current_opt){
         case VOLUME:
             volume += this->volume_increment;
             if (volume > 1) volume = 1;
@@ -136,12 +127,12 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
             fullscreen = false;
             break;
         default:
-            fprintf(stderr, "Unknown option selection type: %u\n", this->currentSelection);
+            fprintf(stderr, "Unknown option selection type: %u\n", this->options.current_opt);
             break;
         }
         break;
     case Qt::Key_Return:
-        switch(this->currentSelection){
+        switch(this->options.current_opt){
         case VOLUME:
             volume = DEFAULT_VOLUME;
             break;
@@ -155,7 +146,7 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
             fullscreen = DEFAULT_FULLSCREEN;
             break;
         default:
-            fprintf(stderr, "Unknown option selection type: %u\n", this->currentSelection);
+            fprintf(stderr, "Unknown option selection type: %u\n", this->options.current_opt);
             break;
         }
         break;
