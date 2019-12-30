@@ -57,6 +57,8 @@ public:
     const double min_graphics_scale = 1;
     
     double ui_scale = min_graphics_scale;
+    
+    const QString default_option_name = "error";
         
 signals:    
     void close();

@@ -18,6 +18,7 @@ GlobalOptions::GlobalOptions(QObject* parent) : NT3Screen(parent)
             break;
         default:
             fprintf(stderr, "Unknown option selection type: %u\n", o);
+            this->option_strings[o] = this->default_option_name;
             break;
         }
     }
