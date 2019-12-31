@@ -42,16 +42,23 @@ public:
     
     void keyPressEvent(QKeyEvent* ev) override;
         
-    void doGameStep() override;
-    
     void colorizeResources() override;
     
     
     QPixmap background = QPixmap(":/resources/graphics/gametype.png");
     
-    double time_passed;
+    int option_left_x = 24;
+    int option_right_x = 88;
     
-    bool blink_on;
+    int option_gt_y = 26;
+    int option_mt_top_y = 60;
+    int option_mt_bot_y = 76;
+            
+    
+    optionTracker option_group = optionTracker(num_option_groups, GAME_TYPE);
+    optionTracker option_groups[num_option_groups];
+    
+    std::vector<QString> option_names[num_option_groups];
 };
 
 #endif // MENU1P_H
