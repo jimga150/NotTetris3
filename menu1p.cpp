@@ -139,7 +139,23 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         }
         this->resetBlinkTimer();
         
-        break;        
+        break;
+    case Qt::Key_Escape:
+        emit this->stateEnd(MAINMENU);
+        break;
+    case Qt::Key_Return:
+        switch (this->option_groups[GAME_TYPE].current_opt) {
+        case NORMAL:
+            emit this->stateEnd(GAMEA);
+            break;
+        case STACK:
+            emit this->stateEnd(GAMEB);
+            break;
+        default:
+            fprintf(stderr, "Undefined game type! %u\n", this->option_groups[GAME_TYPE].current_opt);
+            break;
+        }
+        break;
     }
 }
 
