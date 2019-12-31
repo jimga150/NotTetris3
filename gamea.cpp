@@ -150,7 +150,7 @@ void GameA::render(QPainter& painter)
     
     if (this->game_state == row_clear_blinking){
         
-        if (this->blink_on){
+        if (this->row_blink_on){
             
             painter.setBrush(this->line_clear_color);
             
@@ -448,7 +448,7 @@ void GameA::doGameStep(){
     if (this->game_state == row_clear_blinking){
         qint64 elapsed = 0;
         //if we are on the last blink before things start rolling again
-        if (this->blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
+        if (this->row_blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
             
             this->setGameState(row_clear_blinking);
             
@@ -465,8 +465,8 @@ void GameA::doGameStep(){
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){
             this->row_blink_accumulator = 0;
             
-            this->blink_on = !this->blink_on;
-            if (!this->blink_on){
+            this->row_blink_on = !this->row_blink_on;
+            if (!this->row_blink_on){
                 
                 ++this->num_blinks_so_far;
                 if (this->num_blinks_so_far >= this->num_blinks){

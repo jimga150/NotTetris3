@@ -396,7 +396,7 @@ public:
     
     double row_blink_accumulator = 0; //seconds
     
-    bool blink_on = true; //blink state
+    bool row_blink_on = true; //blink state
     
     
     //freeze frame data
