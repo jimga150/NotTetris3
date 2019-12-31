@@ -20,7 +20,7 @@ GameA::~GameA()
 }
 
 
-void GameA::init(){
+void GameA::init(){ //TODO: make this fully reinitializable
     
     double fps = 1.0/framerate;
     this->timeStep = static_cast<float32>(framerate); //seconds
@@ -29,11 +29,7 @@ void GameA::init(){
     
     Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
     Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
-    
-    this->piece_image_scale = this->pis_factor*this->ui_scale;
-    
-    this->polygon_radius_px = qCeil(this->piece_image_scale*this->physics_to_ui_scale);
-    
+        
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
     }
