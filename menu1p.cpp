@@ -121,11 +121,10 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         if (this->option_group.current_opt == MUSIC_TYPE && (currMT == CTYPE || currMT == OFF)){
             if (currMT == CTYPE) this->option_groups[MUSIC_TYPE].current_opt = ATYPE;
             else this->option_groups[MUSIC_TYPE].current_opt = BTYPE;
-            break;
+        } else {
+            //otherwise, change the current option group
+            this->option_group.decrement();
         }
-        //otherwise, change the current option group
-        this->option_group.decrement();
-        
         this->resetBlinkTimer();
         
         break;
@@ -134,10 +133,10 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         if (this->option_group.current_opt == MUSIC_TYPE && (currMT == ATYPE || currMT == BTYPE)){
             if (currMT == ATYPE) this->option_groups[MUSIC_TYPE].current_opt = CTYPE;
             else this->option_groups[MUSIC_TYPE].current_opt = OFF;
-            break;
+        } else {
+            //otherwise, change the current option group
+            this->option_group.increment();
         }
-        //otherwise, change the current option group
-        this->option_group.increment();
         this->resetBlinkTimer();
         
         break;        
