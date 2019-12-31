@@ -32,6 +32,7 @@ enum NT3_state_enum{
     PP_GAMEOPTIONS,
     GLOBAL_OPTIONS,
     GAMEA,
+    GAMEB,
     
     num_nt3_states
 };

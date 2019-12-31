@@ -38,6 +38,9 @@ NT3Window::NT3Window() //TODO: sounds
         case GAMEA:
             this->screens[s] = new GameA(this);
             break;
+        case GAMEB:
+            this->screens[s] = new NT3Screen(this); //TODO: make Gamemode B (oh boy)
+            break;
         default:
             fprintf(stderr, "Invalid NT3 state: %u\n", s);
             this->close();
