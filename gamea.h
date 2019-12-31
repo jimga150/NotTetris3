@@ -285,7 +285,7 @@ public:
     
     const int max_screen_height_px = 2160; //4k
     const double piece_image_scale = max_screen_height_px*1.0/tetris_field.height(); //scale used to make tetris piece cutting smooth
-    const int polygon_radius_px = qCeil(piece_image_scale*physics_to_ui_scale);
+    const int polygon_radius_px = qCeil(piece_image_scale*physics_to_ui_scale) + 1;
     
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
