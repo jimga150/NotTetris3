@@ -31,7 +31,7 @@ public:
     
     virtual void doGameStep();
     
-    void resetBlinkTimer();
+    virtual void resetBlinkTimer();
     
     
     bool lockAR(QSize newSize);

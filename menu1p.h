@@ -44,6 +44,8 @@ public:
         
     void colorizeResources() override;
     
+    void resetBlinkTimer() override;
+    
     
     QPixmap background = QPixmap(":/resources/graphics/gametype.png");
     
@@ -57,6 +59,8 @@ public:
     
     optionTracker option_group = optionTracker(num_option_groups, GAME_TYPE);
     optionTracker option_groups[num_option_groups];
+    
+    uint prevOG = option_group.current_opt;
     
     std::vector<QString> option_names[num_option_groups];
 };

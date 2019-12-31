@@ -147,3 +147,9 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
 void Menu1P::colorizeResources(){
     this->background = this->colorize(this->background);
 }
+
+void Menu1P::resetBlinkTimer(){
+    this->blink_timer = 0;
+    this->blink_on = this->prevOG == this->option_group.current_opt;
+    this->prevOG = this->option_group.current_opt;
+}
