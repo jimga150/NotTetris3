@@ -460,22 +460,24 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
         }
         
         this->row_blink_accumulator += framerate + crtimer.elapsed()*1.0/NANOS_PER_SECOND;
-        if (this->row_blink_accumulator > this->lc_blink_toggle_time){
+        if (this->row_blink_accumulator > this->lc_blink_toggle_time){ //If its time to toggle
             this->row_blink_accumulator = 0;
             
             this->row_blink_on = !this->row_blink_on;
-            if (!this->row_blink_on){
+            if (!this->row_blink_on){ //if falling edge on row blink
                 
                 ++this->num_blinks_so_far;
-                if (this->num_blinks_so_far >= this->num_blinks){
+                if (this->num_blinks_so_far >= this->num_blinks){ //if we've reached the number of prescribed blinks
                     this->num_blinks_so_far = 0;
                     
+                    //reset row clear vector so graphics doesnt keep drawing it
                     for (uint r = 0; r < this->tetris_rows; r++){
                         if (this->rows_to_clear.at(r)){
                             this->rows_to_clear.at(r) = false;
                         }
                     }
                     
+                    //resolve all images being cut in their own threads
                     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
                         if (this->isAWall(b)) continue;
                         if (b == this->next_piece_for_display) continue;
