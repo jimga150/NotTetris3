@@ -29,7 +29,7 @@ void GameA::init(){ //TODO: make this fully reinitializable
     
     Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
     Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
-        
+    
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
     }
@@ -178,10 +178,9 @@ void GameA::colorizeResources(){
     if (!this->world) return;
     
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        tetrisPieceData tpd = this->userData.value(b);
-        tpd.image = this->colorize(tpd.image);
-        this->userData.remove(b);
-        this->userData.insert(b, tpd);
+        tetrisPieceData tpd = this->getTetrisPieceData(b);
+        tpd.image = this->colorize(tpd.image); //TODO: use a pointer for tpd
+        this->setTetrisPieceData(b, tpd);
     }
 }
 
@@ -437,7 +436,7 @@ void GameA::keyReleaseEvent(QKeyEvent* ev){
     }
 }
 
-void GameA::doGameStep(){
+void GameA::doGameStep(){ //TODO: fix current piece not being immediately considered for the row clear on touchdown
     
     if (this->freeze_frame) return;
     
@@ -453,7 +452,7 @@ void GameA::doGameStep(){
                 if (this->rows_to_clear.at(r)){
                     this->clearRow(r);
                 }
-            }   
+            }
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
         }
         
@@ -1247,9 +1246,7 @@ void GameA::makeNewTetrisPiece(){
     }
     
     tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type));
-    this->userData.insert(this->currentPiece, data);
-    //this->currentPiece->SetUserData(data);
-    
+    this->setTetrisPieceData(this->currentPiece, data);    
     
     //set up next piece
     this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
@@ -1277,7 +1274,7 @@ void GameA::makeNewTetrisPiece(){
     
     data.image = this->piece_images.at(this->next_piece_type);
     data.region = this->piece_rects.at(this->next_piece_type);
-    this->userData.insert(this->next_piece_for_display, data);
+    this->setTetrisPieceData(this->next_piece_for_display, data);
     //this->next_piece_for_display->SetUserData(data);
 }
 
@@ -1309,6 +1306,11 @@ tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
     if (data == nullptr) return nullptr;
     
     return static_cast<tetrisPieceData*>(data);*/
+}
+
+void GameA::setTetrisPieceData(b2Body* b, tetrisPieceData tpd){
+    this->userData.remove(b);
+    this->userData.insert(b, tpd);
 }
 
 QPixmap GameA::enableAlphaChannel(QPixmap pixmap){

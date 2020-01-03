@@ -185,6 +185,8 @@ public:
     
     tetrisPieceData getTetrisPieceData(b2Body* b);
     
+    void setTetrisPieceData(b2Body* b, tetrisPieceData tpd);
+    
     QPixmap enableAlphaChannel(QPixmap pixmap);
     
     void setGameState(gamea_state_enum newstate);
