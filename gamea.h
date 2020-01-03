@@ -134,8 +134,6 @@ struct tetrisPieceData{
             p.end();
             
             this->imagepending = false;
-        } else {
-            printf("resolveImage() called with no pending image!\n");
         }
     }
     
