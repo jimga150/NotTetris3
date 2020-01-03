@@ -441,9 +441,10 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
     if (this->freeze_frame) return;
     
     if (this->game_state == row_clear_blinking){
-        qint64 elapsed = 0;
-        //if we are on the last blink before things start rolling again
-        if (this->row_blink_on && this->num_blinks_so_far + 1 >= this->num_blinks && this->last_state == gameA){
+        QElapsedTimer crtimer;
+        crtimer.start();
+        //If the blinks just started
+        if (this->last_state == gameA){
             
             this->setGameState(row_clear_blinking);
             
@@ -456,7 +457,7 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
         }
         
-        this->row_blink_accumulator += framerate + elapsed*1.0/NANOS_PER_SECOND;
+        this->row_blink_accumulator += framerate + crtimer.elapsed()*1.0/NANOS_PER_SECOND;
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){
             this->row_blink_accumulator = 0;
             
@@ -472,6 +473,17 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
                             this->rows_to_clear.at(r) = false;
                         }
                     }
+                    
+                    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+                        if (this->isAWall(b)) continue;
+                        if (b == this->next_piece_for_display) continue;
+                        
+                        tetrisPieceData tpd = this->getTetrisPieceData(b);
+                        tpd.resolveImage();
+                        
+                        this->setTetrisPieceData(b, tpd);
+                    }
+                    
                     this->setGameState(gameA);
                     
                     this->makeNewTetrisPiece();
@@ -962,10 +974,12 @@ void GameA::clearRow(uint row){
                 new_body->CreateFixture(&fixture_def);
             }
             
-            tetrisPieceData orig_body_data = this->getTetrisPieceData(b);
-            tetrisPieceData data = tetrisPieceData(orig_body_data);
-            data.image = this->maskImage(new_body, &data);
-            this->userData.insert(new_body, data);
+            tetrisPieceData data = this->getTetrisPieceData(b);
+            QImage tomask = this->enableAlphaChannel(data.image).toImage();
+            
+            data.addImagePending(QtConcurrent::run(this, &GameA::maskImage, new_body, tomask, data.region));
+            
+            this->setTetrisPieceData(new_body, data);
             //new_body->SetUserData(data);
             
         }
@@ -982,69 +996,86 @@ void GameA::clearRow(uint row){
     //fflush(stdout);
 }
 
-QPixmap GameA::maskImage(b2Body* b, tetrisPieceData* data){
-    if (!data->image.hasAlphaChannel()){
-        printf("Image has no alpha channel!\n");
-        fflush(stdout);
-    }
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
+        
+    Q_ASSERT(orig_image.hasAlphaChannel());
     
-    QImage image = data->image.toImage();
+    QImage ans = QImage(orig_image.size(), orig_image.format());
+    ans.fill(Qt::transparent);
     
     float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale*this->physics_to_ui_scale);
     
-    b2Vec2 offset(data->region.x(), data->region.y());
+    b2Vec2 offset(region.x(), region.y());
     
     b2Transform t;
     t.SetIdentity();
+        
+    QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
+    QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
+    int width = orig_image.width();
+    int height = orig_image.height();
     
-    b2Vec2 corners[4];
+    vector<b2PolygonShape*> shapes;
+    vector<b2AABB> AABBs;
     
-    for (int y = 0; y < image.height(); y++){
-        for (int x = 0; x < image.width(); x++){
-            if (qAlpha(image.pixel(x, y)) == 0){
-                continue;
-            }
-            
-            b2Vec2 center(x, y);
-            center *= scale;
-            center += offset;
-            
-            corners[0] = b2Vec2(x + this->polygon_radius_px, y + this->polygon_radius_px);
-            corners[1] = b2Vec2(x + this->polygon_radius_px, y - this->polygon_radius_px);
-            corners[2] = b2Vec2(x - this->polygon_radius_px, y + this->polygon_radius_px);
-            corners[3] = b2Vec2(x - this->polygon_radius_px, y - this->polygon_radius_px);
-            
-            bool pass = false;
-            for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
-                Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
-                b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
-                
-                if (s->TestPoint(t, center)){
-                    pass = true;
-                    //printf("Pass!\n");
-                    break;
+    for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
+        Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
+        b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+        b2AABB aabb;
+        s->ComputeAABB(&aabb, t, 0);
+        
+        shapes.push_back(s);
+        AABBs.push_back(aabb);
+    }
+    
+    b2PolygonShape** shape_array = &shapes[0];
+    b2AABB* AABB_array = &AABBs[0];
+    
+    for (uint s_index = 0; s_index < shapes.size(); s_index++){
+        b2AABB aabb = AABB_array[s_index];
+        b2PolygonShape* s = shape_array[s_index];
+        
+        int startx = qFloor((aabb.lowerBound.x - offset.x)/scale);
+        int endx = qCeil((aabb.upperBound.x - offset.x)/scale);
+        
+        int starty = qFloor((aabb.lowerBound.y - offset.y)/scale);
+        int endy = qCeil((aabb.upperBound.y - offset.y)/scale);
+        
+        for (int y = starty; y < endy; y++){
+            for (int x = startx; x < endx; x++){
+                                
+                int pix_index = x + width*y;
+                if (QColor(orig_pixels[pix_index]).alpha() == 0){
+                    //printf("Alpha was already 0 at (%d, %d)\n", x, y);
+                    continue;
                 }
                 
-                for (uint c = 0; c < 4; c++){ //hey, that's the name of this language!
-                    if (s->TestPoint(t, corners[c])){
-                        pass = true;
-                        //printf("Pass!\n");
-                        break;
-                    }
+                b2Vec2 center(x, y);
+                center *= scale;
+                center += offset;
+                
+                if (this->TestPointRadius(s, t, center)){
+                    //printf("Test point pass at (%d, %d)\n", x, y);
+                    anspixels[pix_index] = orig_pixels[pix_index];
                 }
-                if (pass) break;
-            }
-            
-            if (!pass){
-                image.setPixelColor(x, y, QColor(0, 0, 255, 0)); //set to transparent
             }
         }
     }
-    QPixmap pixmap = QPixmap::fromImage(image);
-    if (!pixmap.hasAlphaChannel()){
-        pixmap = this->enableAlphaChannel(pixmap);
-    }
-    return pixmap;
+    Q_ASSERT(ans.hasAlphaChannel());
+    return ans;
+}
+
+//modified from b2PolygonShape::TestPoint, this will return true if the point falls within the radius of the polygon
+bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const{
+	b2Vec2 pLocal = b2MulT(xf.q, p - xf.p);
+
+	for (int32 i = 0; i < s->m_count; ++i){
+		float32 dot = b2Dot(s->m_normals[i], pLocal - s->m_vertices[i]);
+		if (dot > b2_polygonRadius){
+			return false;
+		}
+	}
+	return true;
 }
 
 vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot){

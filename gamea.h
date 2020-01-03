@@ -1,5 +1,6 @@
 #include <QRandomGenerator>
 #include <QElapsedTimer>
+#include <QtConcurrent>
 
 #include "Box2D/Box2D.h"
 
@@ -104,6 +105,9 @@ struct rayCastComplete{
 
 struct tetrisPieceData{
     QPixmap image;
+    QFuture<QImage> newimage;
+    bool imagepending = false;
+    
     QRect region;
     
     tetrisPieceData(){}
@@ -117,6 +121,30 @@ struct tetrisPieceData{
     {
         return this->region == other.region && this->image.toImage() == other.image.toImage();
     }
+    
+    void resolveImage(){
+        if (this->imagepending){
+            QImage image = this->newimage.result();
+            Q_ASSERT(image.hasAlphaChannel());
+            
+            this->image = QPixmap(image.size());
+            this->image.fill(Qt::transparent);
+            QPainter p(&this->image);
+            p.drawImage(image.rect(), image);
+            p.end();
+            
+            this->imagepending = false;
+        } else {
+            printf("resolveImage() called with no pending image!\n");
+        }
+    }
+    
+    void addImagePending(QFuture<QImage> pendingImage){
+        if (this->imagepending) this->newimage.cancel();
+        this->imagepending = true;
+        this->newimage = pendingImage;
+    }
+    
 };
 
 class GameA : public NT3Screen
@@ -165,7 +193,9 @@ public:
     
     void clearRow(uint row);
     
-    QPixmap maskImage(b2Body* b, tetrisPieceData* data);
+    QImage maskImage(b2Body* b, QImage orig_image, QRect region);
+    
+    bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
     vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
     
@@ -287,7 +317,6 @@ public:
     
     const int max_screen_height_px = 2160; //4k
     const double piece_image_scale = max_screen_height_px*1.0/tetris_field.height(); //scale used to make tetris piece cutting smooth
-    const int polygon_radius_px = qCeil(piece_image_scale*physics_to_ui_scale) + 1;
     
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
@@ -366,8 +395,8 @@ public:
     //piece params
     const uint32 max_shapes_per_piece = 4;
     
-    QRandomGenerator rng = QRandomGenerator::securelySeeded();
-    //QRandomGenerator rng = QRandomGenerator(9003);
+    //QRandomGenerator rng = QRandomGenerator::securelySeeded();
+    QRandomGenerator rng = QRandomGenerator(9003);
     
     
     //resources
