@@ -438,7 +438,7 @@ void GameA::keyReleaseEvent(QKeyEvent* ev){
     }
 }
 
-void GameA::doGameStep(){ //TODO: fix current piece not being immediately considered for the row clear on touchdown
+void GameA::doGameStep(){
     
     if (this->freeze_frame) return;
     
