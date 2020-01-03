@@ -49,6 +49,8 @@ void GameA::init(){
     
     this->init_BDC();
     
+    this->bodies_to_destroy.clear();
+    
     this->destroyWorld();
     
     b2Vec2 gravity(0.0f, this->gravity_g);
@@ -492,6 +494,11 @@ void GameA::doGameStep(){
                         }
                     }
                     
+                    for (b2Body* b : bodies_to_destroy){
+                        this->destroyTetrisPiece(b);
+                    }
+                    this->bodies_to_destroy.clear();
+                    
                     //resolve all images being cut in their own threads
                     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
                         if (this->isAWall(b)) continue;
@@ -797,6 +804,16 @@ void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to 
         if (this->isAWall(b)) continue;
         if (this->next_piece_for_display == b) continue;
         
+        //if this body is already marked for deletion, don't bother.
+        bool todestroy = false;
+        for (b2Body* btd : bodies_to_destroy){
+            if (b == btd){
+                todestroy = true;
+                break;
+            }
+        }
+        if (todestroy) continue;
+        
         bool affected = false;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
@@ -950,7 +967,6 @@ void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to 
     
     
     //(Now all bodies have been cut, but are still one rigid body each. they need to be split)
-    vector<b2Body*> bodies_to_destroy;
     for (b2Body* b : affected_bodies){
         //each vector in shape_groups represents a number of shapes that are touching,
         //directly or indirectly via each other
@@ -1017,15 +1033,9 @@ void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to 
         }
         
         //delete original body (later)
-        bodies_to_destroy.push_back(b);
+        this->bodies_to_destroy.push_back(b);
         
     } //end body separation loop
-    
-    for (b2Body* b : bodies_to_destroy){
-        this->destroyTetrisPiece(b);
-    }
-    
-    //fflush(stdout);
 }
 
 //WARNING: hey. I see you there. You're here for one of two reasons, or maybe both:

@@ -285,6 +285,8 @@ public:
     
     b2Body* currentPiece = nullptr;
     
+    vector<b2Body*> bodies_to_destroy;
+    
     //Index: Row box # (up to tetris_rows-1)
     vector<float32> row_areas;
     vector<QHash<b2Body*, float32>> body_area_contributions;
