@@ -1035,11 +1035,11 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
         b2AABB aabb = AABB_array[s_index];
         b2PolygonShape* s = shape_array[s_index];
         
-        int startx = qFloor((aabb.lowerBound.x - offset.x)/scale);
-        int endx = qCeil((aabb.upperBound.x - offset.x)/scale);
+        int startx = qFloor(static_cast<double>((aabb.lowerBound.x - offset.x)/scale));
+        int endx = qCeil(static_cast<double>((aabb.upperBound.x - offset.x)/scale));
         
-        int starty = qFloor((aabb.lowerBound.y - offset.y)/scale);
-        int endy = qCeil((aabb.upperBound.y - offset.y)/scale);
+        int starty = qFloor(static_cast<double>((aabb.lowerBound.y - offset.y)/scale));
+        int endy = qCeil(static_cast<double>((aabb.upperBound.y - offset.y)/scale));
         
         for (int y = starty; y < endy; y++){
             for (int x = startx; x < endx; x++){
