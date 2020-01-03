@@ -1013,12 +1013,20 @@ void GameA::clearRow(uint row){
     //fflush(stdout);
 }
 
-QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: make more readable
+//WARNING: hey. I see you there. You're here for one of two reasons, or maybe both:
+//1. Seeing how this function works
+//In that case, go on ahead! 
+//This is the function called on all bodies affected by any given row clears, run in a distinct thread.
+//2. Trying to optimize it
+//Uh-oh. I spent a long time trying to optimize this with mixed success. 
+//There's not a lot of ways around the loop, which is the primary time-consuming task.
+//IF YOU TRY TO CHANGE THIS: keep in mind,
+//a. you may NOT, in a QtConcurrent thread, use a QPainter to draw onto a QPixmap (onto a QImage is ok though)
+//b. Many of my other functions are not thread safe, so don't go calling them will-nilly
+//c. God help you.
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: fix possible null pointer on b if body is destroyed in another row
     
     Q_ASSERT(orig_image.hasAlphaChannel());
-    
-    QImage ans = QImage(orig_image.size(), orig_image.format());
-    ans.fill(Qt::transparent);
     
     float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale*this->physics_to_ui_scale);
     
@@ -1027,30 +1035,21 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: mak
     b2Transform t;
     t.SetIdentity();
     
-    QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
-    QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
     int width = orig_image.width();
     int height = orig_image.height();
     
-    vector<b2PolygonShape*> shapes;
-    vector<b2AABB> AABBs;
+    QImage ans = QImage(orig_image.size(), orig_image.format());
+    ans.fill(Qt::transparent);
+    
+    QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
+    QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
     
     for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
         Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
         b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
+        
         b2AABB aabb;
         s->ComputeAABB(&aabb, t, 0);
-        
-        shapes.push_back(s);
-        AABBs.push_back(aabb);
-    }
-    
-    b2PolygonShape** shape_array = &shapes[0];
-    b2AABB* AABB_array = &AABBs[0];
-    
-    for (uint s_index = 0; s_index < shapes.size(); s_index++){
-        b2AABB aabb = AABB_array[s_index];
-        b2PolygonShape* s = shape_array[s_index];
         
         int startx = qFloor(static_cast<double>((aabb.lowerBound.x - offset.x)/scale));
         int endx = qCeil(static_cast<double>((aabb.upperBound.x - offset.x)/scale));
@@ -1079,6 +1078,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: mak
         }
     }
     Q_ASSERT(ans.hasAlphaChannel());
+    
     return ans;
 }
 
