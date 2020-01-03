@@ -160,7 +160,9 @@ public:
     void init() override;
     
     
-    //Destructor utility
+    //Destructor utilities
+    void destroyWorld();
+    
     void freeUserDataOn(b2Body* b);
     
     

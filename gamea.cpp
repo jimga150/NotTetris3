@@ -6,10 +6,30 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
         fprintf(stderr, "Resources not present, exiting...\n");
         emit this->close();
     }
+    
+    double fps = 1.0/framerate;
+    this->timeStep = static_cast<float32>(framerate); //seconds
+    
+    float32 box2d_max_velocity = b2_maxTranslation*static_cast<float32>(fps);
+    
+    Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
+    Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
+    
+    //key-action mappings
+    this->freeze_key = Qt::Key_Space;
+    this->accelDownKey = Qt::Key_Down;
+    this->rotateStateTable.insert(Qt::Key_Z, ROTATECCW);
+    this->rotateStateTable.insert(Qt::Key_X, ROTATECW);
+    this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
+    this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
 }
 
 GameA::~GameA()
 {
+    this->destroyWorld();
+}
+
+void GameA::destroyWorld(){
     if (this->world){
         for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
             this->freeUserDataOn(b);
@@ -22,31 +42,19 @@ GameA::~GameA()
 
 void GameA::init(){ //TODO: make this fully reinitializable
     
-    double fps = 1.0/framerate;
-    this->timeStep = static_cast<float32>(framerate); //seconds
-    
-    float32 box2d_max_velocity = b2_maxTranslation*static_cast<float32>(fps);
-    
-    Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
-    Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
-    
+    this->rows_to_clear.clear();
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
     }
     
-    //key-action mappings
-    this->freeze_key = Qt::Key_Space;
-    this->accelDownKey = Qt::Key_Down;
-    this->rotateStateTable.insert(Qt::Key_Z, ROTATECCW);
-    this->rotateStateTable.insert(Qt::Key_X, ROTATECW);
-    this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
-    this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
-    
     this->init_BDC();
+    
+    this->destroyWorld();
     
     b2Vec2 gravity(0.0f, this->gravity_g);
     this->world = new b2World(gravity);
     this->world->SetAllowSleeping(true);
+    
     this->contactlistener = new NT3ContactListener;
     this->world->SetContactListener(this->contactlistener);
     
@@ -505,7 +513,7 @@ void GameA::doGameStep(){
     timer.start();
 #endif
     
-    world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
+    this->world->Step(this->timeStep, this->velocityIterations, this->positionIterations);
     
 #ifdef TIME_GAME_FRAME
     printf("World step: %lld ms,\t", timer.elapsed());
@@ -1414,6 +1422,7 @@ void GameA::initializeTetrisPieceDefs(){
     this->tetrisBodyDef.angularDamping = 0;
     
     
+    this->tetrisShapes.clear();
     for (uint8 i = 0; i < num_tetris_pieces; i++){
         this->tetrisShapes.push_back(vector<b2PolygonShape>());
     }
@@ -1515,12 +1524,21 @@ void GameA::initializeTetrisPieceDefs(){
     fixture_template.restitution = this->restitution;
     
     vector<b2FixtureDef> fixture_vector_template;
+    
+    this->tetrisFixtures.clear();
+    this->center_of_mass_offsets.clear();
+    
     for (uint32 t = 0; t < this->tetrisShapes.size(); t++){
+        
         Q_ASSERT(this->tetrisShapes.at(t).size() <= this->max_shapes_per_piece);
         this->tetrisFixtures.push_back(fixture_vector_template);
+        
         for (uint32 s = 0; s < this->max_shapes_per_piece; s++){
+            
             if (this->tetrisShapes.at(t).size() == s) break;
+            
             fixture_template.shape = &this->tetrisShapes.at(t).at(s);
+            
             this->tetrisFixtures.at(t).push_back(fixture_template);
         }
         
@@ -1534,6 +1552,10 @@ void GameA::initializeTetrisPieceDefs(){
 }
 
 void GameA::initializeTetrisPieceImages(){
+    
+    this->piece_images.clear();
+    this->piece_rects.clear();
+    
     int side_length = static_cast<int>(this->side_length);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         
