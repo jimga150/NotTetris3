@@ -763,7 +763,7 @@ float32 GameA::getRowArea(uint row){
     return total_area;
 }
 
-void GameA::clearRow(uint row){
+void GameA::clearRow(uint row){ //TODO: find a way to combine rows to optimize
     
     row_sides_struct sides(row, this->side_length);
     
@@ -1024,7 +1024,7 @@ void GameA::clearRow(uint row){
 //a. you may NOT, in a QtConcurrent thread, use a QPainter to draw onto a QPixmap (onto a QImage is ok though)
 //b. Many of my other functions are not thread safe, so don't go calling them will-nilly
 //c. God help you.
-QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: fix possible null pointer on b if body is destroyed in another row
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
     
     Q_ASSERT(orig_image.hasAlphaChannel());
     
@@ -1043,6 +1043,9 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: fix
     
     QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
     QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
+    
+    //this line will verify that the body hasnt been removed from the world
+    if (!this->userData.contains(b)) return ans;
     
     for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
         Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
@@ -1076,6 +1079,8 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: fix
                 }
             }
         }
+        //this line will verify that the body hasnt been removed from the world (pt. 2)
+        if (!this->userData.contains(b)) return ans;
     }
     Q_ASSERT(ans.hasAlphaChannel());
     
