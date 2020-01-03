@@ -62,6 +62,8 @@ void GameA::init(){ //TODO: make this fully reinitializable
     this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
     
     this->makeNewTetrisPiece();
+    
+    this->makeNewNextPiece();
 }
 
 
@@ -179,7 +181,7 @@ void GameA::colorizeResources(){
     
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         tetrisPieceData tpd = this->getTetrisPieceData(b);
-        tpd.image = this->colorize(tpd.image); //TODO: use a pointer for tpd
+        tpd.image = this->colorize(tpd.image);
         this->setTetrisPieceData(b, tpd);
     }
 }
@@ -483,10 +485,10 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
                         
                         this->setTetrisPieceData(b, tpd);
                     }
-                    
                     this->setGameState(gameA);
                     
-                    this->makeNewTetrisPiece();
+                    //NOW set up the next piece preview
+                    this->makeNewNextPiece();
                 }
             }
         }
@@ -524,6 +526,10 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
             emit this->close();
             return;
         }
+        
+        //start with making the new tetris piece and make the new next piece 
+        //only if we're not clearing lines (found below)
+        this->makeNewTetrisPiece();
     }
     
     float32 inertia = this->currentPiece->GetInertia();
@@ -649,7 +655,8 @@ void GameA::doGameStep(){ //TODO: fix current piece not being immediately consid
             
             this->score_add_disp_offset = 0;
         } else {
-            this->makeNewTetrisPiece();
+            //not clearing any lines, so carry on
+            this->makeNewNextPiece();
         }
     }
     
@@ -975,8 +982,8 @@ void GameA::clearRow(uint row){
             }
             
             tetrisPieceData data = this->getTetrisPieceData(b);
-            QImage tomask = this->enableAlphaChannel(data.image).toImage();
             
+            QImage tomask = this->enableAlphaChannel(data.image).toImage();
             data.addImagePending(QtConcurrent::run(this, &GameA::maskImage, new_body, tomask, data.region));
             
             this->setTetrisPieceData(new_body, data);
@@ -996,8 +1003,8 @@ void GameA::clearRow(uint row){
     //fflush(stdout);
 }
 
-QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
-        
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){ //TODO: make more readable
+    
     Q_ASSERT(orig_image.hasAlphaChannel());
     
     QImage ans = QImage(orig_image.size(), orig_image.format());
@@ -1009,7 +1016,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
     
     b2Transform t;
     t.SetIdentity();
-        
+    
     QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
     QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
     int width = orig_image.width();
@@ -1043,7 +1050,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
         
         for (int y = starty; y < endy; y++){
             for (int x = startx; x < endx; x++){
-                                
+                
                 int pix_index = x + width*y;
                 if (QColor(orig_pixels[pix_index]).alpha() == 0){
                     //printf("Alpha was already 0 at (%d, %d)\n", x, y);
@@ -1067,15 +1074,15 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
 
 //modified from b2PolygonShape::TestPoint, this will return true if the point falls within the radius of the polygon
 bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const{
-	b2Vec2 pLocal = b2MulT(xf.q, p - xf.p);
-
-	for (int32 i = 0; i < s->m_count; ++i){
-		float32 dot = b2Dot(s->m_normals[i], pLocal - s->m_vertices[i]);
-		if (dot > b2_polygonRadius){
-			return false;
-		}
-	}
-	return true;
+    b2Vec2 pLocal = b2MulT(xf.q, p - xf.p);
+    
+    for (int32 i = 0; i < s->m_count; ++i){
+        float32 dot = b2Dot(s->m_normals[i], pLocal - s->m_vertices[i]);
+        if (dot > b2_polygonRadius){
+            return false;
+        }
+    }
+    return true;
 }
 
 vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot){
@@ -1278,8 +1285,9 @@ void GameA::makeNewTetrisPiece(){
     
     tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type));
     this->setTetrisPieceData(this->currentPiece, data);    
-    
-    //set up next piece
+}
+
+void GameA::makeNewNextPiece(){
     this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
     
     this->destroyTetrisPiece(this->next_piece_for_display);
@@ -1303,10 +1311,8 @@ void GameA::makeNewTetrisPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    data.image = this->piece_images.at(this->next_piece_type);
-    data.region = this->piece_rects.at(this->next_piece_type);
+    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type));
     this->setTetrisPieceData(this->next_piece_for_display, data);
-    //this->next_piece_for_display->SetUserData(data);
 }
 
 

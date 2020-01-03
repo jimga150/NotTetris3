@@ -205,6 +205,8 @@ public:
     //adding new pieces
     void makeNewTetrisPiece();
     
+    void makeNewNextPiece();
+    
     
     //utilities
     bool isAWall(b2Body* b);
