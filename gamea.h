@@ -191,7 +191,7 @@ public:
     //calculating/removing rows
     float32 getRowArea(uint row);
     
-    void clearRow(uint row);
+    void clearRows(vector<uint> rows);
     
     QImage maskImage(b2Body* b, QImage orig_image, QRect region);
     

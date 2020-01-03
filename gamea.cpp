@@ -459,9 +459,16 @@ void GameA::doGameStep(){
             this->setGameState(row_clear_blinking);
             
             for (uint r = 0; r < this->tetris_rows; r++){
-                
                 if (this->rows_to_clear.at(r)){
-                    this->clearRow(r);
+                    vector<uint> continuous_rows;
+                    uint cr;
+                    for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){
+                        continuous_rows.push_back(cr);
+                    }
+                    
+                    this->clearRows(continuous_rows);
+                    
+                    r = cr - 1;
                 }
             }
             this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
@@ -763,15 +770,23 @@ float32 GameA::getRowArea(uint row){
     return total_area;
 }
 
-void GameA::clearRow(uint row){ //TODO: find a way to combine rows to optimize
+void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to optimize
     
-    row_sides_struct sides(row, this->side_length);
+    float32 top_y = -FLT_MAX;
+    float32 bottom_y = -top_y;
     
-    if (row == this->tetris_rows - 1){
-        sides.top *= 2; //no pieces should leave fragments on the ground, so clear the area far below that
+    for (uint i = 0; i < rows.size(); ++i){
+        row_sides_struct sides(rows.at(i), this->side_length);
+        
+        if (rows.at(i) == this->tetris_rows - 1){
+            sides.top *= 2; //no pieces should leave fragments on the ground, so clear the area far below that
+        }
+        
+        if (sides.bottom < bottom_y) bottom_y = sides.bottom;
+        if (sides.top > top_y) top_y = sides.top;
     }
-    
-    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top, sides.bottom);
+        
+    vector<rayCastComplete> ray_casts = this->getRayCasts(top_y, bottom_y);
     
     //make list of bodies affected by this row clear
     //for top and bottom lines:
@@ -788,7 +803,7 @@ void GameA::clearRow(uint row){ //TODO: find a way to combine rows to optimize
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
             
             float32 v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
-            if (v0_worldpoint_y >= sides.bottom && v0_worldpoint_y <= sides.top){
+            if (v0_worldpoint_y >= bottom_y && v0_worldpoint_y <= top_y){
                 affected = true;
                 break;
             }
@@ -835,10 +850,10 @@ void GameA::clearRow(uint row){ //TODO: find a way to combine rows to optimize
                     bool outside;
                     switch(side){
                     case TOP:
-                        outside = p.y > sides.top;
+                        outside = p.y > top_y;
                         break;
                     case BOTTOM:
-                        outside = p.y < sides.bottom;
+                        outside = p.y < bottom_y;
                         break;
                     default:
                         outside = false;
