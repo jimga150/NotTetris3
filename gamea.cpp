@@ -40,7 +40,7 @@ void GameA::destroyWorld(){
 }
 
 
-void GameA::init(){ //TODO: make this fully reinitializable
+void GameA::init(){
     
     this->rows_to_clear.clear();
     for (uint i = 0; i < this->tetris_rows; i++){
