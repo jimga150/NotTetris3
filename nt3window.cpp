@@ -15,6 +15,9 @@ NT3Window::NT3Window() //TODO: sounds
     this->oldHue = hue;
     fullscreen = DEFAULT_FULLSCREEN;
     
+    QScreen* screen = this->screen();
+    framerate = 1.0/screen->refreshRate();
+    
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
         case LOGO:
@@ -64,8 +67,6 @@ NT3Window::~NT3Window(){
 
 void NT3Window::setupWindow(){
     QScreen* screen = this->screen();
-    
-    framerate = 1.0/screen->refreshRate();
     
     QRect screenRect = screen->availableGeometry();
     int screen_width = screenRect.width();
