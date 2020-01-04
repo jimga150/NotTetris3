@@ -22,6 +22,11 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->rotateStateTable.insert(Qt::Key_X, ROTATECW);
     this->lateralMovementStateTable.insert(Qt::Key_Left, MOVELEFT);
     this->lateralMovementStateTable.insert(Qt::Key_Right, MOVERIGHT);
+    
+    if (this->frame_review){
+        fprintf(stderr, "Warning: frame review turned on. aAl render times will be more than doubled!\n");
+        fflush(stderr);
+    }
 }
 
 GameA::~GameA()
@@ -792,7 +797,7 @@ void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to 
         if (sides.bottom < bottom_y) bottom_y = sides.bottom;
         if (sides.top > top_y) top_y = sides.top;
     }
-        
+    
     vector<rayCastComplete> ray_casts = this->getRayCasts(top_y, bottom_y);
     
     //make list of bodies affected by this row clear
