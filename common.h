@@ -21,6 +21,12 @@
 #define DEFAULT_HUE (0.08)
 #define DEFAULT_FULLSCREEN false
 
+#define MAX_VOLUME (100)
+#define MAX_HUE (1.0)
+
+#define MIN_VOLUME (0.0)
+#define MIN_HUE (0.0)
+
 //global options
 extern int volume; //{0->100}
 extern double hue; //{0->1}, 0.08 is default

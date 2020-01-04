@@ -93,11 +93,11 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         switch(this->options.current_opt){
         case VOLUME:
             volume -= this->volume_increment;
-            if (volume < this->volume_increment) volume = 0;
+            if (volume < this->volume_increment) volume = MIN_VOLUME;
             break;
         case COLOR:
             hue -= this->hue_time_factor*framerate;
-            if (hue < 0) hue = 0;
+            if (hue < MIN_HUE) hue = MIN_HUE;
             break;
         case SCALE:
             //TODO: we really just don't need this, but how to cleanly get it out of the UI?
@@ -114,11 +114,11 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
         switch(this->options.current_opt){
         case VOLUME:
             volume += this->volume_increment;
-            if (volume > 1) volume = 1;
+            if (volume > MAX_VOLUME) volume = MAX_VOLUME;
             break;
         case COLOR:
             hue += this->hue_time_factor*framerate;
-            if (hue > 1) hue = 1;
+            if (hue > MAX_HUE) hue = MAX_HUE;
             break;
         case SCALE:
             
