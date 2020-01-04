@@ -52,15 +52,6 @@
         <file>graphics/title.png</file>
         <file>graphics/volumeslider.png</file>
         <file>graphics/pieces/0.png</file>
-        <file>sounds/music/highscoremusic.ogg</file>
-        <file>sounds/music/musicoptions.ogg</file>
-        <file>sounds/music/resultsmusic.ogg</file>
-        <file>sounds/music/rocket1to3.ogg</file>
-        <file>sounds/music/rocket4.ogg</file>
-        <file>sounds/music/themeA.ogg</file>
-        <file>sounds/music/themeB.ogg</file>
-        <file>sounds/music/themeC.ogg</file>
-        <file>sounds/music/titlemusic.ogg</file>
         <file>sounds/effects/4lineclear.wav</file>
         <file>sounds/effects/blockfall.wav</file>
         <file>sounds/effects/boot.wav</file>
@@ -73,5 +64,14 @@
         <file>sounds/effects/newlevel.wav</file>
         <file>sounds/effects/pause.wav</file>
         <file>sounds/effects/turn.wav</file>
+        <file>sounds/music/highscoremusic.mp3</file>
+        <file>sounds/music/musicoptions.mp3</file>
+        <file>sounds/music/resultsmusic.mp3</file>
+        <file>sounds/music/rocket1to3.mp3</file>
+        <file>sounds/music/rocket4.mp3</file>
+        <file>sounds/music/themeA.mp3</file>
+        <file>sounds/music/themeB.mp3</file>
+        <file>sounds/music/themeC.mp3</file>
+        <file>sounds/music/titlemusic.mp3</file>
     </qresource>
 </RCC>
