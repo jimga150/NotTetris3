@@ -36,9 +36,9 @@ public:
     double oldHue;
     
 public slots:
-    void setExpectedFrameTime(int eft);
-    
     void stateEnd(NT3_state_enum next);
+    
+    void restartMusic(QMediaPlayer::State newstate);
     
 protected:
     void resizeEvent(QResizeEvent* event) override;

@@ -91,18 +91,26 @@ void NT3Window::setupWindow(){
 void NT3Window::stateEnd(NT3_state_enum next){
     Q_ASSERT(next < num_nt3_states);
     
+    disconnect(&this->screens[this->NT3state]->music, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
     this->screens[this->NT3state]->music.stop();
     
     this->NT3state = next;
     
     this->screens[next]->music.setVolume(volume);
     this->screens[next]->music.play();
+    connect(&this->screens[next]->music, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
     
     this->screens[next]->init();
     
     //forces the new screen object to consider the current window size
     QResizeEvent ev(this->size(), this->size()/2);
     this->resizeEvent(&ev);
+}
+
+void NT3Window::restartMusic(QMediaPlayer::State newstate){
+    if (newstate == QMediaPlayer::StoppedState){
+        this->screens[this->NT3state]->music.play();
+    }
 }
 
 void NT3Window::render(QPainter &painter){
