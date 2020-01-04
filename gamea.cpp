@@ -95,6 +95,10 @@ void GameA::freeUserDataOn(b2Body* b){
 void GameA::calcScaleFactors(){
     this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
+    
+    /*double var = this->physics_scale*this->tetris_field.x();
+    printf("%f\n", var - static_cast<int>(var));
+    fflush(stdout);*/
 }
 
 void GameA::render(QPainter& painter)

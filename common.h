@@ -10,7 +10,11 @@
 
 #define RAD_TO_DEG (57.295779513082321)
 
-#define TO_QRECT(QRF, SCALE) QRect(static_cast<int>(QRF.x()*SCALE), static_cast<int>(QRF.y()*SCALE), static_cast<int>(QRF.width()*SCALE), static_cast<int>(QRF.height()*SCALE))
+#define TO_QRECT(QRF, SCALE) QRect( \
+    static_cast<int>(QRF.x()*SCALE), \
+    static_cast<int>(QRF.y()*SCALE), \
+    static_cast<int>(QRF.width()*SCALE), \
+    static_cast<int>(QRF.height()*SCALE))
 
 
 #define DEFAULT_VOLUME (1.0)

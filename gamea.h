@@ -321,7 +321,7 @@ public:
     
     const int max_screen_height_px = 2160; //4k
     const double piece_image_scale = max_screen_height_px*1.0/tetris_field.height(); //scale used to make tetris piece cutting smooth
-    
+        
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
     QPoint score_display_right = QPoint(151, 24);
