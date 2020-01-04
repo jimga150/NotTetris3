@@ -17,7 +17,7 @@
     static_cast<int>(QRF.height()*SCALE))
 
 
-#define DEFAULT_VOLUME (1.0)
+#define DEFAULT_VOLUME (10)
 #define DEFAULT_HUE (0.08)
 #define DEFAULT_FULLSCREEN false
 

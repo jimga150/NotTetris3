@@ -2,7 +2,7 @@
 
 double framerate;
 
-double volume;
+int volume;
 double hue;
 bool fullscreen;
 
