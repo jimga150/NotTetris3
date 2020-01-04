@@ -29,7 +29,7 @@ public:
     void keyPressEvent(QKeyEvent* ev) override;    
     
     
-    const double volume_increment = 0.1;
+    const int volume_increment = 10;
     
     const double hue_time_factor = 0.5; //don't ask me why this is.
     

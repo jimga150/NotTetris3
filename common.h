@@ -22,7 +22,7 @@
 #define DEFAULT_FULLSCREEN false
 
 //global options
-extern double volume; //{0->1}
+extern int volume; //{0->100}
 extern double hue; //{0->1}, 0.08 is default
 extern bool fullscreen;
 
