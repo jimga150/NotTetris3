@@ -106,7 +106,7 @@ void NT3Window::render(QPainter &painter){
     this->screens[this->NT3state]->render(painter);
 #ifdef TIME_FRAME_COMPS
     if (this->NT3state == GAMEA){
-        NT3Game* game = static_cast<NT3Game*>(this->screens[GAMEA]);
+        GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
         if (game->debug_framerate){
             painter.setPen(game->debug_line_color);
             painter.drawText(QPointF(3*game->ui_scale, 12*game->ui_scale), QString::number(this->frame_times.render_time));
