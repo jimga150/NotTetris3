@@ -1084,11 +1084,19 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
         b2AABB aabb;
         s->ComputeAABB(&aabb, t, 0);
         
+        //calculate start and end pixel indices based on the AABB calculated, using the rect offset and scale
         int startx = qFloor(static_cast<double>((aabb.lowerBound.x - offset.x)/scale));
         int endx = qCeil(static_cast<double>((aabb.upperBound.x - offset.x)/scale));
         
         int starty = qFloor(static_cast<double>((aabb.lowerBound.y - offset.y)/scale));
         int endy = qCeil(static_cast<double>((aabb.upperBound.y - offset.y)/scale));
+        
+        //make sure nothing runs out of image bounds
+        startx = qMax(0, startx);
+        endx = qMin(width - 1, endx);
+        
+        starty = qMax(0, starty);
+        endy = qMin(height - 1, endy);
         
         for (int y = starty; y < endy; y++){
             for (int x = startx; x < endx; x++){
