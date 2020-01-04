@@ -51,27 +51,27 @@
         <file>graphics/stabyourselflogo.png</file>
         <file>graphics/title.png</file>
         <file>graphics/volumeslider.png</file>
-        <file>sounds/4lineclear.ogg</file>
-        <file>sounds/blockfall.ogg</file>
-        <file>sounds/boot.ogg</file>
-        <file>sounds/gameover1.ogg</file>
-        <file>sounds/gameover2.ogg</file>
-        <file>sounds/highscorebeep.ogg</file>
-        <file>sounds/highscoreintro.ogg</file>
-        <file>sounds/highscoremusic.ogg</file>
-        <file>sounds/lineclear.ogg</file>
-        <file>sounds/move.ogg</file>
-        <file>sounds/musicoptions.ogg</file>
-        <file>sounds/newlevel.ogg</file>
-        <file>sounds/pause.ogg</file>
-        <file>sounds/resultsmusic.ogg</file>
-        <file>sounds/rocket1to3.ogg</file>
-        <file>sounds/rocket4.ogg</file>
-        <file>sounds/themeA.ogg</file>
-        <file>sounds/themeB.ogg</file>
-        <file>sounds/themeC.ogg</file>
-        <file>sounds/titlemusic.ogg</file>
-        <file>sounds/turn.ogg</file>
         <file>graphics/pieces/0.png</file>
+        <file>sounds/effects/4lineclear.ogg</file>
+        <file>sounds/effects/blockfall.ogg</file>
+        <file>sounds/effects/boot.ogg</file>
+        <file>sounds/effects/gameover1.ogg</file>
+        <file>sounds/effects/gameover2.ogg</file>
+        <file>sounds/effects/highscorebeep.ogg</file>
+        <file>sounds/effects/highscoreintro.ogg</file>
+        <file>sounds/effects/lineclear.ogg</file>
+        <file>sounds/effects/move.ogg</file>
+        <file>sounds/effects/newlevel.ogg</file>
+        <file>sounds/effects/pause.ogg</file>
+        <file>sounds/effects/turn.ogg</file>
+        <file>sounds/music/highscoremusic.ogg</file>
+        <file>sounds/music/musicoptions.ogg</file>
+        <file>sounds/music/resultsmusic.ogg</file>
+        <file>sounds/music/rocket1to3.ogg</file>
+        <file>sounds/music/rocket4.ogg</file>
+        <file>sounds/music/themeA.ogg</file>
+        <file>sounds/music/themeB.ogg</file>
+        <file>sounds/music/themeC.ogg</file>
+        <file>sounds/music/titlemusic.ogg</file>
     </qresource>
 </RCC>
