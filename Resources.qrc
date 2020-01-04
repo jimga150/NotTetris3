@@ -52,18 +52,6 @@
         <file>graphics/title.png</file>
         <file>graphics/volumeslider.png</file>
         <file>graphics/pieces/0.png</file>
-        <file>sounds/effects/4lineclear.ogg</file>
-        <file>sounds/effects/blockfall.ogg</file>
-        <file>sounds/effects/boot.ogg</file>
-        <file>sounds/effects/gameover1.ogg</file>
-        <file>sounds/effects/gameover2.ogg</file>
-        <file>sounds/effects/highscorebeep.ogg</file>
-        <file>sounds/effects/highscoreintro.ogg</file>
-        <file>sounds/effects/lineclear.ogg</file>
-        <file>sounds/effects/move.ogg</file>
-        <file>sounds/effects/newlevel.ogg</file>
-        <file>sounds/effects/pause.ogg</file>
-        <file>sounds/effects/turn.ogg</file>
         <file>sounds/music/highscoremusic.ogg</file>
         <file>sounds/music/musicoptions.ogg</file>
         <file>sounds/music/resultsmusic.ogg</file>
@@ -73,5 +61,17 @@
         <file>sounds/music/themeB.ogg</file>
         <file>sounds/music/themeC.ogg</file>
         <file>sounds/music/titlemusic.ogg</file>
+        <file>sounds/effects/4lineclear.wav</file>
+        <file>sounds/effects/blockfall.wav</file>
+        <file>sounds/effects/boot.wav</file>
+        <file>sounds/effects/gameover1.wav</file>
+        <file>sounds/effects/gameover2.wav</file>
+        <file>sounds/effects/highscorebeep.wav</file>
+        <file>sounds/effects/highscoreintro.wav</file>
+        <file>sounds/effects/lineclear.wav</file>
+        <file>sounds/effects/move.wav</file>
+        <file>sounds/effects/newlevel.wav</file>
+        <file>sounds/effects/pause.wav</file>
+        <file>sounds/effects/turn.wav</file>
     </qresource>
 </RCC>
