@@ -786,7 +786,7 @@ float32 GameA::getRowArea(uint row){
     return total_area;
 }
 
-void GameA::clearRows(vector<uint> rows){ //TODO: find a way to combine rows to optimize
+void GameA::clearRows(vector<uint> rows){
     
     float32 top_y = -FLT_MAX;
     float32 bottom_y = -top_y;

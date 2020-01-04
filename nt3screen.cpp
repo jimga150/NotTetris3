@@ -3,6 +3,7 @@
 NT3Screen::NT3Screen(QObject *parent) : QObject(parent)
 {
     //one-time initialization per screen
+    //set music file location here
 }
 
 NT3Screen::~NT3Screen(){

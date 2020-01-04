@@ -4,6 +4,7 @@
 #include <QResizeEvent>
 #include <QPainter>
 #include <QScreen>
+#include <QMediaPlayer>
 
 #include "common.h"
 #include "imagefont.h"
@@ -39,6 +40,9 @@ public:
     QPixmap colorize(QPixmap pixmap);
     
     
+    QMediaPlayer music;
+    QUrl music_path;
+        
     const double select_blink_rate = 0.29; //seconds
     double blink_timer = 0;
     bool blink_on;

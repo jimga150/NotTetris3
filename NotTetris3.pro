@@ -1,4 +1,4 @@
-QT       += core gui concurrent
+QT       += core gui concurrent multimedia
 
 CONFIG += c++11
 

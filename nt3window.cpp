@@ -49,6 +49,8 @@ NT3Window::NT3Window() //TODO: sounds
             this->close();
             break;
         }
+        this->screens[s]->music.setMedia(this->screens[s]->music_path);        
+        
         connect(this->screens[s], &NT3Screen::close, this, &QWindow::close);
         connect(this->screens[s], &NT3Screen::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
         connect(this->screens[s], &NT3Screen::stateEnd, this, &NT3Window::stateEnd);
@@ -56,7 +58,7 @@ NT3Window::NT3Window() //TODO: sounds
     
     this->setupWindow();
     
-    this->screens[this->NT3state]->init();
+    this->stateEnd(this->NT3state);
 }
 
 NT3Window::~NT3Window(){
@@ -88,7 +90,14 @@ void NT3Window::setupWindow(){
 
 void NT3Window::stateEnd(NT3_state_enum next){
     Q_ASSERT(next < num_nt3_states);
+    
+    this->screens[this->NT3state]->music.stop();
+    
     this->NT3state = next;
+    
+    this->screens[next]->music.setVolume(volume);
+    this->screens[next]->music.play();
+    
     this->screens[next]->init();
     
     //forces the new screen object to consider the current window size
