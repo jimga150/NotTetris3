@@ -1,7 +1,5 @@
 QT       += core gui concurrent
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
 CONFIG += c++11
 
 macx:ICON = NotTetris3.icns
