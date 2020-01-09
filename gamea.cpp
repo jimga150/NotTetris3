@@ -715,9 +715,17 @@ void GameA::doGameStep(){
             this->current_score += this->score_to_add;
             
             this->score_add_disp_offset = 0;
+            
+            if (num_lines_removed > 3){
+                this->sfx[FOUR_LINE_CLEAR].play();
+            } else {
+                this->sfx[LINE_CLEAR].play();
+            }
+            
         } else {
             //not clearing any lines, so carry on
             this->makeNewNextPiece();
+            this->sfx[BLOCK_FALL].play();
         }
     }
     
