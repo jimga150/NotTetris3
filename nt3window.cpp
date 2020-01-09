@@ -121,8 +121,7 @@ void NT3Window::stateEnd(NT3_state_enum next){
 }
 
 void NT3Window::restartMusic(QMediaPlayer::State newstate){
-    Q_UNUSED(newstate)
-    if (this->music_player.mediaStatus() == QMediaPlayer::LoadedMedia){ //TODO: confirm this works
+    if (newstate == QMediaPlayer::StoppedState){
         this->music_player.play();
     }
 }
