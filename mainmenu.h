@@ -23,11 +23,13 @@ public:
         
     void render(QPainter& painter) override;
     
+    void colorizeResources() override;
+    
     void keyPressEvent(QKeyEvent* ev) override;
     
     
     const QString background_path = ":/resources/graphics/title.png";
-    const QPixmap background = QPixmap(background_path);
+    QPixmap background = QPixmap(background_path);
     
     QPoint selectionPoints[num_mm_selections];
     

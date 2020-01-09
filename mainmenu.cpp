@@ -31,6 +31,10 @@ void MainMenu::render(QPainter& painter){
             LEFT_ALIGN, ">", this->ui_scale);
 }
 
+void MainMenu::colorizeResources(){
+    this->background = this->colorize(this->background);
+}
+
 void MainMenu::keyPressEvent(QKeyEvent* ev){
     mm_selection_enum last_option = static_cast<mm_selection_enum>(num_mm_selections - 1);
     

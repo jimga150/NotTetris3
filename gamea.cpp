@@ -1609,7 +1609,7 @@ void GameA::initializeTetrisPieceImages(){
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
-        QPixmap orig_pixmap = QPixmap(path);
+        QPixmap orig_pixmap = this->colorize(QPixmap(path));
         orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->piece_image_scale);
         
         this->piece_images.push_back(this->enableAlphaChannel(orig_pixmap));
