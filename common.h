@@ -44,6 +44,7 @@ enum NT3_state_enum{
     GLOBAL_OPTIONS,
     GAMEA,
     GAMEB,
+    GAME_LOST,
     
     num_nt3_states
 };
