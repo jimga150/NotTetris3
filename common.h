@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include <QtMath>
+#include <QString>
 
 //constants
 #define MILLIS_PER_SECOND (1000)
@@ -46,6 +47,17 @@ enum NT3_state_enum{
     
     num_nt3_states
 };
+
+enum music_type_enum {
+    ATYPE = 0,
+    BTYPE,
+    CTYPE,
+    OFF,
+    
+    num_music_types
+};
+extern music_type_enum music_type;
+extern QString* music_urls;
 
 struct optionTracker{
     uint default_opt;

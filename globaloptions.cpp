@@ -27,6 +27,7 @@ GlobalOptions::GlobalOptions(QObject* parent) : NT3Screen(parent)
 void GlobalOptions::init(){
     this->resetBlinkTimer();
     this->options.reset();
+    emit this->changeMusic(QUrl("qrc:/resources/sounds/music/musicoptions.mp3"));
 }
 
 void GlobalOptions::calcScaleFactors(){

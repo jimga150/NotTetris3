@@ -1,5 +1,7 @@
 #include "menu1p.h"
 
+music_type_enum music_type;
+
 Menu1P::Menu1P(QObject *parent) : NT3Screen(parent)
 {
     for (uint og = 0; og < num_option_groups; ++og){
@@ -55,11 +57,8 @@ void Menu1P::init(){
     for (uint og = 0; og < num_option_groups; ++og){
         this->option_groups[og].reset();
     }
-}
-
-void Menu1P::calcScaleFactors(){
-    
-}    
+    emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
+} 
 
 void Menu1P::render(QPainter& painter){
     painter.drawPixmap(this->scaled_ui_field, this->background);
@@ -144,6 +143,7 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         emit this->stateEnd(MAINMENU);
         break;
     case Qt::Key_Return:
+        music_type = static_cast<music_type_enum>(this->option_groups[MUSIC_TYPE].current_opt);
         switch (this->option_groups[GAME_TYPE].current_opt) {
         case NORMAL:
             emit this->stateEnd(GAMEA);
@@ -156,6 +156,10 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
             break;
         }
         break;
+    }
+    
+    if (this->option_groups[MUSIC_TYPE].current_opt != currMT){
+        emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
     }
 }
 

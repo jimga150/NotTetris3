@@ -22,6 +22,7 @@ MainMenu::MainMenu(QObject* parent) : NT3Screen(parent)
 
 void MainMenu::init(){
     this->currentSelection = this->defaultSelection;
+    emit this->changeMusic(QUrl("qrc:/resources/sounds/music/titlemusic.mp3"));    
 }
 
 void MainMenu::render(QPainter& painter){

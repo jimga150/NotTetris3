@@ -40,7 +40,6 @@ public:
     QPixmap colorize(QPixmap pixmap);
     
     
-    QMediaPlayer music;
     QUrl music_path;
         
     const double select_blink_rate = 0.29; //seconds
@@ -73,7 +72,9 @@ signals:
     
     void stateEnd(NT3_state_enum nextState);
         
-    void resize(const QSize size);    
+    void resize(const QSize size);
+    
+    void changeMusic(QUrl new_path);
 };
 
 #endif // NT3SCREEN_H

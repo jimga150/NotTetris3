@@ -17,15 +17,6 @@ enum game_type_enum {
     num_game_types
 };
 
-enum music_type_enum {
-    ATYPE = 0,
-    BTYPE,
-    CTYPE,
-    OFF,
-    
-    num_music_types
-};
-
 class Menu1P : public NT3Screen
 {
     Q_OBJECT
@@ -34,8 +25,6 @@ public:
     
     void init() override;
     
-    
-    void calcScaleFactors() override;    
     
     void render(QPainter& painter) override;
     

@@ -34,11 +34,16 @@ public:
     QPoint fullscreen_offset;
     
     double oldHue;
+    int oldVolume;
+    
+    QMediaPlayer music_player;
     
 public slots:
     void stateEnd(NT3_state_enum next);
     
     void restartMusic(QMediaPlayer::State newstate);
+    
+    void musicChange(QUrl new_url);
     
 protected:
     void resizeEvent(QResizeEvent* event) override;

@@ -6,14 +6,26 @@ int volume;
 double hue;
 bool fullscreen;
 
+QString* music_urls;
+
 NT3Window::NT3Window() //TODO: sounds
 {   
     this->setTitle("Not Tetris 3");
     
     volume = DEFAULT_VOLUME;
+    this->oldVolume = DEFAULT_VOLUME;
+    
     hue = DEFAULT_HUE;
     this->oldHue = hue;
+    
     fullscreen = DEFAULT_FULLSCREEN;
+    
+    music_urls = new QString[num_music_types]{
+        "qrc:/resources/sounds/music/themeA.mp3",
+        "qrc:/resources/sounds/music/themeB.mp3",
+        "qrc:/resources/sounds/music/themeC.mp3",
+        ""
+    };
     
     QScreen* screen = this->screen();
     framerate = 1.0/screen->refreshRate();
@@ -49,12 +61,15 @@ NT3Window::NT3Window() //TODO: sounds
             this->close();
             break;
         }
-        this->screens[s]->music.setMedia(this->screens[s]->music_path);        
-        
         connect(this->screens[s], &NT3Screen::close, this, &QWindow::close);
         connect(this->screens[s], &NT3Screen::resize, this, QOverload<const QSize&>::of(&QWindow::resize));
         connect(this->screens[s], &NT3Screen::stateEnd, this, &NT3Window::stateEnd);
+        connect(this->screens[s], &NT3Screen::changeMusic, this, &NT3Window::musicChange);
     }
+    
+    this->music_player.setVolume(volume);
+    
+    connect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
     
     this->setupWindow();
     
@@ -64,6 +79,9 @@ NT3Window::NT3Window() //TODO: sounds
 NT3Window::~NT3Window(){
     for (uint s = 0; s < num_nt3_states; ++s){
         delete this->screens[s];
+    }
+    if (music_urls){
+        delete [] music_urls;
     }
 }
 
@@ -91,14 +109,9 @@ void NT3Window::setupWindow(){
 void NT3Window::stateEnd(NT3_state_enum next){
     Q_ASSERT(next < num_nt3_states);
     
-    disconnect(&this->screens[this->NT3state]->music, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
-    this->screens[this->NT3state]->music.stop();
-    
     this->NT3state = next;
     
-    this->screens[next]->music.setVolume(volume);
-    this->screens[next]->music.play();
-    connect(&this->screens[next]->music, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
+    this->music_player.stop();
     
     this->screens[next]->init();
     
@@ -108,9 +121,20 @@ void NT3Window::stateEnd(NT3_state_enum next){
 }
 
 void NT3Window::restartMusic(QMediaPlayer::State newstate){
-    if (newstate == QMediaPlayer::StoppedState){
-        this->screens[this->NT3state]->music.play();
+    Q_UNUSED(newstate)
+    if (this->music_player.mediaStatus() == QMediaPlayer::LoadedMedia){ //TODO: confirm this works
+        this->music_player.play();
     }
+}
+
+void NT3Window::musicChange(QUrl new_url){
+    disconnect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
+    
+    this->music_player.stop();
+    this->music_player.setMedia(new_url);
+    this->music_player.play();
+    
+    connect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
 }
 
 void NT3Window::render(QPainter &painter){
@@ -149,6 +173,11 @@ void NT3Window::doGameStep(){
             this->screens[s]->colorizeResources();
         }
         this->oldHue = hue;
+    }
+    
+    if (this->oldVolume != volume){
+        this->music_player.setVolume(volume);
+        this->oldVolume = volume;
     }
     
     this->screens[this->NT3state]->doGameStep();
