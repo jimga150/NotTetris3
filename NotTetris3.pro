@@ -153,4 +153,5 @@ RESOURCES += \
     Resources.qrc
 
 DISTFILES += \
+    NotTetris3.ico \
     README.md
