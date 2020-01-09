@@ -146,10 +146,10 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         music_type = static_cast<music_type_enum>(this->option_groups[MUSIC_TYPE].current_opt);
         switch (this->option_groups[GAME_TYPE].current_opt) {
         case NORMAL:
-            emit this->stateEnd(GAMEA);
+            emit this->stateEnd(GAMEA, false);
             break;
         case STACK:
-            emit this->stateEnd(GAMEB);
+            emit this->stateEnd(GAMEB, false);
             break;
         default:
             fprintf(stderr, "Undefined game type! %u\n", this->option_groups[GAME_TYPE].current_opt);

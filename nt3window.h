@@ -39,7 +39,7 @@ public:
     QMediaPlayer music_player;
     
 public slots:
-    void stateEnd(NT3_state_enum next);
+    void stateEnd(NT3_state_enum next, bool stopMusic = true);
     
     void restartMusic(QMediaPlayer::State newstate);
     

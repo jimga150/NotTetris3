@@ -93,8 +93,6 @@ void GameA::init(){
     this->makeNewTetrisPiece();
     
     this->makeNewNextPiece();
-    
-    emit this->changeMusic(music_urls[music_type]);
 }
 
 

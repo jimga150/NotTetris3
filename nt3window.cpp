@@ -106,12 +106,12 @@ void NT3Window::setupWindow(){
     }
 }
 
-void NT3Window::stateEnd(NT3_state_enum next){
+void NT3Window::stateEnd(NT3_state_enum next, bool stopMusic){
     Q_ASSERT(next < num_nt3_states);
     
     this->NT3state = next;
     
-    this->music_player.stop();
+    if (stopMusic) this->music_player.stop();
     
     this->screens[next]->init();
     

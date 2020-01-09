@@ -70,7 +70,7 @@ public:
 signals:    
     void close();
     
-    void stateEnd(NT3_state_enum nextState);
+    void stateEnd(NT3_state_enum nextState, bool stopMusic = true);
         
     void resize(const QSize size);
     
