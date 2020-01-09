@@ -1,6 +1,7 @@
 #include <QRandomGenerator>
 #include <QElapsedTimer>
 #include <QtConcurrent>
+#include <QSoundEffect>
 
 #include "Box2D/Box2D.h"
 
@@ -77,6 +78,19 @@ enum line_cut_side_enum{
     TOP,
     
     num_line_cut_sides
+};
+
+enum sound_effect_enum{
+    BLOCK_TURN = 0,
+    BLOCK_MOVE,
+    BLOCK_FALL,
+    LINE_CLEAR,
+    FOUR_LINE_CLEAR,
+    GAME_OVER,
+    PAUSE_SOUND,
+    NEW_LEVEL,
+    
+    num_sound_effects
 };
 
 struct row_sides_struct{
@@ -415,6 +429,8 @@ public:
     QPixmap default_piece_image;
     QRect default_piece_rect;
     tetrisPieceData default_data;
+    
+    QSoundEffect sfx[num_sound_effects];
     
     
     //Line clear stuff
