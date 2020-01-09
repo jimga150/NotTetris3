@@ -28,11 +28,7 @@ void GlobalOptions::init(){
     this->resetBlinkTimer();
     this->options.reset();
     emit this->changeMusic(QUrl("qrc:/resources/sounds/music/musicoptions.mp3"));
-}
-
-void GlobalOptions::calcScaleFactors(){
-    
-}    
+}   
 
 void GlobalOptions::render(QPainter& painter){
     painter.drawPixmap(this->scaled_ui_field, this->background);
@@ -50,7 +46,7 @@ void GlobalOptions::render(QPainter& painter){
     painter.drawPixmap(
                 QRect(
                     QPoint(
-                        this->slider_x + static_cast<int>(this->slider_length*volume), 
+                        this->slider_x + static_cast<int>(this->slider_length*volume*0.01), 
                         this->volume_slider_y
                         )*this->ui_scale, 
                     this->volume_slider.size()*this->ui_scale

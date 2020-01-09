@@ -19,9 +19,7 @@ public:
     explicit GlobalOptions(QObject* parent = nullptr);
     
     void init() override;
-    
-    void calcScaleFactors() override;    
-    
+        
     void render(QPainter& painter) override;
     
     void colorizeResources() override;     
