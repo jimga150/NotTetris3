@@ -20,6 +20,10 @@ MainMenu::MainMenu(QObject* parent) : NT3Screen(parent)
     }
 }
 
+void MainMenu::init(){
+    this->currentSelection = this->defaultSelection;
+}
+
 void MainMenu::render(QPainter& painter){
     painter.drawPixmap(this->scaled_ui_field, this->background);
     this->BOW_font.print(&painter, this->selectionPoints[this->currentSelection]*this->ui_scale, 

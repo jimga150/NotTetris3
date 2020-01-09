@@ -18,6 +18,8 @@ class MainMenu : public NT3Screen
     
 public:
     explicit MainMenu(QObject* parent = nullptr);
+    
+    void init() override;
         
     void render(QPainter& painter) override;
     
@@ -29,7 +31,8 @@ public:
     
     QPoint selectionPoints[num_mm_selections];
     
-    mm_selection_enum currentSelection = P;
+    const mm_selection_enum defaultSelection = P;
+    mm_selection_enum currentSelection = defaultSelection;
 };
 
 #endif // MAINMENU_H
