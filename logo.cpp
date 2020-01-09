@@ -2,10 +2,12 @@
 
 Logo::Logo(QObject *parent) : NT3Screen(parent)
 {
-    
+    this->ba_ding.setSource(QUrl("qrc:/resources/sounds/effects/boot.wav"));
 }
 
 void Logo::init(){
+    this->bd_played = false;
+    this->ba_ding.setVolume(volume*1.0/100.0);
     this->logo_offset_y = -logo_rect_final.y() - logo_rect_final.height();
     this->logo_offset_delta = -logo_offset_y/logo_slide_duration; //UI pixels/sec
 }
@@ -39,5 +41,8 @@ void Logo::doGameStep(){
     this->time_passed += framerate;
     if (this->time_passed > this->logo_slide_duration + this->logo_delay){
         emit this->stateEnd(CREDITS);
+    } else if (this->time_passed > this->logo_slide_duration && !this->bd_played){
+        this->ba_ding.play();
+        this->bd_played = true;
     }
 }   

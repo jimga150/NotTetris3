@@ -3,6 +3,8 @@
 
 #include "nt3screen.h"
 
+#include <QSoundEffect>
+
 class Logo : public NT3Screen
 {
     Q_OBJECT
@@ -33,6 +35,9 @@ public:
     QRect scaled_logo_rect_final;
     double logo_offset_y;
     double logo_offset_delta; //UI pixels/sec
+    
+    QSoundEffect ba_ding;
+    bool bd_played = false;
 };
 
 #endif // LOGO_H
