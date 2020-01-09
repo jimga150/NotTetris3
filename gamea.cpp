@@ -367,9 +367,10 @@ void GameA::keyPressEvent(QKeyEvent* ev){
         }
     }
     
-    if (this->lateralMovementStateTable.contains(key)){
+    if (this->lateralMovementStateTable.contains(key)){        
         lateral_movement_state_enum requested_direction = this->lateralMovementStateTable.value(key);
         lateral_movement_state_enum other_direction = requested_direction == MOVERIGHT ? MOVELEFT : MOVERIGHT;
+        lateral_movement_state_enum previous_state = this->lateralMovementState;
         
         switch(this->lateralMovementState){
         case NO_LATERAL_MOVEMENT:
@@ -388,9 +389,15 @@ void GameA::keyPressEvent(QKeyEvent* ev){
             fprintf(stderr, "Invalid Lateral Movement state\n");
             break;
         }
+        
+        if (previous_state != this->lateralMovementState){
+            this->sfx[BLOCK_MOVE].play();
+        }
+        
     } else if (this->rotateStateTable.contains(key)){
         rotate_state_enum requested_rotation = this->rotateStateTable.value(key);
         rotate_state_enum other_rotation = requested_rotation == ROTATECW ? ROTATECCW : ROTATECW;
+        rotate_state_enum previous_state = this->rotateState;
         
         switch(this->rotateState){
         case NO_ROTATION:
@@ -409,6 +416,11 @@ void GameA::keyPressEvent(QKeyEvent* ev){
             fprintf(stderr, "Invalid Rotation state\n");
             break;
         }
+        
+        if (previous_state != this->rotateState){
+            this->sfx[BLOCK_TURN].play();
+        }
+        
     } else if (key == this->accelDownKey){
         this->accelDownState = true;
     } else if (this->frame_review && key == this->freeze_key){
