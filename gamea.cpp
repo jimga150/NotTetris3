@@ -581,73 +581,84 @@ void GameA::doGameStep(){
         this->currentPiece->SetGravityScale(1);
         
         if (this->currentPiece->GetWorldCenter().y < 0){
+            
             printf("Game lost!\n");
-            emit this->close();
-            return;
+            this->setGameState(flush_blocks);
+            
+            this->world->DestroyBody(this->walls[GROUND]);
         }
         
-        //start with making the new tetris piece and make the new next piece 
-        //only if we're not clearing lines (found below)
-        this->makeNewTetrisPiece();
-    }
-    
-    float32 inertia = this->currentPiece->GetInertia();
-    
-    switch(this->rotateState){
-    case NO_ROTATION:
-    case BOTH_ROTATIONS:
-        //do nothing
-        //printf("Dont rotate\n");
-        break;
-    case ROTATECW:
-        //printf("Rotate CW\n");
-        if (this->currentPiece->GetAngularVelocity() < this->wmax){
-            this->currentPiece->ApplyTorque(this->angular_accel*inertia, true);
+        if (this->game_state != flush_blocks){
+            //start with making the new tetris piece and make the new next piece 
+            //only if we're not clearing lines (found below)
+            this->makeNewTetrisPiece();
         }
-        break;
-    case ROTATECCW:
-        //printf("Rotate CCW\n");
-        if (this->currentPiece->GetAngularVelocity() > -this->wmax){
-            this->currentPiece->ApplyTorque(-this->angular_accel*inertia, true);
+    }
+    
+    if (this->game_state != flush_blocks){
+        
+        float32 inertia = this->currentPiece->GetInertia();
+        
+        switch(this->rotateState){
+        case NO_ROTATION:
+        case BOTH_ROTATIONS:
+            //do nothing
+            //printf("Dont rotate\n");
+            break;
+        case ROTATECW:
+            //printf("Rotate CW\n");
+            if (this->currentPiece->GetAngularVelocity() < this->wmax){
+                this->currentPiece->ApplyTorque(this->angular_accel*inertia, true);
+            }
+            break;
+        case ROTATECCW:
+            //printf("Rotate CCW\n");
+            if (this->currentPiece->GetAngularVelocity() > -this->wmax){
+                this->currentPiece->ApplyTorque(-this->angular_accel*inertia, true);
+            }
+            break;
+        default:
+            fprintf(stderr, "Invalid Rotation state\n");
+            break;
         }
-        break;
-    default:
-        fprintf(stderr, "Invalid Rotation state\n");
-        break;
-    }
-    
-    float32 mass = this->currentPiece->GetMass();
-    b2Vec2 linear_force_vect = b2Vec2(0, 0);
-    
-    switch(this->lateralMovementState){
-    case NO_LATERAL_MOVEMENT:
-    case BOTH_DIRECTIONS:
-        //do nothing
-        break;
-    case MOVELEFT:
-        linear_force_vect.x = -this->lateral_accel*mass;
-        break;
-    case MOVERIGHT:
-        linear_force_vect.x = this->lateral_accel*mass;
-        break;
-    default:
-        fprintf(stderr, "Invalid Lateral Movement state\n");
-        break;
-    }
-    
-    float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
-    
-    if (!this->accelDownState && qAbs(y_velocity - this->downward_velocity_regular) <= 1){
-        linear_force_vect.y = 0;
-        this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, this->downward_velocity_regular));
-    } else if (this->accelDownState || y_velocity < this->downward_velocity_regular){
-        //printf("forcing downwards\n");
-        linear_force_vect.y = this->downward_accel*mass;
+        
+        float32 mass = this->currentPiece->GetMass();
+        b2Vec2 linear_force_vect = b2Vec2(0, 0);
+        
+        switch(this->lateralMovementState){
+        case NO_LATERAL_MOVEMENT:
+        case BOTH_DIRECTIONS:
+            //do nothing
+            break;
+        case MOVELEFT:
+            linear_force_vect.x = -this->lateral_accel*mass;
+            break;
+        case MOVERIGHT:
+            linear_force_vect.x = this->lateral_accel*mass;
+            break;
+        default:
+            fprintf(stderr, "Invalid Lateral Movement state\n");
+            break;
+        }
+        
+        float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
+        
+        if (!this->accelDownState && qAbs(y_velocity - this->downward_velocity_regular) <= 1){
+            linear_force_vect.y = 0;
+            this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, this->downward_velocity_regular));
+        } else if (this->accelDownState || y_velocity < this->downward_velocity_regular){
+            //printf("forcing downwards\n");
+            linear_force_vect.y = this->downward_accel*mass;
+        } else {
+            //printf("slowing down...\n");
+            linear_force_vect.y = -this->upward_correcting_accel*mass;
+        }
+        this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     } else {
-        //printf("slowing down...\n");
-        linear_force_vect.y = -this->upward_correcting_accel*mass;
+        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field.height()){
+            emit this->stateEnd(GAME_LOST);
+        }
     }
-    this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     
     if (this->last_state == row_clear_blinking && this->game_state == gameA){
         this->init_BDC();
@@ -667,7 +678,7 @@ void GameA::doGameStep(){
     timer.restart();
 #endif
     
-    if (touchdown){
+    if (touchdown && this->game_state != flush_blocks){
         
         float32 average_area = 0;
         int num_lines_removed = 0;

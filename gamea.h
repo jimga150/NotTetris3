@@ -17,6 +17,7 @@ using namespace std;
 enum gamea_state_enum{
     gameA = 0,
     row_clear_blinking,
+    flush_blocks,
     
     num_gamea_states
 };
