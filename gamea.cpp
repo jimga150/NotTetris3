@@ -30,7 +30,7 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->sfx[LINE_CLEAR].setSource(QUrl("qrc:/resources/sounds/effects/lineclear.wav"));
     this->sfx[FOUR_LINE_CLEAR].setSource(QUrl("qrc:/resources/sounds/effects/4lineclear.wav"));
     
-    this->sfx[GAME_OVER].setSource(QUrl("qrc:/resources/sounds/effects/gameover1.wav"));
+    this->sfx[GAME_OVER_SOUND].setSource(QUrl("qrc:/resources/sounds/effects/gameover1.wav"));
     this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav"));
     
     if (this->frame_review){
@@ -353,7 +353,7 @@ void GameA::drawScore(QPainter* painter){
 void GameA::keyPressEvent(QKeyEvent* ev){
     //printf("Key pressed: %s\n", ev->text().toUtf8().constData());
     //fflush(stdout);
-        
+    
     int key = ev->key();
     
     if (this->frame_review && this->freeze_frame){

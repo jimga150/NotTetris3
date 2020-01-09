@@ -86,7 +86,7 @@ enum sound_effect_enum{
     BLOCK_FALL,
     LINE_CLEAR,
     FOUR_LINE_CLEAR,
-    GAME_OVER,
+    GAME_OVER_SOUND,
     PAUSE_SOUND,
     NEW_LEVEL,
     
