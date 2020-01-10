@@ -154,4 +154,5 @@ RESOURCES += \
 
 DISTFILES += \
     NotTetris3.ico \
+    NotTetris3.icns \
     README.md
