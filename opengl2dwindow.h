@@ -60,6 +60,9 @@
 
 #include "common.h"
 
+#define TIME_FRAMES 1
+#define TIME_FRAME_COMPS 1
+
 #if defined(TIME_FRAMES) || defined(TIME_FRAME_COMPS)
 #include <QElapsedTimer>
 #endif
