@@ -9,6 +9,7 @@
 #include "nt3contactlistener.h"
 
 //#define TIME_GAME_FRAME 1
+#define TIME_RENDER_STEPS 1
 
 #define NUM_FRAMES_TO_SAVE 20
 

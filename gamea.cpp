@@ -134,9 +134,24 @@ void GameA::render(QPainter& painter)
         sf_painter.end();
     }
     
+#ifdef TIME_RENDER_STEPS
+    QElapsedTimer timer;
+    timer.start();
+#endif
+    
     painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
     
+#ifdef TIME_RENDER_STEPS
+    printf("BG: %lld ms \t", timer.elapsed());
+    timer.restart();
+#endif
+    
     this->drawScore(&painter);
+    
+#ifdef TIME_RENDER_STEPS
+    printf("Score: %lld ms \t", timer.elapsed());
+    timer.restart();
+#endif
     
     painter.setPen(Qt::SolidLine);
     painter.setPen(this->debug_line_color);
@@ -152,6 +167,11 @@ void GameA::render(QPainter& painter)
             this->drawBodyTo(&painter, b);
         }
     }
+    
+#ifdef TIME_RENDER_STEPS
+    printf("Bodies: %lld ms \t", timer.elapsed());
+    timer.restart();
+#endif
     
     /*painter.drawEllipse(this->next_piece_display_center*this->ui_scale, 3, 3);
     b2Vec2 npc = this->next_piece_for_display->GetWorldCenter();
@@ -179,6 +199,11 @@ void GameA::render(QPainter& painter)
         painter.drawRect(QRectF(0, top, width, height));
     }
     
+#ifdef TIME_RENDER_STEPS
+    printf("Row Densities: %lld ms \t", timer.elapsed());
+    timer.restart();
+#endif
+    
     if (this->game_state == row_clear_blinking){
         
         if (this->row_blink_on){
@@ -201,6 +226,10 @@ void GameA::render(QPainter& painter)
             }
         }
     }
+    
+#ifdef TIME_RENDER_STEPS
+    printf("Row blinks: %lld ms\n", timer.elapsed());
+#endif
 }
 
 void GameA::colorizeResources(){
