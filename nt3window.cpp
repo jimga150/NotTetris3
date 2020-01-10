@@ -152,8 +152,8 @@ void NT3Window::render(QPainter &painter){
         GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
         if (game->debug_framerate){
             painter.setPen(game->debug_line_color);
-            painter.drawText(QPointF(3*game->ui_scale, 12*game->ui_scale), QString::number(this->frame_times.render_time));
-            painter.drawText(QPointF(3*game->ui_scale, 14*game->ui_scale), QString::number(this->frame_times.game_frame_time));
+            painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R: " + QString::number(this->frame_times.render_time));
+            painter.drawText(QPointF(game->ui_scale, 14*game->ui_scale), "F: " + QString::number(this->frame_times.game_frame_time));
         }
     }
 #endif
