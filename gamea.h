@@ -1,3 +1,6 @@
+#ifndef GAMEA_H
+#define GAMEA_H
+
 #include <QRandomGenerator>
 #include <QElapsedTimer>
 #include <QtConcurrent>
@@ -459,3 +462,4 @@ public:
     int last_frame = 0;
 };
 
+#endif
