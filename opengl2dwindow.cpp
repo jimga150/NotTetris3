@@ -140,6 +140,7 @@ void OpenGL2DWindow::renderNow(){
     
     if (needsInitialize) {
         QOpenGLFunctions::initializeOpenGLFunctions();
+        //printf("%s\n", glGetString(GL_VERSION));
     }
     
     if (!this->m_device)
