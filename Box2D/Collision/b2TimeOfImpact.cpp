@@ -42,9 +42,9 @@ struct b2SeparationFunction
     // TODO_ERIN might not need to return the separation
 
     float32 Initialize(const b2SimplexCache* cache,
-        const b2DistanceProxy* proxyA, const b2Sweep& sweepA,
-        const b2DistanceProxy* proxyB, const b2Sweep& sweepB,
-        float32 t1)
+                       const b2DistanceProxy* proxyA, const b2Sweep& sweepA,
+                       const b2DistanceProxy* proxyB, const b2Sweep& sweepB,
+                       float32 t1)
     {
         m_proxyA = proxyA;
         m_proxyB = proxyB;
@@ -120,9 +120,10 @@ struct b2SeparationFunction
             return s;
         }
     }
-
 #pragma GCC diagnostic push
+#ifndef _WIN32
 #pragma GCC diagnostic ignored "-Wcovered-switch-default"
+#endif
 
     //
     float32 FindMinSeparation(int32* indexA, int32* indexB, float32 t) const
@@ -134,56 +135,56 @@ struct b2SeparationFunction
         switch (m_type)
         {
         case e_points:
-            {
-                b2Vec2 axisA = b2MulT(xfA.q,  m_axis);
-                b2Vec2 axisB = b2MulT(xfB.q, -m_axis);
+        {
+            b2Vec2 axisA = b2MulT(xfA.q,  m_axis);
+            b2Vec2 axisB = b2MulT(xfB.q, -m_axis);
 
-                *indexA = m_proxyA->GetSupport(axisA);
-                *indexB = m_proxyB->GetSupport(axisB);
+            *indexA = m_proxyA->GetSupport(axisA);
+            *indexB = m_proxyB->GetSupport(axisB);
 
-                b2Vec2 localPointA = m_proxyA->GetVertex(*indexA);
-                b2Vec2 localPointB = m_proxyB->GetVertex(*indexB);
+            b2Vec2 localPointA = m_proxyA->GetVertex(*indexA);
+            b2Vec2 localPointB = m_proxyB->GetVertex(*indexB);
 
-                b2Vec2 pointA = b2Mul(xfA, localPointA);
-                b2Vec2 pointB = b2Mul(xfB, localPointB);
+            b2Vec2 pointA = b2Mul(xfA, localPointA);
+            b2Vec2 pointB = b2Mul(xfB, localPointB);
 
-                float32 separation = b2Dot(pointB - pointA, m_axis);
-                return separation;
-            }
+            float32 separation = b2Dot(pointB - pointA, m_axis);
+            return separation;
+        }
 
         case e_faceA:
-            {
-                b2Vec2 normal = b2Mul(xfA.q, m_axis);
-                b2Vec2 pointA = b2Mul(xfA, m_localPoint);
+        {
+            b2Vec2 normal = b2Mul(xfA.q, m_axis);
+            b2Vec2 pointA = b2Mul(xfA, m_localPoint);
 
-                b2Vec2 axisB = b2MulT(xfB.q, -normal);
+            b2Vec2 axisB = b2MulT(xfB.q, -normal);
 
-                *indexA = -1;
-                *indexB = m_proxyB->GetSupport(axisB);
+            *indexA = -1;
+            *indexB = m_proxyB->GetSupport(axisB);
 
-                b2Vec2 localPointB = m_proxyB->GetVertex(*indexB);
-                b2Vec2 pointB = b2Mul(xfB, localPointB);
+            b2Vec2 localPointB = m_proxyB->GetVertex(*indexB);
+            b2Vec2 pointB = b2Mul(xfB, localPointB);
 
-                float32 separation = b2Dot(pointB - pointA, normal);
-                return separation;
-            }
+            float32 separation = b2Dot(pointB - pointA, normal);
+            return separation;
+        }
 
         case e_faceB:
-            {
-                b2Vec2 normal = b2Mul(xfB.q, m_axis);
-                b2Vec2 pointB = b2Mul(xfB, m_localPoint);
+        {
+            b2Vec2 normal = b2Mul(xfB.q, m_axis);
+            b2Vec2 pointB = b2Mul(xfB, m_localPoint);
 
-                b2Vec2 axisA = b2MulT(xfA.q, -normal);
+            b2Vec2 axisA = b2MulT(xfA.q, -normal);
 
-                *indexB = -1;
-                *indexA = m_proxyA->GetSupport(axisA);
+            *indexB = -1;
+            *indexA = m_proxyA->GetSupport(axisA);
 
-                b2Vec2 localPointA = m_proxyA->GetVertex(*indexA);
-                b2Vec2 pointA = b2Mul(xfA, localPointA);
+            b2Vec2 localPointA = m_proxyA->GetVertex(*indexA);
+            b2Vec2 pointA = b2Mul(xfA, localPointA);
 
-                float32 separation = b2Dot(pointA - pointB, normal);
-                return separation;
-            }
+            float32 separation = b2Dot(pointA - pointB, normal);
+            return separation;
+        }
 
         default:
             b2Assert(false);
@@ -203,40 +204,40 @@ struct b2SeparationFunction
         switch (m_type)
         {
         case e_points:
-            {
-                b2Vec2 localPointA = m_proxyA->GetVertex(indexA);
-                b2Vec2 localPointB = m_proxyB->GetVertex(indexB);
+        {
+            b2Vec2 localPointA = m_proxyA->GetVertex(indexA);
+            b2Vec2 localPointB = m_proxyB->GetVertex(indexB);
 
-                b2Vec2 pointA = b2Mul(xfA, localPointA);
-                b2Vec2 pointB = b2Mul(xfB, localPointB);
-                float32 separation = b2Dot(pointB - pointA, m_axis);
+            b2Vec2 pointA = b2Mul(xfA, localPointA);
+            b2Vec2 pointB = b2Mul(xfB, localPointB);
+            float32 separation = b2Dot(pointB - pointA, m_axis);
 
-                return separation;
-            }
+            return separation;
+        }
 
         case e_faceA:
-            {
-                b2Vec2 normal = b2Mul(xfA.q, m_axis);
-                b2Vec2 pointA = b2Mul(xfA, m_localPoint);
+        {
+            b2Vec2 normal = b2Mul(xfA.q, m_axis);
+            b2Vec2 pointA = b2Mul(xfA, m_localPoint);
 
-                b2Vec2 localPointB = m_proxyB->GetVertex(indexB);
-                b2Vec2 pointB = b2Mul(xfB, localPointB);
+            b2Vec2 localPointB = m_proxyB->GetVertex(indexB);
+            b2Vec2 pointB = b2Mul(xfB, localPointB);
 
-                float32 separation = b2Dot(pointB - pointA, normal);
-                return separation;
-            }
+            float32 separation = b2Dot(pointB - pointA, normal);
+            return separation;
+        }
 
         case e_faceB:
-            {
-                b2Vec2 normal = b2Mul(xfB.q, m_axis);
-                b2Vec2 pointB = b2Mul(xfB, m_localPoint);
+        {
+            b2Vec2 normal = b2Mul(xfB.q, m_axis);
+            b2Vec2 pointB = b2Mul(xfB, m_localPoint);
 
-                b2Vec2 localPointA = m_proxyA->GetVertex(indexA);
-                b2Vec2 pointA = b2Mul(xfA, localPointA);
+            b2Vec2 localPointA = m_proxyA->GetVertex(indexA);
+            b2Vec2 pointA = b2Mul(xfA, localPointA);
 
-                float32 separation = b2Dot(pointA - pointB, normal);
-                return separation;
-            }
+            float32 separation = b2Dot(pointA - pointB, normal);
+            return separation;
+        }
 
         default:
             b2Assert(false);

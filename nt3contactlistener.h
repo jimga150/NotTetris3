@@ -2,6 +2,7 @@
 #define NT3CONTACTLISTENER_H
 
 #include <vector>
+#include <algorithm>
 
 #include "Box2D/Dynamics/b2WorldCallbacks.h"
 #include "Box2D/Dynamics/Contacts/b2Contact.h"

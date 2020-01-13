@@ -18,7 +18,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #This code compares floating point numbers with equality a lot,
 #and all of them are justified, contrary to the folks over at C++ HQ.
-QMAKE_CXXFLAGS += -Wno-float-equal -Wno-weak-vtables
+QMAKE_CXXFLAGS += -Wno-float-equal
+!win32:QMAKE_CXXFLAGS += -Wno-weak-vtables
 
 SOURCES += \
     Box2D/Collision/Shapes/b2ChainShape.cpp \
