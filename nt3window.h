@@ -38,6 +38,11 @@ public:
     
     QMediaPlayer music_player;
     
+#ifdef TIME_FRAMES
+    int expected_frame_time = 0;
+    std::string frame_toolong_suffix = "!!!";
+#endif
+    
 public slots:
     void stateEnd(NT3_state_enum next, bool stopMusic = true);
     

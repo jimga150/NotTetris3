@@ -9,7 +9,7 @@ bool fullscreen;
 QString* music_urls;
 
 NT3Window::NT3Window() //TODO: sounds
-{   
+{
     this->setTitle("Not Tetris 3");
     
     volume = DEFAULT_VOLUME;
@@ -29,6 +29,10 @@ NT3Window::NT3Window() //TODO: sounds
     
     QScreen* screen = this->screen();
     framerate = 1.0/screen->refreshRate();
+    
+#ifdef TIME_FRAMES
+    this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
+#endif
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
@@ -142,11 +146,20 @@ void NT3Window::musicChange(QUrl new_url){
 void NT3Window::render(QPainter &painter){
     Q_ASSERT(this->NT3state < num_nt3_states);
     
+#ifdef TIME_FRAMES
+    long long elapsed = this->frame_times_vect.at(this->frame_times_vect.size()-1);
+    
+    if (elapsed > this->expected_frame_time){
+        printf("%s\n", this->frame_toolong_suffix.data());
+    }
+#endif
+    
     if (fullscreen){
         painter.translate(this->fullscreen_offset);
     }
     
     this->screens[this->NT3state]->render(painter);
+    
 #ifdef TIME_FRAME_COMPS
     if (this->NT3state == GAMEA){
         GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
@@ -161,7 +174,7 @@ void NT3Window::render(QPainter &painter){
 
 void NT3Window::doGameStep(){
     Q_ASSERT(this->NT3state < num_nt3_states);
-    
+        
     bool isfullscreennow = this->windowStates().testFlag(Qt::WindowMaximized);
     if (fullscreen && !isfullscreennow){
         this->setWindowState(Qt::WindowMaximized);

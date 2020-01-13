@@ -67,6 +67,7 @@
 #include <QElapsedTimer>
 #endif
 
+#ifdef TIME_FRAME_COMPS
 struct frame_times_struct{
     qint64 total_frame_time = 0;
 
@@ -75,6 +76,7 @@ struct frame_times_struct{
     qint64 game_frame_time = 0;
     qint64 buffer_time = 0;
 };
+#endif
 
 class OpenGL2DWindow : public QOpenGLWindow, protected QOpenGLFunctions
 {
@@ -101,13 +103,11 @@ protected:
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
     std::vector<long long> frame_times_vect;
-    std::string frame_toolong_suffix = "!!!";
-    std::string frame_normal_suffix = "";
-    
-    int expected_frame_time = 0;
 #endif
 
+#ifdef TIME_FRAME_COMPS
     frame_times_struct frame_times;
+#endif
 
 public slots:
     void renderLater();

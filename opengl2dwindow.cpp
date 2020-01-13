@@ -54,8 +54,6 @@ OpenGL2DWindow::OpenGL2DWindow(){
     this->setSurfaceType(QWindow::OpenGLSurface);
     
 #ifdef TIME_FRAMES
-    double framerate = 1.0/this->screen()->refreshRate();
-    this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
     this->frameTimer.start();
 #endif
 }
@@ -112,8 +110,7 @@ void OpenGL2DWindow::renderNow(){
 #ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
     this->frame_times_vect.push_back(elapsed);
-    const char* suffix = elapsed > this->expected_frame_time ? this->frame_toolong_suffix.data() : this->frame_normal_suffix.data();
-    printf("Frame took %lld ms %s\n", elapsed, suffix);
+    printf("Frame took %lld ms\n", elapsed);
     this->frameTimer.restart();
 #elif defined(TIME_FRAME_COMPS)
     printf("\n");
