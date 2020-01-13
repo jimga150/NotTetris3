@@ -1,6 +1,7 @@
 QT       += core gui concurrent multimedia
 
 CONFIG += c++11
+win32:CONFIG += console
 
 macx:ICON = NotTetris3.icns
 win32:RC_ICONS = NotTetris3.ico
