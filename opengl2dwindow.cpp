@@ -172,15 +172,14 @@ void OpenGL2DWindow::renderNow(){
 #endif
     
     if (!this->isExposed()) return;
-    
+        
     this->m_context->swapBuffers(this);
     
 #ifdef TIME_FRAME_COMPS
     this->frame_times.buffer_time = timer.elapsed();
 #endif
     
-    if (this->m_animating) this->renderLater();
-    
+    if (this->m_animating) this->update();
 }
 
 void OpenGL2DWindow::render(QPainter& painter){
