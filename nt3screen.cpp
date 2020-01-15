@@ -57,7 +57,7 @@ bool NT3Screen::lockAR(QSize newSize){
     
     if (ar_error > 0){ //screen is relatively wider than the app
         this->ui_scale = height*1.0/this->ui_field.height();
-    } else if (ar_error < 0){ //screen is relatively skinnier than app
+    } else { //screen is relatively skinnier than app
         this->ui_scale = width*1.0/this->ui_field.width();
     }
     
