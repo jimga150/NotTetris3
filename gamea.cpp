@@ -15,6 +15,9 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
     Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
     
+    this->rng = QRandomGenerator::securelySeeded();
+    //this->rng = QRandomGenerator(9003);
+    
     //key-action mappings
     this->freeze_key = Qt::Key_Space;
     this->accelDownKey = Qt::Key_Down;
