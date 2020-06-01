@@ -5,6 +5,7 @@
 #include <QElapsedTimer>
 #include <QtConcurrent>
 #include <QSoundEffect>
+#include <QPainterPath>
 
 #include "Box2D/Box2D.h"
 
