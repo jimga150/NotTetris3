@@ -1,0 +1,15 @@
+block turn: played when a block is rotated
+block move: played when a block has lateral movement
+
+block fall: played when a block goes into freefall and NO lines were cleared
+line clear: played when < 4 lines are cleared
+4line clear: yeah
+
+gameover1: game over on 1 player games
+gameover2: game over on 2 player games
+
+pausesound: played at the moment the game is paused
+
+highscorebeep: played every time letter is entered in high score name entry
+
+new level: played at the moment the game continues after a line clear, IF that line clear put you into the next "level"
