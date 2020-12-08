@@ -101,10 +101,10 @@ void OpenGL2DWindow::renderLater(){
 
 void OpenGL2DWindow::renderNow(){
     
-#ifdef TIME_FRAME_COMPS
-    printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
-           this->frame_times.openGL_init_time, this->frame_times.render_time,
-           this->frame_times.game_frame_time, this->frame_times.buffer_time);
+#ifdef TIME_FRAME_COMPS  //TODO: Find a better way to do this (build string and plot after program termination?)
+//    printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
+//           this->frame_times.openGL_init_time, this->frame_times.render_time,
+//           this->frame_times.game_frame_time, this->frame_times.buffer_time);
 #endif
     
 #ifdef TIME_FRAMES
@@ -113,7 +113,7 @@ void OpenGL2DWindow::renderNow(){
     printf("Frame took %lld ms\n", elapsed);
     this->frameTimer.restart();
 #elif defined(TIME_FRAME_COMPS)
-    printf("\n");
+    //printf("\n");
 #endif
     
     if (!this->isExposed()) return;
