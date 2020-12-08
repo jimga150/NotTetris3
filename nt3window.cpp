@@ -164,9 +164,34 @@ void NT3Window::render(QPainter &painter){
     if (this->NT3state == GAMEA){
         GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
         if (game->debug_framerate){
-            painter.setPen(game->debug_line_color);
-            painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R: " + QString::number(this->frame_times.render_time));
-            painter.drawText(QPointF(game->ui_scale, 14*game->ui_scale), "F: " + QString::number(this->frame_times.game_frame_time));
+            
+            if (this->frame_times_vect.at(this->frame_times_vect.size()-1) > this->expected_frame_time){
+                painter.setPen(game->debug_line_color);
+                painter.setBrush(game->debug_line_color);
+            } else {
+                painter.setPen(QColor::fromRgb(0, 0, 0));
+                painter.setBrush(QColor::fromRgb(0, 0, 0));
+            }
+            
+            painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R F");
+            
+            float render_time_severity = this->frame_times.render_time*1.0/this->expected_frame_time;
+            float frame_time_severity = this->frame_times.game_frame_time*1.0/this->expected_frame_time;
+            
+            painter.drawRect(
+                        0, 
+                        10*game->ui_scale*(1.0-render_time_severity), 
+                        game->ui_scale, 
+                        10*game->ui_scale*render_time_severity
+                        );
+            painter.drawRect(
+                        3*game->ui_scale, 
+                        10*game->ui_scale*(1.0-frame_time_severity), 
+                        game->ui_scale, 
+                        10*game->ui_scale*frame_time_severity
+                        );
+            //painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R: " + QString::number(this->frame_times.render_time));
+            //painter.drawText(QPointF(game->ui_scale, 14*game->ui_scale), "F: " + QString::number(this->frame_times.game_frame_time));
         }
     }
 #endif
