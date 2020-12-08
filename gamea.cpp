@@ -37,7 +37,7 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav"));
     
     if (this->frame_review){
-        fprintf(stderr, "Warning: frame review turned on. aAl render times will be more than doubled!\n");
+        fprintf(stderr, "Warning: frame review turned on. All render times will be more than doubled!\n");
         fflush(stderr);
     }
 }

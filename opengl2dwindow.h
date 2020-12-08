@@ -68,7 +68,7 @@
 #endif
 
 #ifdef TIME_FRAME_COMPS
-struct frame_times_struct{
+struct frame_times_struct{ //TODO: rename to frame_comp_times_struct
     qint64 total_frame_time = 0;
 
     qint64 openGL_init_time = 0;
@@ -106,7 +106,7 @@ protected:
 #endif
 
 #ifdef TIME_FRAME_COMPS
-    frame_times_struct frame_times;
+    frame_times_struct frame_times; //TODO: rename to frame_comp_times
 #endif
 
 public slots:

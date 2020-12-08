@@ -17,8 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-#This code compares floating point numbers with equality a lot,
-#and all of them are justified, contrary to the folks over at C++ HQ.
+# This code compares floating point numbers with equality a lot,
+# and all of them are justified, contrary to the folks over at C++ HQ.
 QMAKE_CXXFLAGS += -Wno-float-equal
 !win32:QMAKE_CXXFLAGS += -Wno-weak-vtables
 
