@@ -175,8 +175,8 @@ void NT3Window::render(QPainter &painter){
             
             painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R F");
             
-            float render_time_severity = this->frame_times.render_time*1.0/this->expected_frame_time;
-            float frame_time_severity = this->frame_times.game_frame_time*1.0/this->expected_frame_time;
+            float render_time_severity = this->frame_comp_times.render_time*1.0/this->expected_frame_time;
+            float frame_time_severity = this->frame_comp_times.game_frame_time*1.0/this->expected_frame_time;
             
             painter.drawRect(
                         0, 

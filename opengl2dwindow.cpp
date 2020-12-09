@@ -102,9 +102,9 @@ void OpenGL2DWindow::renderLater(){
 void OpenGL2DWindow::renderNow(){
     
 #ifdef TIME_FRAME_COMPS  //TODO: Find a better way to do this (build string and plot after program termination?)
-//    printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
-//           this->frame_times.openGL_init_time, this->frame_times.render_time,
-//           this->frame_times.game_frame_time, this->frame_times.buffer_time);
+    printf("OpenGL init: %lld ms\tRender: %lld ms\tGame frame: %lld ms\tBuffer: %lld ms\t",
+           this->frame_comp_times.openGL_init_time, this->frame_comp_times.render_time,
+           this->frame_comp_times.game_frame_time, this->frame_comp_times.buffer_time);
 #endif
     
 #ifdef TIME_FRAMES
@@ -149,7 +149,7 @@ void OpenGL2DWindow::renderNow(){
     this->m_device->setDevicePixelRatio(this->devicePixelRatio());
     
 #ifdef TIME_FRAME_COMPS
-    this->frame_times.openGL_init_time = timer.elapsed();
+    this->frame_comp_times.openGL_init_time = timer.elapsed();
     timer.restart();
 #endif
     
@@ -160,14 +160,14 @@ void OpenGL2DWindow::renderNow(){
     painter.end();
     
 #ifdef TIME_FRAME_COMPS
-    this->frame_times.render_time = timer.elapsed();
+    this->frame_comp_times.render_time = timer.elapsed();
     timer.restart();
 #endif
     
     this->doGameStep();
     
 #ifdef TIME_FRAME_COMPS
-    this->frame_times.game_frame_time = timer.elapsed();
+    this->frame_comp_times.game_frame_time = timer.elapsed();
     timer.restart();
 #endif
     
@@ -176,7 +176,7 @@ void OpenGL2DWindow::renderNow(){
     this->m_context->swapBuffers(this);
     
 #ifdef TIME_FRAME_COMPS
-    this->frame_times.buffer_time = timer.elapsed();
+    this->frame_comp_times.buffer_time = timer.elapsed();
 #endif
     
     if (this->m_animating) this->update();
