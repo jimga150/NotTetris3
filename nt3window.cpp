@@ -30,9 +30,7 @@ NT3Window::NT3Window() //TODO: sounds
     QScreen* screen = this->screen();
     framerate = 1.0/screen->refreshRate();
     
-#ifdef TIME_FRAMES
     this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
-#endif
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){
@@ -152,6 +150,17 @@ void NT3Window::render(QPainter &painter){
     if (elapsed > this->expected_frame_time){
         printf("%s\n", this->frame_toolong_suffix.data());
     }
+    
+    if (this->frame_times_vect.at(this->frame_times_vect.size()-1) > this->expected_frame_time){
+        GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
+        painter.setPen(game->debug_line_color);
+        painter.setBrush(game->debug_line_color);
+    } else {
+#endif
+        painter.setPen(QColor::fromRgb(0, 0, 0));
+        painter.setBrush(QColor::fromRgb(0, 0, 0));
+#ifdef TIME_FRAMES
+    }
 #endif
     
     if (fullscreen){
@@ -164,14 +173,6 @@ void NT3Window::render(QPainter &painter){
     if (this->NT3state == GAMEA){
         GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
         if (game->debug_framerate){
-            
-            if (this->frame_times_vect.at(this->frame_times_vect.size()-1) > this->expected_frame_time){
-                painter.setPen(game->debug_line_color);
-                painter.setBrush(game->debug_line_color);
-            } else {
-                painter.setPen(QColor::fromRgb(0, 0, 0));
-                painter.setBrush(QColor::fromRgb(0, 0, 0));
-            }
             
             painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R F");
             
