@@ -1677,6 +1677,12 @@ void GameA::initializeTetrisPieceDefs(){
 
 void GameA::initializeTetrisPieceImages(){
     
+    // TODO: this will use the CURRENT screen resolution to upscale the piece images, 
+    // and will not handle the case where the game starts on a low res screen and moves to a higher res screen.
+    // call init again?
+    int screen_height = ((NT3Window*)(this->parent()))->screen()->availableGeometry().height();
+    this->piece_image_scale = screen_height*1.0/tetris_field.height();
+    
     this->piece_images.clear();
     this->piece_rects.clear();
     

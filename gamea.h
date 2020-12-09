@@ -11,6 +11,7 @@
 
 #include "nt3screen.h"
 #include "nt3contactlistener.h"
+#include "nt3window.h"
 
 #define TIME_GAME_FRAME 1
 #define TIME_RENDER_STEPS 1
@@ -338,9 +339,9 @@ public:
     
     const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
     double physics_scale = physics_to_ui_scale*ui_scale;
-    
-    const int max_screen_height_px = 2160; //4k
-    const double piece_image_scale = max_screen_height_px*1.0/tetris_field.height(); //scale used to make tetris piece cutting smooth
+        
+    //scale used to make tetris piece cutting smooth (set later)
+    double piece_image_scale = 0;
         
     b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
     
