@@ -137,77 +137,12 @@ void GameA::render(QPainter& painter)
         sf_painter.end();
     }
     
-#ifdef TIME_RENDER_STEPS
-    QElapsedTimer timer;
-    timer.start();
-#endif
-    
-    painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
-    
-#ifdef TIME_RENDER_STEPS
-    printf("BG: %lld ms \t", timer.elapsed());
-    timer.restart();
-#endif
-    
-    this->drawScore(&painter);
-    
-#ifdef TIME_RENDER_STEPS
-    printf("Score: %lld ms \t", timer.elapsed());
-    timer.restart();
-#endif
-    
-    painter.setPen(Qt::SolidLine);
-    painter.setPen(this->debug_line_color);
-    painter.setBrush(Qt::NoBrush);
-    
-    //printf("New frame:\n");
-    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        if (!this->isAWall(b) /*&& b->IsAwake()*/){
-            //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
-            this->drawTetrisPiece(&painter, b);
-        }
-        if (debug_box2d){
-            this->drawBodyTo(&painter, b);
-        }
-    }
-    
-#ifdef TIME_RENDER_STEPS
-    printf("Bodies: %lld ms \t", timer.elapsed());
-    timer.restart();
-#endif
-    
-    /*painter.drawEllipse(this->next_piece_display_center*this->ui_scale, 3, 3);
-    b2Vec2 npc = this->next_piece_for_display->GetWorldCenter();
-    painter.setPen(QColor(0, 255, 0));
-    painter.drawEllipse(QPointF(npc.x, npc.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
-    b2Vec2 npp = this->next_piece_for_display->GetWorldPoint(b2Vec2(0, 0));
-    painter.setPen(QColor(0, 0, 255));
-    painter.drawEllipse(QPointF(npp.x, npp.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
-    */
-    
-    painter.setPen(Qt::NoPen);
-    
-    for (uint r = 0; r < this->tetris_rows; r++){
-        double height = this->side_length_dbl*this->physics_scale;
-        double top = height*r;
-        
-        double fill_fraction = static_cast<double>(this->row_areas.at(r)/this->line_clear_threshold);
-        //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
-        fill_fraction = qMin(fill_fraction, 1.0);
-        double width = fill_fraction*this->row_fill_density_col_width*this->ui_scale;
-        
-        int grey = static_cast<int>((1-fill_fraction)*255);
-        painter.setBrush(QColor(grey, grey, grey));
-        
-        painter.drawRect(QRectF(0, top, width, height));
-    }
-    
-#ifdef TIME_RENDER_STEPS
-    printf("Row Densities: %lld ms \t", timer.elapsed());
-    timer.restart();
-#endif
-    
+    // check to see if lines are being cleared right now. 
+    // cause if they are, then we need to not try and read 
+    // b2Body objects from the world, since theyre currently being 
+    // modified which can lead to seg faults.
     if (this->game_state == row_clear_blinking){
+        painter.drawPixmap(this->line_clear_freezeframe.rect(), this->line_clear_freezeframe);
         
         if (this->row_blink_on){
             
@@ -228,11 +163,105 @@ void GameA::render(QPainter& painter)
                 }
             }
         }
+        
+    } else { // NOT clearing lines right now, render as normal.
+        
+#ifdef TIME_RENDER_STEPS
+        QElapsedTimer timer;
+        timer.start();
+#endif
+        
+        painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
+        
+#ifdef TIME_RENDER_STEPS
+        printf("BG: %lld ms \t", timer.elapsed());
+        timer.restart();
+#endif
+        
+        this->drawScore(&painter);
+        
+#ifdef TIME_RENDER_STEPS
+        printf("Score: %lld ms \t", timer.elapsed());
+        timer.restart();
+#endif
+        
+        painter.setPen(Qt::SolidLine);
+        painter.setPen(this->debug_line_color);
+        painter.setBrush(Qt::NoBrush);
+        
+        //printf("New frame:\n");
+        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            if (!this->isAWall(b) /*&& b->IsAwake()*/){
+                //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
+                this->drawTetrisPiece(&painter, b);
+            }
+            if (debug_box2d){
+                this->drawBodyTo(&painter, b);
+            }
+        }
+        
+#ifdef TIME_RENDER_STEPS
+        printf("Bodies: %lld ms \t", timer.elapsed());
+        timer.restart();
+#endif
+        
+        /*painter.drawEllipse(this->next_piece_display_center*this->ui_scale, 3, 3);
+         * b2Vec2 npc = this->next_piece_for_display->GetWorldCenter();
+         * painter.setPen(QColor(0, 255, 0));
+         * painter.drawEllipse(QPointF(npc.x, npc.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
+         * b2Vec2 npp = this->next_piece_for_display->GetWorldPoint(b2Vec2(0, 0));
+         * painter.setPen(QColor(0, 0, 255));
+         * painter.drawEllipse(QPointF(npp.x, npp.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);*/
+        
+        painter.setPen(Qt::NoPen);
+        
+        for (uint r = 0; r < this->tetris_rows; r++){
+            double height = this->side_length_dbl*this->physics_scale;
+            double top = height*r;
+            
+            double fill_fraction = static_cast<double>(this->row_areas.at(r)/this->line_clear_threshold);
+            //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
+            fill_fraction = qMin(fill_fraction, 1.0);
+            double width = fill_fraction*this->row_fill_density_col_width*this->ui_scale;
+            
+            int grey = static_cast<int>((1-fill_fraction)*255);
+            painter.setBrush(QColor(grey, grey, grey));
+            
+            painter.drawRect(QRectF(0, top, width, height));
+        }
+        
+#ifdef TIME_RENDER_STEPS
+        printf("Row Densities: %lld ms \t", timer.elapsed());
+        timer.restart();
+#endif
     }
     
-#ifdef TIME_RENDER_STEPS
-    printf("Row blinks: %lld ms\n", timer.elapsed());
-#endif
+//    if (this->game_state == row_clear_blinking){
+        
+//        if (this->row_blink_on){
+            
+//            painter.setBrush(this->line_clear_color);
+            
+//            for (uint r = 0; r < this->tetris_rows; r++){
+                
+//                if (this->rows_to_clear.at(r)){
+                    
+//                    row_sides_struct sides(r, this->side_length);
+                    
+//                    painter.drawRect(
+//                                this->scaled_tetris_field.x(),
+//                                static_cast<int>(static_cast<double>(sides.bottom)*this->physics_scale) - 1,
+//                                this->scaled_tetris_field.width(),
+//                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->physics_scale) + 2
+//                                );
+//                }
+//            }
+//        }
+//    }
+    
+//#ifdef TIME_RENDER_STEPS
+//    printf("Row blinks: %lld ms\n", timer.elapsed());
+//#endif
 }
 
 void GameA::colorizeResources(){
@@ -519,31 +548,27 @@ void GameA::doGameStep(){
     
     if (this->freeze_frame) return;
     
-    if (this->game_state == row_clear_blinking){
-        QElapsedTimer crtimer;
-        crtimer.start();
-        //If the blinks just started
-        if (this->last_state == gameA){
-            
-            this->setGameState(row_clear_blinking);
-            
-            for (uint r = 0; r < this->tetris_rows; r++){
-                if (this->rows_to_clear.at(r)){
-                    vector<uint> continuous_rows;
-                    uint cr;
-                    for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){
-                        continuous_rows.push_back(cr);
-                    }
-                    
-                    this->clearRows(continuous_rows);
-                    
-                    r = cr - 1;
-                }
-            }
-            this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
-        }
+    //If the blinks just started
+    if (this->game_state == start_row_clear_blinking){
         
-        this->row_blink_accumulator += framerate + crtimer.elapsed()*1.0/NANOS_PER_SECOND;
+        //render the current frame onto a pixmap to use later during line blinking
+        this->line_clear_freezeframe = QPixmap(this->scaled_ui_field.size());
+        QPainter sf_painter(&this->line_clear_freezeframe);
+        this->render(sf_painter);
+        sf_painter.end();
+        
+        // ok now set it back to what it should be
+        this->game_state = row_clear_blinking;
+        
+        //check and clear any rows that need be cleared (in another thread, resolved later)
+        this->line_clearing_thread = QtConcurrent::run(this, &GameA::checkRows);
+        
+        this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
+    }
+    
+    if (this->game_state == row_clear_blinking){
+        
+        this->row_blink_accumulator += framerate;
         if (this->row_blink_accumulator > this->lc_blink_toggle_time){ //If its time to toggle
             this->row_blink_accumulator = 0;
             
@@ -560,26 +585,30 @@ void GameA::doGameStep(){
                             this->rows_to_clear.at(r) = false;
                         }
                     }
+                                        
+                    // block until line clearing thread is done
+//                    QElapsedTimer wff_timer;
+//                    wff_timer.start();
                     
-                    for (b2Body* b : bodies_to_destroy){
-                        this->destroyTetrisPiece(b);
-                    }
-                    this->bodies_to_destroy.clear();
+                    this->line_clearing_thread.waitForFinished();
                     
-                    //resolve all images being cut in their own threads
+//                    printf("Waited %lld ms for thread to return.\n", wff_timer.elapsed());
+//                    fflush(stdout);
+                                        
+                    // Convert queued QImages to QPixmaps (since this step is not allowed 
+                    // inside a QtConcurrent thread) and store them
                     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-                        if (this->isAWall(b)) continue;
-                        if (b == this->next_piece_for_display) continue;
-                        
                         tetrisPieceData tpd = this->getTetrisPieceData(b);
                         tpd.resolveImage();
-                        
                         this->setTetrisPieceData(b, tpd);
                     }
-                    this->setGameState(gameA);
+                    
+                    this->game_state = gameA;
                     
                     //NOW set up the next piece preview
                     this->makeNewNextPiece();
+                    
+                    this->init_BDC();
                 }
             }
         }
@@ -615,7 +644,7 @@ void GameA::doGameStep(){
         if (this->currentPiece->GetWorldCenter().y < 0){
             
             printf("Game lost!\n");
-            this->setGameState(flush_blocks);
+            this->game_state = flush_blocks;
             
             this->world->DestroyBody(this->walls[GROUND]);
         }
@@ -692,10 +721,6 @@ void GameA::doGameStep(){
         }
     }
     
-    if (this->last_state == row_clear_blinking && this->game_state == gameA){
-        this->init_BDC();
-    }
-    
 #ifdef TIME_GAME_FRAME
     printf("Currpiece math: %lld ms\t", timer.elapsed());
     timer.restart();
@@ -731,7 +756,7 @@ void GameA::doGameStep(){
                 b->SetAngularVelocity(0);
             }
             
-            this->setGameState(row_clear_blinking);
+            this->game_state = start_row_clear_blinking;
             
             this->lines_cleared += num_lines_removed;
             if (this->lines_cleared/10 > this->current_level){
@@ -775,6 +800,26 @@ void GameA::doGameStep(){
 #endif
 }
 
+
+void GameA::checkRows(){
+    for (uint r = 0; r < this->tetris_rows; r++){
+        if (this->rows_to_clear.at(r)){
+            vector<uint> continuous_rows;
+            uint cr;
+            for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){
+                continuous_rows.push_back(cr);
+            }
+            
+            this->clearRows(continuous_rows);
+            
+            r = cr - 1;
+        }
+    }
+    for (b2Body* b : this->bodies_to_destroy){
+        this->destroyTetrisPiece(b);
+    }
+    this->bodies_to_destroy.clear();
+}
 
 float32 GameA::getRowArea(uint row){
     
@@ -1110,8 +1155,13 @@ void GameA::clearRows(vector<uint> rows){
             
             tetrisPieceData data = this->getTetrisPieceData(b);
             
-            QImage tomask = this->enableAlphaChannel(data.image).toImage();
-            data.addImagePending(QtConcurrent::run(this, &GameA::maskImage, new_body, tomask, data.region));
+            QImage tomask = data.get_image();
+                        
+            QImage masked = this->maskImage(new_body, tomask, data.region);
+            
+            Q_ASSERT(masked.hasAlphaChannel());
+            
+            data.image_in_waiting = masked;
             
             this->setTetrisPieceData(new_body, data);
             //new_body->SetUserData(data);
@@ -1124,17 +1174,6 @@ void GameA::clearRows(vector<uint> rows){
     } //end body separation loop
 }
 
-//WARNING: hey. I see you there. You're here for one of two reasons, or maybe both:
-//1. Seeing how this function works
-//In that case, go on ahead! 
-//This is the function called on all bodies affected by any given row clears, run in a distinct thread.
-//2. Trying to optimize it
-//Uh-oh. I spent a long time trying to optimize this with mixed success. 
-//There's not a lot of ways around the loop, which is the primary time-consuming task.
-//IF YOU TRY TO CHANGE THIS: keep in mind,
-//a. you may NOT, in a QtConcurrent thread, use a QPainter to draw onto a QPixmap (onto a QImage is ok though)
-//b. Many of my other functions are not thread safe, so don't go calling them will-nilly
-//c. God help you.
 QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
     
     Q_ASSERT(orig_image.hasAlphaChannel());
@@ -1156,7 +1195,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
     QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
     
     //this line will verify that the body hasnt been removed from the world
-    if (!this->userData.contains(b)) return ans;
+    //if (!this->userData.contains(b)) return ans;
     
     for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
         Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
@@ -1195,11 +1234,13 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
                 if (this->TestPointRadius(s, t, center)){
                     //printf("Test point pass at (%d, %d)\n", x, y);
                     anspixels[pix_index] = orig_pixels[pix_index];
-                }
+                }/* else { // only shows the rects being discriminated
+                    anspixels[pix_index] = QColor(255, 255, 0).rgb();
+                }*/
             }
         }
         //this line will verify that the body hasnt been removed from the world (pt. 2)
-        if (!this->userData.contains(b)) return ans;
+        //if (!this->userData.contains(b)) return ans;
     }
     Q_ASSERT(ans.hasAlphaChannel());
     
@@ -1495,11 +1536,6 @@ QPixmap GameA::enableAlphaChannel(QPixmap pixmap){
     p.end();
     
     return ans;
-}
-
-void GameA::setGameState(gamea_state_enum newstate){
-    this->last_state = this->game_state;
-    this->game_state = newstate;
 }
 
 void GameA::destroyTetrisPiece(b2Body* b){

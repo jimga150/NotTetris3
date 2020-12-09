@@ -22,6 +22,7 @@ using namespace std;
 
 enum gamea_state_enum{
     gameA = 0,
+    start_row_clear_blinking,
     row_clear_blinking,
     flush_blocks,
     
@@ -124,10 +125,11 @@ struct rayCastComplete{
     }
 };
 
-struct tetrisPieceData{
+struct tetrisPieceData {
+    
     QPixmap image;
-    QFuture<QImage> newimage;
-    bool imagepending = false;
+    
+    QImage image_in_waiting;
     
     QRect region;
     
@@ -143,25 +145,25 @@ struct tetrisPieceData{
         return this->region == other.region && this->image.toImage() == other.image.toImage();
     }
     
-    void resolveImage(){
-        if (this->imagepending){
-            QImage image = this->newimage.result();
-            Q_ASSERT(image.hasAlphaChannel());
-            
-            this->image = QPixmap(image.size());
-            this->image.fill(Qt::transparent);
-            QPainter p(&this->image);
-            p.drawImage(image.rect(), image);
-            p.end();
-            
-            this->imagepending = false;
+    QImage get_image(){
+        if (this->image_in_waiting.isNull()){
+            return this->image.toImage();
         }
+        return this->image_in_waiting;
     }
     
-    void addImagePending(QFuture<QImage> pendingImage){
-        if (this->imagepending) this->newimage.cancel();
-        this->imagepending = true;
-        this->newimage = pendingImage;
+    void resolveImage(){
+        if (!this->image_in_waiting.isNull()){
+            
+            this->image = QPixmap(this->image_in_waiting.size());
+            this->image.fill(Qt::transparent);
+            
+            QPainter p(&this->image);
+            p.drawImage(this->image_in_waiting.rect(), this->image_in_waiting);
+            p.end();
+            
+            this->image_in_waiting = QImage();
+        }
     }
     
 };
@@ -210,6 +212,8 @@ public:
     
     
     //calculating/removing rows
+    void checkRows();
+    
     float32 getRowArea(uint row);
     
     void clearRows(vector<uint> rows);
@@ -241,9 +245,7 @@ public:
     void setTetrisPieceData(b2Body* b, tetrisPieceData tpd);
     
     QPixmap enableAlphaChannel(QPixmap pixmap);
-    
-    void setGameState(gamea_state_enum newstate);
-    
+        
     void destroyTetrisPiece(b2Body* b);
     
     
@@ -404,7 +406,6 @@ public:
     
     //Game state
     gamea_state_enum game_state = gameA;
-    gamea_state_enum last_state = gameA;
     
     const float32 avgarea_divisor = square_area*10;
     
@@ -453,6 +454,10 @@ public:
     double row_blink_accumulator = 0; //seconds
     
     bool row_blink_on = true; //blink state
+    
+    QFuture<void> line_clearing_thread;
+    
+    QPixmap line_clear_freezeframe;
     
     
     //freeze frame data
