@@ -288,9 +288,9 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
                 this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->physics_scale
                 );
     
-    //QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
+    QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
     //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
-    //painter->drawText(QPoint(0, 0), ptrStr);
+    painter->drawText(QPoint(0, 0), ptrStr);
     //printf("\t%s: (%f, %f)\n", ptrStr.toUtf8().constData(), body->GetPosition().x, body->GetPosition().y);
     
     painter->rotate(static_cast<double>(body->GetAngle())*RAD_TO_DEG);
