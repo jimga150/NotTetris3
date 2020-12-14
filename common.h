@@ -9,7 +9,7 @@
 #define MICROS_PER_SECOND (1000000)
 #define NANOS_PER_SECOND  (1000000000)
 
-#define RAD_TO_DEG (57.295779513082321)
+#define DEG_PER_RAD (57.295779513082321)
 
 #define TO_QRECT(QRF, SCALE) QRect( \
     static_cast<int>(QRF.x()*SCALE), \
