@@ -285,13 +285,26 @@ void GameA::colorizeResources(){
         p = this->colorize(p);
     }
     
-    if (!this->world) return;
-    
-    for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-        tetrisPieceData tpd = this->getTetrisPieceData(b);
-        tpd.image = this->colorize(tpd.image);
-        this->setTetrisPieceData(b, tpd);
+    if (this->world){
+        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            tetrisPieceData tpd = this->getTetrisPieceData(b);
+            tpd.image = this->colorize(tpd.image);
+            this->setTetrisPieceData(b, tpd);
+        }
     }
+    
+    // to find the right color for the line clear bars, we need to 
+    // synthesize an image with its color and colorize it, then extract the color obtained.
+    QImage color_sample_img(1, 1, QImage::Format_ARGB32);
+    color_sample_img.setPixel(0, 0, this->line_clear_color.rgb());
+    QPixmap color_sample = QPixmap::fromImage(color_sample_img);
+    
+    color_sample = this->colorize(color_sample);
+    
+    QColor new_color = color_sample.toImage().pixelColor(0, 0);
+    
+    //printf("Before: 0x%08x; after: 0x%08x\n", this->line_clear_color.rgb(), new_color.rgb());
+    this->line_clear_color = new_color;
 }
 
 void GameA::drawBodyTo(QPainter* painter, b2Body* body){

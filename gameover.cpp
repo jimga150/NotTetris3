@@ -5,8 +5,8 @@ GameOver::GameOver(QObject *parent) : NT3Screen(parent)
     
 }
 
-void GameOver::init(){
-    
+void GameOver::colorizeResources(){
+    this->gameover_overlay = this->colorize(this->gameover_overlay);
 }
 
 void GameOver::render(QPainter& painter){
@@ -41,9 +41,5 @@ void GameOver::keyPressEvent(QKeyEvent* ev){
         
         break;
     }
-    
-}
-    
-void GameOver::doGameStep(){
     
 }

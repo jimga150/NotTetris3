@@ -11,17 +11,14 @@ public:
     
     explicit GameOver(QObject *parent = nullptr);
     
-    void init() override;
-        
+    void colorizeResources() override;
+            
     void render(QPainter& painter) override;
     
-    void keyPressEvent(QKeyEvent* ev) override;
-        
-    void doGameStep() override;
-    
+    void keyPressEvent(QKeyEvent* ev) override;    
     
     const QString gameover_overlay_path = ":/resources/graphics/gameovergamea.png";
-    const QPixmap gameover_overlay = QPixmap(gameover_overlay_path);
+    QPixmap gameover_overlay = QPixmap(gameover_overlay_path);
     
 };
 
