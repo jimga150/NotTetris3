@@ -26,11 +26,8 @@
         <file>graphics/firebig2.png</file>
         <file>graphics/font.png</file>
         <file>graphics/fontwhite.png</file>
-        <file>graphics/gamebackground.png</file>
         <file>graphics/gamebackgroundgamea.png</file>
         <file>graphics/gamebackgroundmulti.png</file>
-        <file>graphics/gameover.png</file>
-        <file>graphics/gameovercutoff.png</file>
         <file>graphics/gametype.png</file>
         <file>graphics/logo.png</file>
         <file>graphics/mpmenu.png</file>
@@ -73,5 +70,8 @@
         <file>sounds/music/themeB.mp3</file>
         <file>sounds/music/themeC.mp3</file>
         <file>sounds/music/titlemusic.mp3</file>
+        <file>graphics/gameovergameb.png</file>
+        <file>graphics/gameovergamea.png</file>
+        <file>graphics/gamebackgroundgameb.png</file>
     </qresource>
 </RCC>
