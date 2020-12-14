@@ -13,6 +13,7 @@
 #include "mainmenu.h"
 #include "globaloptions.h"
 #include "menu1p.h"
+#include "gameover.h"
 
 class NT3Window : public OpenGL2DWindow
 {
@@ -40,6 +41,10 @@ public:
     
     int expected_frame_time = 0;
     std::string frame_toolong_suffix = "!!!";
+    
+    int gameA_score = 0;
+    
+    QPixmap gameA_lastframe;
     
 public slots:
     void stateEnd(NT3_state_enum next, bool stopMusic = true);

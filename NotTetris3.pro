@@ -71,6 +71,7 @@ SOURCES += \
     Box2D/Rope/b2Rope.cpp \
     credits.cpp \
     gamea.cpp \
+    gameover.cpp \
     globaloptions.cpp \
     imagefont.cpp \
     logo.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
     common.h \
     credits.h \
     gamea.h \
+    gameover.h \
     globaloptions.h \
     imagefont.h \
     logo.h \

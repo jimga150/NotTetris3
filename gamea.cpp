@@ -649,6 +649,7 @@ void GameA::doGameStep(){
             this->score_to_add = 0;
         }
     }
+    //printf("Score to add: %d; Offset: %d\n", this->score_to_add, this->score_add_disp_offset);
     
     bool touchdown = false;
     if (this->contactlistener->hasCurrentPieceCollided()){
@@ -731,6 +732,20 @@ void GameA::doGameStep(){
         this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     } else {
         if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field.height()){
+            
+            // Copy score to window object for reference by future screens
+            ((NT3Window*)(this->parent()))->gameA_score = this->current_score;
+            
+            //printf("Re-rendering frame for gameover screen...\n");
+            
+            //render the current frame onto a pixmap to use later during game over screen
+            QPixmap lastframe(this->scaled_ui_field.size());
+            QPainter sf_painter(&lastframe);
+            this->render(sf_painter);
+            sf_painter.end();
+            
+            ((NT3Window*)(this->parent()))->gameA_lastframe = lastframe;
+            
             emit this->stateEnd(GAME_LOST);
         }
     }
