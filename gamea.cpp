@@ -152,14 +152,28 @@ void GameA::render(QPainter& painter)
                 
                 if (this->rows_to_clear.at(r)){
                     
-                    row_sides_struct sides(r, this->side_length);
+                    // This code is used very nearly exactly in clearRows()
+                    // this will mark the bottom row
+                    row_sides_struct bottom_row(r, this->side_length);
+                    float32 bottom_y = bottom_row.bottom;
+                    
+                    // figure out how many more rows (in a row) need to be cleared 
+                    // to group them all into one call
+                    uint cr;
+                    for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){}
+                    
+                    // last row in contiguous block sees the top Y value
+                    row_sides_struct top_row(cr - 1, this->side_length);
+                    float32 top_y = top_row.top;
                     
                     painter.drawRect(
                                 this->scaled_tetris_field.x(),
-                                static_cast<int>(static_cast<double>(sides.bottom)*this->physics_scale) - 1,
+                                static_cast<int>(static_cast<double>(bottom_y)*this->physics_scale),
                                 this->scaled_tetris_field.width(),
-                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->physics_scale) + 2
+                                static_cast<int>(static_cast<double>(top_y - bottom_y)*this->physics_scale)
                                 );
+                    
+                    r = cr - 1;
                 }
             }
         }
