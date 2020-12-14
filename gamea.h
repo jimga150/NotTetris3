@@ -13,8 +13,8 @@
 #include "nt3contactlistener.h"
 #include "nt3window.h"
 
-#define TIME_GAME_FRAME 1
-#define TIME_RENDER_STEPS 1
+//#define TIME_GAME_FRAME 1
+//#define TIME_RENDER_STEPS 1
 
 #define NUM_FRAMES_TO_SAVE 120
 
@@ -212,11 +212,11 @@ public:
     
     
     //calculating/removing rows
-    void checkRows();
+    void clearRows();
     
     float32 getRowArea(uint row);
     
-    void clearRows(vector<uint> rows);
+    void clearSection(float32 top_y, float32 bottom_y);
     
     QImage maskImage(b2Body* b, QImage orig_image, QRect region);
     

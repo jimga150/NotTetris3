@@ -557,11 +557,11 @@ void GameA::doGameStep(){
         this->render(sf_painter);
         sf_painter.end();
         
-        // ok now set it back to what it should be
+        // ok now set it to what it should be
         this->game_state = row_clear_blinking;
         
         //check and clear any rows that need be cleared (in another thread, resolved later)
-        this->line_clearing_thread = QtConcurrent::run(this, &GameA::checkRows);
+        this->line_clearing_thread = QtConcurrent::run(this, &GameA::clearRows);
         
         this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
     }
@@ -801,17 +801,27 @@ void GameA::doGameStep(){
 }
 
 
-void GameA::checkRows(){
+void GameA::clearRows(){
     for (uint r = 0; r < this->tetris_rows; r++){
         if (this->rows_to_clear.at(r)){
-            vector<uint> continuous_rows;
+            
+            // this will mark the bottom row
+            row_sides_struct bottom_row(r, this->side_length);
+            float32 bottom_y = bottom_row.bottom;
+            
+            // figure out how many more rows (in a row) need to be cleared 
+            // to group them all into one call
             uint cr;
-            for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){
-                continuous_rows.push_back(cr);
-            }
+            for (cr = r; cr < this->tetris_rows && this->rows_to_clear.at(cr); ++cr){}
             
-            this->clearRows(continuous_rows);
+            // last row in contiguous block sees the top Y value
+            row_sides_struct top_row(cr - 1, this->side_length);
+            float32 top_y = top_row.top;
             
+            // clear it
+            this->clearSection(top_y, bottom_y);
+            
+            // skip to the next row after these and continue
             r = cr - 1;
         }
     }
@@ -908,21 +918,7 @@ float32 GameA::getRowArea(uint row){
     return total_area;
 }
 
-void GameA::clearRows(vector<uint> rows){
-    
-    float32 top_y = -FLT_MAX;
-    float32 bottom_y = -top_y;
-    
-    for (uint i = 0; i < rows.size(); ++i){
-        row_sides_struct sides(rows.at(i), this->side_length);
-        
-        if (rows.at(i) == this->tetris_rows - 1){
-            sides.top *= 2; //no pieces should leave fragments on the ground, so clear the area far below that
-        }
-        
-        if (sides.bottom < bottom_y) bottom_y = sides.bottom;
-        if (sides.top > top_y) top_y = sides.top;
-    }
+void GameA::clearSection(float32 top_y, float32 bottom_y){
     
     vector<rayCastComplete> ray_casts = this->getRayCasts(top_y, bottom_y);
     
