@@ -229,7 +229,10 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         if (key == Qt::Key_Return){
             this->save_high_scores();
             this->high_score_entry_mode = false;
-        } else if (text.length() > 0 && this->high_scores[this->high_score_entering].name.length() < 6){
+        } else if (key == Qt::Key_Delete || key == Qt::Key_Backspace){
+            this->high_scores[this->high_score_entering].name.remove(this->high_scores[this->high_score_entering].name.length()-1, 1);
+        }
+        else if (text.length() > 0 && this->high_scores[this->high_score_entering].name.length() < 6){
             this->high_scores[this->high_score_entering].name += text;
         }
     } else {
