@@ -60,6 +60,10 @@ void Menu1P::init(){
     emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
     
     uint score = ((NT3Window*)(this->parent()))->gameA_score;
+    if (score == 0){
+        this->high_score_entry_mode = false;
+        return;
+    }
     
     this->appdata_dir = QDir(this->appdata_dir_str);
     if (!this->appdata_dir.exists()){
