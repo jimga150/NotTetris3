@@ -86,10 +86,7 @@ void Menu1P::init(){
     
     QString highscores_file_str = stream.readAll();
     printf("The file had this:\n%s\n", highscores_file_str.toUtf8().constData());
-    
-    if (highscores_file_str.length() == 0){ // TODO: remove
-        highscores_file_str = "test1,100;test2,500;jimmy,69";
-    }
+
     // Add the current score as an unknown name
     highscores_file_str += QString(";###,") + QString::number(score);
     
