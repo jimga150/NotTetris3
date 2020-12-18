@@ -11,6 +11,8 @@ public:
     
     explicit GameOver(QObject *parent = nullptr);
     
+    void init() override;
+    
     void colorizeResources() override;
             
     void render(QPainter& painter) override;
@@ -19,6 +21,9 @@ public:
     
     const QString gameover_overlay_path = ":/resources/graphics/gameovergamea.png";
     QPixmap gameover_overlay = QPixmap(gameover_overlay_path);
+    
+    QString gameover_sound_path = "qrc:/resources/sounds/effects/gameover2.wav";
+    QSoundEffect gameover_sound;
     
 };
 

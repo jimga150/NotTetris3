@@ -34,7 +34,7 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->sfx[FOUR_LINE_CLEAR].setSource(QUrl("qrc:/resources/sounds/effects/4lineclear.wav"));
     
     this->sfx[GAME_OVER_SOUND].setSource(QUrl("qrc:/resources/sounds/effects/gameover1.wav"));
-    this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav"));
+    this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav")); // TODO: play this sound
     
     if (this->frame_review){
         fprintf(stderr, "Warning: frame review turned on. All render times will be more than doubled!\n");
@@ -697,6 +697,9 @@ void GameA::doGameStep(){
             this->game_state = flush_blocks;
             
             this->world->DestroyBody(this->walls[GROUND]);
+            
+            emit this->changeMusic(QUrl());
+            this->sfx[GAME_OVER_SOUND].play();
         }
         
         if (this->game_state != flush_blocks){

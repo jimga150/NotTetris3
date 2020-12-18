@@ -2,7 +2,12 @@
 
 GameOver::GameOver(QObject *parent) : NT3Screen(parent)
 {
-    
+    this->gameover_sound.setSource(QUrl(this->gameover_sound_path));
+}
+
+void GameOver::init(){
+    this->gameover_sound.setVolume(volume*1.0/100.0);
+    this->gameover_sound.play();
 }
 
 void GameOver::colorizeResources(){
