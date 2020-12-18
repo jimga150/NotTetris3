@@ -61,9 +61,6 @@ NT3Window::NT3Window() //TODO: sounds
         case GAME_LOST:
             this->screens[s] = new GameOver(this);
             break;
-        case HIGHSCORE_ENTRY:
-            this->screens[s] = new NT3Screen(this); //TODO: make high score entry screen
-            break;
         default:
             fprintf(stderr, "Invalid NT3 state: %u\n", s);
             this->close();

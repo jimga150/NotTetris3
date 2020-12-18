@@ -45,7 +45,6 @@ enum NT3_state_enum{
     GAMEA,
     GAMEB,
     GAME_LOST,
-    HIGHSCORE_ENTRY,
     
     num_nt3_states
 };

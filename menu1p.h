@@ -2,6 +2,7 @@
 #define MENU1P_H
 
 #include "nt3screen.h"
+#include "nt3window.h"
 
 enum option_group_enum {
     GAME_TYPE = 0,
@@ -15,6 +16,13 @@ enum game_type_enum {
     STACK,
     
     num_game_types
+};
+
+struct high_score_struct{
+    
+    QString name = "";
+    uint score = 0;
+    
 };
 
 class Menu1P : public NT3Screen
@@ -35,6 +43,8 @@ public:
     
     void resetBlinkTimer() override;
     
+    void save_high_scores();
+    
     
     QPixmap background = QPixmap(":/resources/graphics/gametype.png");
     
@@ -52,6 +62,27 @@ public:
     uint prevOG = option_group.current_opt;
     
     std::vector<QString> option_names[num_option_groups];
+    
+    bool high_score_entry_mode;
+    
+    // high score stuff
+    QString appdata_dir_str = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).at(0);
+    QDir appdata_dir;
+    const QString high_scores_filename = "hs.txt";
+    
+    const QPoint top_score_name_left = QPoint(33, 110);
+    const QPoint top_score_val_right = QPoint(144, 110);
+    
+    static const int highscores_list_length = 3;
+    
+    const char pair_separator = ';';
+    const char name_score_separator = ',';
+    
+    QFile* high_scores_file = nullptr;
+    
+    high_score_struct high_scores[highscores_list_length];
+    
+    int high_score_entering = -1;
 };
 
 #endif // MENU1P_H

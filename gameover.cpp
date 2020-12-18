@@ -31,11 +31,7 @@ void GameOver::keyPressEvent(QKeyEvent* ev){
     case Qt::Key_Down:
     case Qt::Key_Left:
     case Qt::Key_Right:
-        if (score > 100){ // TODO: compare against current high scores
-            this->stateEnd(HIGHSCORE_ENTRY);
-        } else {
-            this->stateEnd(MAINMENU);
-        }
+        this->stateEnd(P_GAMEOPTIONS);
         break;
     default:
         
