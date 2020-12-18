@@ -60,10 +60,9 @@ void Menu1P::init(){
     emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
     
     uint score = ((NT3Window*)(this->parent()))->gameA_score;
-    if (score == 0){
-        this->high_score_entry_mode = false;
-        return;
-    }
+    
+    // reset score stored in window
+    ((NT3Window*)(this->parent()))->gameA_score = 0;
     
     this->appdata_dir = QDir(this->appdata_dir_str);
     if (!this->appdata_dir.exists()){
@@ -82,17 +81,21 @@ void Menu1P::init(){
         fprintf(stderr, "Cannot open file at %s\n%s\n", 
                 this->high_scores_file->fileName().toUtf8().constData(), this->high_scores_file->errorString().toUtf8().constData());
         return;
-    } else {
+    } /*else {
         printf("Opened high scores file at %s\n", this->high_scores_file->fileName().toUtf8().constData());
-    }
+    }*/
     
     QTextStream stream(this->high_scores_file);
     
     QString highscores_file_str = stream.readAll();
-    printf("The file had this:\n%s\n", highscores_file_str.toUtf8().constData());
+    //printf("The file had this:\n%s\n", highscores_file_str.toUtf8().constData());
 
-    // Add the current score as an unknown name
-    highscores_file_str += QString(";###,") + QString::number(score);
+    if (score > 0){
+        // Add the current score as an unknown name
+        highscores_file_str += QString(this->pair_separator) + 
+                               QString("###") + QString(this->name_score_separator) + 
+                               QString::number(score);
+    }
     
     //parse into high score entries: name and score
     QStringList hs_pairs = highscores_file_str.split(QChar(this->pair_separator), Qt::SkipEmptyParts);
@@ -192,6 +195,8 @@ void Menu1P::render(QPainter& painter){
     }
     
     for (int i = 0; i < this->highscores_list_length; ++i){
+        
+        if (this->high_scores[i].score < 1) continue;
         
         QString suffix = ""; // TODO: make blinker over 6th character when 6 chars are reached
         
