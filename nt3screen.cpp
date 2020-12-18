@@ -12,6 +12,7 @@ NT3Screen::~NT3Screen(){
 
 void NT3Screen::init(){
     //init is called every time this screen becomes active, so this should also reset any dirty variables
+    this->resetBlinkTimer();
 }
 
 void NT3Screen::calcScaleFactors(){
