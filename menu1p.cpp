@@ -202,9 +202,9 @@ void Menu1P::render(QPainter& painter){
         QString suffix = "_"; // TODO: make blinker over 6th character when 6 chars are reached
         
         if (this->high_score_entry_mode && i == this->high_score_entering && this->blink_on){
-            if (this->high_scores[this->high_score_entering].name.length() < 6){
+            if (this->high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
                 name_toprint += suffix;
-            } else if (this->high_scores[this->high_score_entering].name.length() == 6){
+            } else if (this->high_scores[this->high_score_entering].name.length() == this->max_highscore_name_length){
                 name_toprint.remove(5, 1);
                 name_toprint += suffix;
             }
@@ -232,7 +232,7 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         } else if (key == Qt::Key_Delete || key == Qt::Key_Backspace){
             this->high_scores[this->high_score_entering].name.remove(this->high_scores[this->high_score_entering].name.length()-1, 1);
         }
-        else if (text.length() > 0 && this->high_scores[this->high_score_entering].name.length() < 6){
+        else if (text.length() > 0 && this->high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
             this->high_scores[this->high_score_entering].name += text;
         }
     } else {

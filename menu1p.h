@@ -70,6 +70,8 @@ public:
     QDir appdata_dir;
     const QString high_scores_filename = "hs.txt";
     
+    const int max_highscore_name_length = 6;
+    
     const QPoint top_score_name_left = QPoint(33, 110);
     const QPoint top_score_val_right = QPoint(144, 110);
     
