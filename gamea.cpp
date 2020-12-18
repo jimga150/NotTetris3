@@ -693,7 +693,7 @@ void GameA::doGameStep(){
     //printf("Score to add: %d; Offset: %d\n", this->score_to_add, this->score_add_disp_offset);
     
     bool touchdown = false;
-    if (this->contactlistener->hasCurrentPieceCollided()){
+    if (this->contactlistener->hasCurrentPieceCollided() && this->game_state == gameA){
         touchdown = true;
         this->currentPiece->SetGravityScale(1);
         
