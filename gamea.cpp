@@ -54,11 +54,37 @@ void GameA::destroyWorld(){
         }
         delete world;
     }
-    if (this->contactlistener) delete contactlistener;
+    if (this->contactlistener){
+        delete this->contactlistener;
+    }
+    
+    this->userData.clear();
+    this->next_piece_for_display = nullptr;
+    for (uint i = 0; i < num_walls; ++i){
+        this->walls[i] = nullptr;
+    }
+    this->currentPiece = nullptr;
+    this->bodies_to_destroy.clear();
+    this->init_BDC();
 }
 
 
 void GameA::init(){
+    
+    this->accelDownState = false;
+    this->rotateState = NO_ROTATION;
+    this->lateralMovementState = NO_LATERAL_MOVEMENT;
+    
+    this->game_state = gameA;
+    
+    this->current_score = 0;
+    this->score_to_add = 0;
+    this->lines_cleared = 0;
+    this->current_level = 0;
+    
+    this->num_blinks_so_far = 0;
+    this->row_blink_accumulator = 0;
+    this->row_blink_on = true;
     
     for (uint s = 0; s < num_sound_effects; ++s){
         this->sfx[s].setVolume(volume*1.0/100.0);
@@ -68,11 +94,7 @@ void GameA::init(){
     for (uint i = 0; i < this->tetris_rows; i++){
         this->rows_to_clear.push_back(false);
     }
-    
-    this->init_BDC();
-    
-    this->bodies_to_destroy.clear();
-    
+        
     this->destroyWorld();
     
     b2Vec2 gravity(0.0f, this->gravity_g);

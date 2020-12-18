@@ -262,10 +262,11 @@ public:
     
     
     //debug
-    bool debug_framerate = true;
+    const bool debug_framerate = true;
     
-    bool debug_box2d = false;
+    const bool debug_box2d = false;
     
+    // not const cause of the way its used but trust me, dont change it willy nilly. I'll know.
     bool frame_review = false;
     
     
@@ -274,9 +275,9 @@ public:
         
     
     //input states/params
-    bool accelDownState = false;
-    rotate_state_enum rotateState = NO_ROTATION;
-    lateral_movement_state_enum lateralMovementState = NO_LATERAL_MOVEMENT;
+    bool accelDownState;
+    rotate_state_enum rotateState;
+    lateral_movement_state_enum lateralMovementState;
     
     int freeze_key;
     int accelDownKey;
@@ -300,7 +301,6 @@ public:
     
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
-    vector<b2Body*> bodies;
     
     QHash<b2Body*, tetrisPieceData> userData;
     
@@ -335,7 +335,7 @@ public:
                                     );
     QRect scaled_tetris_field = TO_QRECT(tetris_field, 1);
     
-    float32 square_area = side_length*side_length;
+    const float32 square_area = side_length*side_length;
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
@@ -405,17 +405,17 @@ public:
     
     
     //Game state
-    gamea_state_enum game_state = gameA;
+    gamea_state_enum game_state;
     
     const float32 avgarea_divisor = square_area*10;
     
-    int current_score = 0;
+    int current_score;
     
-    int score_to_add = 0;
+    int score_to_add;
     
-    int lines_cleared = 0;
+    int lines_cleared;
     
-    int current_level = 0;
+    int current_level;
     
     
     //piece params
@@ -447,13 +447,13 @@ public:
     
     const uint num_blinks = 4; //number of blinks to do on row clear
     
-    uint num_blinks_so_far = 0; //blink count accumulator
+    uint num_blinks_so_far; //blink count accumulator
     
     vector<bool> rows_to_clear;
     
-    double row_blink_accumulator = 0; //seconds
+    double row_blink_accumulator; //seconds
     
-    bool row_blink_on = true; //blink state
+    bool row_blink_on; //blink state
     
     QFuture<void> line_clearing_thread;
     
