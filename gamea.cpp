@@ -34,7 +34,7 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->sfx[FOUR_LINE_CLEAR].setSource(QUrl("qrc:/resources/sounds/effects/4lineclear.wav"));
     
     this->sfx[GAME_OVER_SOUND].setSource(QUrl("qrc:/resources/sounds/effects/gameover1.wav"));
-    this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav")); // TODO: play this sound
+    this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav"));
     
     if (this->frame_review){
         fprintf(stderr, "Warning: frame review turned on. All render times will be more than doubled!\n");
@@ -81,6 +81,7 @@ void GameA::init(){
     this->score_to_add = 0;
     this->lines_cleared = 0;
     this->current_level = 0;
+    this->new_level_reached = false;
     
     this->num_blinks_so_far = 0;
     this->row_blink_accumulator = 0;
@@ -654,6 +655,11 @@ void GameA::doGameStep(){
                     
                     this->game_state = gameA;
                     
+                    if (this->new_level_reached){
+                        this->sfx[NEW_LEVEL].play();
+                        this->new_level_reached = false;
+                    }
+                    
                     //NOW set up the next piece preview
                     this->makeNewNextPiece();
                     
@@ -828,6 +834,7 @@ void GameA::doGameStep(){
             this->lines_cleared += num_lines_removed;
             if (this->lines_cleared/10 > this->current_level){
                 this->current_level = this->lines_cleared/10;
+                this->new_level_reached = true;
             }
             
             average_area /= num_lines_removed*this->avgarea_divisor;

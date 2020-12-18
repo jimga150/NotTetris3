@@ -417,6 +417,8 @@ public:
     
     int current_level;
     
+    bool new_level_reached;
+    
     
     //piece params
     const uint32 max_shapes_per_piece = 4;
