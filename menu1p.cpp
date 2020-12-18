@@ -57,7 +57,6 @@ void Menu1P::init(){
     for (uint og = 0; og < num_option_groups; ++og){
         this->option_groups[og].reset();
     }
-    emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
     
     uint score = ((NT3Window*)(this->parent()))->gameA_score;
     
@@ -149,6 +148,12 @@ void Menu1P::init(){
         }
     }
     this->high_score_entry_mode = spot_found;
+    
+    if (this->high_score_entry_mode){
+        emit this->changeMusic(QUrl(this->highscore_music_path));
+    } else {
+        emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
+    }
 } 
 
 void Menu1P::render(QPainter& painter){
@@ -229,6 +234,7 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         if (key == Qt::Key_Return){
             this->save_high_scores();
             this->high_score_entry_mode = false;
+            emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
         } else if (key == Qt::Key_Delete || key == Qt::Key_Backspace){
             this->high_scores[this->high_score_entering].name.remove(this->high_scores[this->high_score_entering].name.length()-1, 1);
         }

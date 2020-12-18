@@ -85,6 +85,8 @@ public:
     high_score_struct high_scores[highscores_list_length];
     
     int high_score_entering = -1;
+    
+    QString highscore_music_path = "qrc:/resources/sounds/music/highscoremusic.mp3";
 };
 
 #endif // MENU1P_H
