@@ -198,17 +198,21 @@ void Menu1P::render(QPainter& painter){
         
         if (this->high_scores[i].score < 1) continue;
         
-        QString suffix = ""; // TODO: make blinker over 6th character when 6 chars are reached
+        QString name_toprint = this->high_scores[i].name;
+        QString suffix = "_"; // TODO: make blinker over 6th character when 6 chars are reached
         
-        if (this->high_score_entry_mode && i == this->high_score_entering && this->blink_on && 
-            this->high_scores[this->high_score_entering].name.length() < 6){
-            
-            suffix = "_";
+        if (this->high_score_entry_mode && i == this->high_score_entering && this->blink_on){
+            if (this->high_scores[this->high_score_entering].name.length() < 6){
+                name_toprint += suffix;
+            } else if (this->high_scores[this->high_score_entering].name.length() == 6){
+                name_toprint.remove(5, 1);
+                name_toprint += suffix;
+            }
         }
         
         QPoint name_start = this->top_score_name_left + QPoint(0, 8*i);
         name_start *= this->ui_scale;
-        this->BOW_font.print(&painter, name_start, LEFT_ALIGN, this->high_scores[i].name + suffix, this->ui_scale);
+        this->BOW_font.print(&painter, name_start, LEFT_ALIGN, name_toprint, this->ui_scale);
         
         QPoint score_end = this->top_score_val_right + QPoint(0, 8*i);
         score_end *= this->ui_scale;

@@ -8,7 +8,7 @@ bool fullscreen;
 
 QString* music_urls;
 
-NT3Window::NT3Window() //TODO: sounds
+NT3Window::NT3Window()
 {
     this->setTitle("Not Tetris 3");
     
