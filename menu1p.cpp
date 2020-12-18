@@ -199,7 +199,7 @@ void Menu1P::render(QPainter& painter){
         if (this->high_scores[i].score < 1) continue;
         
         QString name_toprint = this->high_scores[i].name;
-        QString suffix = "_"; // TODO: make blinker over 6th character when 6 chars are reached
+        QString suffix = "_";
         
         if (this->high_score_entry_mode && i == this->high_score_entering && this->blink_on){
             if (this->high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
