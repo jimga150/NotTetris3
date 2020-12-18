@@ -46,6 +46,10 @@ ImageFont::ImageFont(const char* glyphs, QImage font_image){
             x = past_x - 1;
         }
     }
+    
+    this->background_color = this->getPixmapFor(' ').toImage().pixelColor(0, 0);
+    
+    this->font_height = font_image.height();
 }
 
 void ImageFont::print(QPainter* painter, QPoint start, alignment_enum alignment, QString string, double sx, double sy){
@@ -59,7 +63,19 @@ void ImageFont::print(QPainter* painter, QPoint start, alignment_enum alignment,
     }
     painter->scale(sx, sy);
     
+    int string_width = 0;
+    for (int i = 0; i < string.length(); i++){
+        QPixmap glyph_pixmap = this->getPixmapFor(static_cast<char>(string[i].unicode()));
+        string_width += glyph_pixmap.width() + 1;
+    }
+    
+    painter->setBrush(this->background_color);
+    painter->setPen(this->background_color);
+    
     if (alignment == RIGHT_ALIGN){
+        
+        painter->drawRect(QRect(-string_width, 0, string_width, this->font_height));
+        
         for (int i = string.length()-1; i >= 0; i--){
             
             QPixmap glyph_pixmap = this->getPixmapFor(static_cast<char>(string[i].unicode()));
@@ -68,6 +84,9 @@ void ImageFont::print(QPainter* painter, QPoint start, alignment_enum alignment,
             painter->drawPixmap(glyph_pixmap.rect(), glyph_pixmap);
         }
     } else {
+        
+        painter->drawRect(QRect(0, 0, string_width, this->font_height));
+        
         for (int i = 0; i < string.length(); i++){
             
             QPixmap glyph_pixmap = this->getPixmapFor(static_cast<char>(string[i].unicode()));

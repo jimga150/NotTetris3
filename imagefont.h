@@ -37,6 +37,10 @@ private:
     
     
     char case_difference = 'a' - 'A';
+    
+    QColor background_color;
+    
+    int font_height;
 };
 
 #endif // IMAGEFONT_H
