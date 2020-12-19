@@ -19,11 +19,16 @@ public:
     
     void keyPressEvent(QKeyEvent* ev) override;    
     
-    const QString gameover_overlay_path = ":/resources/graphics/gameovergamea.png";
-    QPixmap gameover_overlay = QPixmap(gameover_overlay_path);
+    const QString game_a_over_overlay_path = ":/resources/graphics/gameovergamea.png";
+    QPixmap game_a_overlay = QPixmap(game_a_over_overlay_path);
+    
+    const QString game_b_over_overlay_path = ":/resources/graphics/gameovergameb.png";
+    QPixmap game_b_overlay = QPixmap(game_b_over_overlay_path);
     
     QString gameover_sound_path = "qrc:/resources/sounds/effects/gameover2.wav";
     QSoundEffect gameover_sound;
+    
+    NT3_state_enum last_state;
     
 };
 

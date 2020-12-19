@@ -45,6 +45,8 @@ public:
     
     void save_high_scores();
     
+    high_score_struct* high_score_array_for(uint game_type);
+    
     
     QPixmap background = QPixmap(":/resources/graphics/gametype.png");
     
@@ -77,12 +79,16 @@ public:
     
     static const int highscores_list_length = 3;
     
+    const char list_separator = '\n';
     const char pair_separator = ';';
     const char name_score_separator = ',';
     
     QFile* high_scores_file = nullptr;
     
-    high_score_struct high_scores[highscores_list_length];
+    high_score_struct gamea_high_scores[highscores_list_length];
+    high_score_struct gameb_high_scores[highscores_list_length];
+    
+    game_type_enum last_game;
     
     int high_score_entering = -1;
     

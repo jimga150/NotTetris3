@@ -8,24 +8,37 @@ GameOver::GameOver(QObject *parent) : NT3Screen(parent)
 void GameOver::init(){
     this->gameover_sound.setVolume(volume*1.0/100.0);
     this->gameover_sound.play();
+    
+    uint score_A = ((NT3Window*)(this->parent()))->gameA_score;
+    uint score_B = ((NT3Window*)(this->parent()))->gameB_score;
+    if (score_A > score_B){
+        this->last_state = GAMEA;
+    } else {
+        this->last_state = GAMEB;
+    }
 }
 
 void GameOver::colorizeResources(){
-    this->gameover_overlay = this->colorize(this->gameover_overlay);
+    this->game_a_overlay = this->colorize(this->game_a_overlay);
+    this->game_b_overlay = this->colorize(this->game_b_overlay);
 }
 
 void GameOver::render(QPainter& painter){
-    QPixmap last_frame = ((NT3Window*)(this->parent()))->gameA_lastframe;
+    QPixmap last_frame = ((NT3Window*)(this->parent()))->game_lastframe;
     painter.drawPixmap(last_frame.rect(), last_frame);
-    painter.drawPixmap(this->scaled_ui_field, this->gameover_overlay);
+    
+    if (this->last_state == GAMEA){
+        painter.drawPixmap(this->scaled_ui_field, this->game_a_overlay);
+    } else {
+        painter.drawPixmap(this->scaled_ui_field, this->game_b_overlay);
+    }
+    
 }
 
 void GameOver::keyPressEvent(QKeyEvent* ev){
     
     int key = ev->key();
-    
-    int score = ((NT3Window*)(this->parent()))->gameA_score;
-    
+        
     switch(key){
     case Qt::Key_Return:
     case Qt::Key_Y:

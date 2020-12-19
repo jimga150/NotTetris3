@@ -49,19 +49,27 @@ Menu1P::Menu1P(QObject *parent) : NT3Screen(parent)
             break;
         }
     }
-}
-
-void Menu1P::init(){
-    this->resetBlinkTimer();
+    
     this->option_group.reset();
     for (uint og = 0; og < num_option_groups; ++og){
         this->option_groups[og].reset();
     }
+}
+
+void Menu1P::init(){
     
-    uint score = ((NT3Window*)(this->parent()))->gameA_score;
+    this->high_score_entry_mode = false;
+    
+    this->resetBlinkTimer();
+    
+    uint score_A = ((NT3Window*)(this->parent()))->gameA_score;
+    uint score_B = ((NT3Window*)(this->parent()))->gameB_score;
+    uint score = score_A > 0 ? score_A : score_B;
+    this->last_game = score_A > 0 ? NORMAL : STACK;
     
     // reset score stored in window
     ((NT3Window*)(this->parent()))->gameA_score = 0;
+    ((NT3Window*)(this->parent()))->gameB_score = 0;
     
     this->appdata_dir = QDir(this->appdata_dir_str);
     if (!this->appdata_dir.exists()){
@@ -88,66 +96,78 @@ void Menu1P::init(){
     
     QString highscores_file_str = stream.readAll();
     //printf("The file had this:\n%s\n", highscores_file_str.toUtf8().constData());
+    
+    QStringList high_score_tables = highscores_file_str.split(QChar(this->list_separator));
+    
+    for (uint game_type = 0; game_type < num_game_types; ++game_type){
+        
+        QString high_scores_str = "";
+        
+        if (game_type < static_cast<uint>(high_score_tables.length())){
+            high_scores_str = high_score_tables.at(game_type);
+        }
+        
+        if (game_type == this->last_game && score > 0){
+            // Add the current score as an unknown name
+            high_scores_str += QString(this->pair_separator) + 
+                           QString("###") + QString(this->name_score_separator) + 
+                           QString::number(score);
+        }
+        
+        QStringList hs_pairs = high_scores_str.split(QChar(this->pair_separator), Qt::SkipEmptyParts);
 
-    if (score > 0){
-        // Add the current score as an unknown name
-        highscores_file_str += QString(this->pair_separator) + 
-                               QString("###") + QString(this->name_score_separator) + 
-                               QString::number(score);
-    }
-    
-    //parse into high score entries: name and score
-    QStringList hs_pairs = highscores_file_str.split(QChar(this->pair_separator), Qt::SkipEmptyParts);
-    
-    //read into array of structs
-    high_score_struct high_scores_unsorted[highscores_list_length+1];
-    int ind = 0;
-    for (QString s : hs_pairs){
-        QStringList pair = s.split(QChar(this->name_score_separator), Qt::SkipEmptyParts);
-        if (pair.length() != 2) continue;
-        
-        high_score_struct high_score;
-        high_score.name = pair.at(0);
-        high_score.score = pair.at(1).toUInt();
-        
-        high_scores_unsorted[ind++] = high_score;
-    }
-    
-//    for (high_score_struct hs : high_scores_unsorted){
-//        if (hs.name == "") continue;
-//        printf("%s : %u\n", hs.name.toUtf8().constData(), hs.score);
-//    }
-    
-    // insertion sort
-    for(uint i = 1; i < highscores_list_length+1; ++i){
-        high_score_struct key = high_scores_unsorted[i];
-        int j = i - 1;
-        
-        while (j >= 0 && high_scores_unsorted[j].score < key.score){
-            high_scores_unsorted[j + 1] = high_scores_unsorted[j];
-            --j;
+        //read into array of structs
+        high_score_struct high_scores_unsorted[highscores_list_length+1];
+        int ind = 0;
+        for (QString s : hs_pairs){
+            QStringList pair = s.split(QChar(this->name_score_separator), Qt::SkipEmptyParts);
+            if (pair.length() != 2) continue;
+            
+            high_score_struct high_score;
+            high_score.name = pair.at(0);
+            high_score.score = pair.at(1).toUInt();
+            
+            high_scores_unsorted[ind++] = high_score;
         }
-        high_scores_unsorted[j + 1] = key;
-    }
-    
-//    for (high_score_struct hs : high_scores_unsorted){
-//        printf("%s : %u\n", hs.name.toUtf8().constData(), hs.score);
-//    }
-    
-    // copy into global array
-    for(uint i = 0; i < highscores_list_length; ++i){
-        this->high_scores[i] = high_scores_unsorted[i];
-    }
-    
-    bool spot_found = false;
-    for (int i = 0; i < this->highscores_list_length; ++i){
-        if (this->high_scores[i].name == "###"){
-            spot_found = true;
-            this->high_scores[i].name = "";
-            this->high_score_entering = i;
+        
+        //    for (high_score_struct hs : high_scores_unsorted){
+        //        if (hs.name == "") continue;
+        //        printf("%s : %u\n", hs.name.toUtf8().constData(), hs.score);
+        //    }
+        
+        // insertion sort
+        for(uint i = 1; i < highscores_list_length+1; ++i){
+            high_score_struct key = high_scores_unsorted[i];
+            int j = i - 1;
+            
+            while (j >= 0 && high_scores_unsorted[j].score < key.score){
+                high_scores_unsorted[j + 1] = high_scores_unsorted[j];
+                --j;
+            }
+            high_scores_unsorted[j + 1] = key;
         }
+        
+    //    for (high_score_struct hs : high_scores_unsorted){
+    //        printf("%s : %u\n", hs.name.toUtf8().constData(), hs.score);
+    //    }
+        
+        high_score_struct* high_scores = this->high_score_array_for(game_type);
+        
+        // copy into global array
+        for(uint i = 0; i < highscores_list_length; ++i){
+            high_scores[i] = high_scores_unsorted[i];
+        }
+        
+        bool spot_found = false;
+        for (int i = 0; i < this->highscores_list_length; ++i){
+            if (high_scores[i].name == "###"){
+                spot_found = true;
+                high_scores[i].name = "";
+                this->high_score_entering = i;
+            }
+        }
+        this->high_score_entry_mode |= spot_found;
     }
-    this->high_score_entry_mode = spot_found;
     
     if (this->high_score_entry_mode){
         emit this->changeMusic(QUrl(this->highscore_music_path));
@@ -199,17 +219,24 @@ void Menu1P::render(QPainter& painter){
                              this->option_names[opt_group][opt_col], this->ui_scale);
     }
     
+    uint game_type;
+    
+    if (this->high_score_entry_mode) game_type = this->last_game;
+    else game_type = this->option_groups[GAME_TYPE].current_opt;
+    
+    high_score_struct* high_scores = this->high_score_array_for(game_type);    
+    
     for (int i = 0; i < this->highscores_list_length; ++i){
         
-        if (this->high_scores[i].score < 1) continue;
+        if (high_scores[i].score < 1) continue;
         
-        QString name_toprint = this->high_scores[i].name;
+        QString name_toprint = high_scores[i].name;
         QString suffix = "_";
         
         if (this->high_score_entry_mode && i == this->high_score_entering && this->blink_on){
-            if (this->high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
+            if (high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
                 name_toprint += suffix;
-            } else if (this->high_scores[this->high_score_entering].name.length() == this->max_highscore_name_length){
+            } else if (high_scores[this->high_score_entering].name.length() == this->max_highscore_name_length){
                 name_toprint.remove(5, 1);
                 name_toprint += suffix;
             }
@@ -221,7 +248,7 @@ void Menu1P::render(QPainter& painter){
         
         QPoint score_end = this->top_score_val_right + QPoint(0, 8*i);
         score_end *= this->ui_scale;
-        this->BOW_font.print(&painter, score_end, RIGHT_ALIGN, QString::number(this->high_scores[i].score), this->ui_scale);
+        this->BOW_font.print(&painter, score_end, RIGHT_ALIGN, QString::number(high_scores[i].score), this->ui_scale);
     }
 }
 
@@ -231,15 +258,18 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
     QString text = ev->text();
     
     if (this->high_score_entry_mode){
+        
+        high_score_struct* curr_highscores = this->high_score_array_for(this->last_game);
+        
         if (key == Qt::Key_Return){
             this->save_high_scores();
             this->high_score_entry_mode = false;
             emit this->changeMusic(music_urls[this->option_groups[MUSIC_TYPE].current_opt]);
         } else if (key == Qt::Key_Delete || key == Qt::Key_Backspace){
-            this->high_scores[this->high_score_entering].name.remove(this->high_scores[this->high_score_entering].name.length()-1, 1);
+            curr_highscores[this->high_score_entering].name.remove(curr_highscores[this->high_score_entering].name.length()-1, 1);
         }
-        else if (text.length() > 0 && this->high_scores[this->high_score_entering].name.length() < this->max_highscore_name_length){
-            this->high_scores[this->high_score_entering].name += text;
+        else if (text.length() > 0 && curr_highscores[this->high_score_entering].name.length() < this->max_highscore_name_length){
+            curr_highscores[this->high_score_entering].name += text;
         }
     } else {
         music_type_enum currMT = static_cast<music_type_enum>(this->option_groups[MUSIC_TYPE].current_opt);
@@ -320,11 +350,28 @@ void Menu1P::save_high_scores(){
         return;
     }
     QString toWrite;
-    for (int i = 0; i < this->highscores_list_length; ++i){
-        high_score_struct hs = this->high_scores[i];
-        toWrite += hs.name + QString(this->name_score_separator) + QString::number(hs.score) + QString(this->pair_separator);
+    for (uint game_type = 0; game_type < num_game_types; ++game_type){
+        high_score_struct* high_score_arr = this->high_score_array_for(game_type);
+        for (int i = 0; i < this->highscores_list_length; ++i){
+            high_score_struct hs = high_score_arr[i];
+            toWrite += hs.name + QString(this->name_score_separator) + QString::number(hs.score) + QString(this->pair_separator);
+        }
+        toWrite += QString(this->list_separator);
     }
+    
     this->high_scores_file->write(toWrite.toUtf8().constData());
     this->high_scores_file->flush();
     this->high_scores_file->close();
+}
+
+high_score_struct* Menu1P::high_score_array_for(uint game_type){
+    switch (game_type){
+    case NORMAL:
+        return this->gamea_high_scores;
+    case STACK:
+        return this->gameb_high_scores;
+    default:
+        fprintf(stderr, "Game type not defined: %u\n", game_type);
+        return nullptr;
+    }
 }

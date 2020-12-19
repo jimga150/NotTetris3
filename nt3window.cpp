@@ -56,7 +56,7 @@ NT3Window::NT3Window()
             this->screens[s] = new GameA(this);
             break;
         case GAMEB:
-            this->screens[s] = new NT3Screen(this); //TODO: make Gamemode B (oh boy)
+            this->screens[s] = new GameB(this);
             break;
         case GAME_LOST:
             this->screens[s] = new GameOver(this);

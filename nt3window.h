@@ -9,6 +9,7 @@
 
 #include "logo.h"
 #include "gamea.h"
+#include "gameb.h"
 #include "credits.h"
 #include "mainmenu.h"
 #include "globaloptions.h"
@@ -43,8 +44,9 @@ public:
     std::string frame_toolong_suffix = "!!!";
     
     int gameA_score = 0;
+    int gameB_score = 0;
     
-    QPixmap gameA_lastframe;
+    QPixmap game_lastframe;
     
 public slots:
     void stateEnd(NT3_state_enum next, bool stopMusic = true);

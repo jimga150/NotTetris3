@@ -791,7 +791,7 @@ void GameA::doGameStep(){
             this->render(sf_painter);
             sf_painter.end();
             
-            ((NT3Window*)(this->parent()))->gameA_lastframe = lastframe;
+            ((NT3Window*)(this->parent()))->game_lastframe = lastframe;
             
             emit this->stateEnd(GAME_LOST);
         }
