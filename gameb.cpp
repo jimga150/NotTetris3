@@ -507,7 +507,7 @@ void GameB::doGameStep(){
         this->current_score += this->score_per_piece;
         
         ++this->pieces_scored;
-        if (this->pieces_scored/this->pieces_per_level > this->current_level){ // TODO: magic number
+        if (this->pieces_scored/this->pieces_per_level > this->current_level){
             this->current_level = this->pieces_scored/this->pieces_per_level;
             this->tetrisBodyDef.linearVelocity = 
                     b2Vec2(
