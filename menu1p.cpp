@@ -90,7 +90,6 @@ void Menu1P::init(){
         
     if (this->high_scores_file){
         if (this->high_scores_file->isOpen()){
-            this->high_scores_file->flush();
             this->high_scores_file->close();
         }
         this->high_scores_file->deleteLater();
@@ -356,7 +355,8 @@ void Menu1P::resetBlinkTimer(){
 }
 
 void Menu1P::save_high_scores(){
-    this->high_scores_file->remove();
+    
+    this->high_scores_file->close();
     if (!this->high_scores_file->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
         fprintf(stderr, "Cannot open file at %s\n", 
                 this->high_scores_file->fileName().toUtf8().constData());
@@ -373,7 +373,6 @@ void Menu1P::save_high_scores(){
     }
     
     this->high_scores_file->write(toWrite.toUtf8().constData());
-    this->high_scores_file->flush();
     this->high_scores_file->close();
 }
 
