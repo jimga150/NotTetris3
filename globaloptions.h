@@ -1,6 +1,9 @@
 #ifndef GLOBALOPTIONS_H
 #define GLOBALOPTIONS_H
 
+#include <QStandardPaths>
+#include <QDir>
+
 #include "nt3screen.h"
 
 enum glob_option_enum{
@@ -17,6 +20,7 @@ class GlobalOptions : public NT3Screen
     Q_OBJECT
 public:
     explicit GlobalOptions(QObject* parent = nullptr);
+    ~GlobalOptions() override;
     
     void init() override;
         
@@ -24,7 +28,11 @@ public:
     
     void colorizeResources() override;     
     
-    void keyPressEvent(QKeyEvent* ev) override;    
+    void keyPressEvent(QKeyEvent* ev) override;   
+    
+    void save_options();
+    
+    void load_options();
     
     
     const int volume_increment = 10;
@@ -54,6 +62,14 @@ public:
     QPixmap background = QPixmap(":/resources/graphics/options.png");
     QPixmap volume_slider = QPixmap(":/resources/graphics/volumeslider.png");
     QPixmap gradient = QPixmap(":/resources/graphics/rainbow.png");
+    
+    QString appdata_dir_str = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).at(0);
+    QDir appdata_dir;
+    const QString options_filename = "opt.txt";
+    QFile* options_file = nullptr;
+    
+    const char options_separator = ';';
+    const char key_val_separator = ',';
 };
 
 #endif // GLOBALOPTIONS_H

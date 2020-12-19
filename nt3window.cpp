@@ -72,6 +72,9 @@ NT3Window::NT3Window()
         connect(this->screens[s], &NT3Screen::changeMusic, this, &NT3Window::musicChange);
     }
     
+    //load global options from file
+    ((GlobalOptions*)(this->screens[GLOBAL_OPTIONS]))->load_options();
+    
     this->music_player.setVolume(volume);
     
     connect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
