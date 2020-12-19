@@ -36,6 +36,8 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     this->sfx[GAME_OVER_SOUND].setSource(QUrl("qrc:/resources/sounds/effects/gameover1.wav"));
     this->sfx[NEW_LEVEL].setSource(QUrl("qrc:/resources/sounds/effects/newlevel.wav"));
     
+    this->sfx[PAUSE_SOUND].setSource(QUrl("qrc:/resources/sounds/effects/pause.wav"));
+    
     if (this->frame_review){
         fprintf(stderr, "Warning: frame review turned on. All render times will be more than doubled!\n");
         fflush(stderr);
@@ -76,6 +78,7 @@ void GameA::init(){
     this->lateralMovementState = NO_LATERAL_MOVEMENT;
     
     this->game_state = gameA;
+    this->paused = false;
     
     this->current_score = 0;
     this->score_to_add = 0;
@@ -158,6 +161,12 @@ void GameA::render(QPainter& painter)
         this->frame_review = true;
         
         sf_painter.end();
+    }
+    
+    if (this->paused){
+        painter.drawPixmap(this->scaled_ui_field, this->pause_frame);
+        painter.drawPixmap(this->scaled_ui_field, this->pause_overlay);
+        return;
     }
     
     // check to see if lines are being cleared right now. 
@@ -539,6 +548,19 @@ void GameA::keyPressEvent(QKeyEvent* ev){
         this->lateralMovementState = NO_LATERAL_MOVEMENT;
         this->rotateState = NO_ROTATION;
         this->accelDownState = false;
+    } else if (key == Qt::Key_Enter || key == Qt::Key_Return){
+        if (!this->paused){ // NOT paused, about to pause
+            this->pause_frame = QPixmap(this->scaled_ui_field.size());
+            QPainter painter(&this->pause_frame);
+            this->render(painter);
+            painter.end();
+            
+            ((NT3Window*)(this->parent()))->music_player.pause();
+            this->sfx[PAUSE_SOUND].play();
+        } else { // already paused and about to unpause
+            ((NT3Window*)(this->parent()))->music_player.play();
+        }
+        this->paused = !this->paused;
     }
 }
 
@@ -597,6 +619,7 @@ void GameA::keyReleaseEvent(QKeyEvent* ev){
 void GameA::doGameStep(){
     
     if (this->freeze_frame) return;
+    if (this->paused) return;
     
     //If the blinks just started
     if (this->game_state == start_row_clear_blinking){

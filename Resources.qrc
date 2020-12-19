@@ -33,8 +33,6 @@
         <file>graphics/mpmenu.png</file>
         <file>graphics/multiresults.png</file>
         <file>graphics/options.png</file>
-        <file>graphics/pause.png</file>
-        <file>graphics/pausecutoff.png</file>
         <file>graphics/rainbow.png</file>
         <file>graphics/rocket1.png</file>
         <file>graphics/rocket2.png</file>
@@ -73,5 +71,7 @@
         <file>graphics/gameovergameb.png</file>
         <file>graphics/gameovergamea.png</file>
         <file>graphics/gamebackgroundgameb.png</file>
+        <file>graphics/pausegameb.png</file>
+        <file>graphics/pausegamea.png</file>
     </qresource>
 </RCC>

@@ -250,6 +250,9 @@ public:
     
     gameb_state_enum game_state;
     
+    bool paused;
+    QPixmap pause_frame;
+    
     
     //piece params
     const uint32 max_shapes_per_piece = 4;
@@ -262,6 +265,9 @@ public:
     
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgameb.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);
+    
+    QString pause_overlay_path = ":/resources/graphics/pausegameb.png";
+    QPixmap pause_overlay = QPixmap(pause_overlay_path);
     
     vector<QPixmap> piece_images;
     vector<QRect> piece_rects;

@@ -310,6 +310,9 @@ public:
     //Game state
     gamea_state_enum game_state;
     
+    bool paused;
+    QPixmap pause_frame;
+    
     const float32 avgarea_divisor = square_area*10;
     
     int current_score;
@@ -336,6 +339,9 @@ public:
     
     QString gamebackground_path = ":/resources/graphics/gamebackgroundgamea.png";
     QPixmap gamebackground = QPixmap(gamebackground_path);
+    
+    QString pause_overlay_path = ":/resources/graphics/pausegamea.png";
+    QPixmap pause_overlay = QPixmap(pause_overlay_path);
     
     vector<QPixmap> piece_images;
     vector<QRect> piece_rects;
