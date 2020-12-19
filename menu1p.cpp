@@ -54,11 +54,14 @@ Menu1P::Menu1P(QObject *parent) : NT3Screen(parent)
     for (uint og = 0; og < num_option_groups; ++og){
         this->option_groups[og].reset();
     }
+    
+    this->highscorebeep.setSource(QUrl(this->highscorebeep_path));
 }
 
 void Menu1P::init(){
     
     this->high_score_entry_mode = false;
+    this->highscorebeep.setVolume(volume*volume_sfx_multiplier);
     
     this->resetBlinkTimer();
     
@@ -270,6 +273,7 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         }
         else if (text.length() > 0 && curr_highscores[this->high_score_entering].name.length() < this->max_highscore_name_length){
             curr_highscores[this->high_score_entering].name += text;
+            this->highscorebeep.play();
         }
     } else {
         music_type_enum currMT = static_cast<music_type_enum>(this->option_groups[MUSIC_TYPE].current_opt);

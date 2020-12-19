@@ -93,6 +93,9 @@ public:
     int high_score_entering = -1;
     
     QString highscore_music_path = "qrc:/resources/sounds/music/highscoremusic.mp3";
+    
+    QString highscorebeep_path = "qrc:/resources/sounds/effects/highscorebeep.wav";
+    QSoundEffect highscorebeep;
 };
 
 #endif // MENU1P_H
