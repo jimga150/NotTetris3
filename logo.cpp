@@ -7,7 +7,7 @@ Logo::Logo(QObject *parent) : NT3Screen(parent)
 
 void Logo::init(){
     this->bd_played = false;
-    this->ba_ding.setVolume(volume*1.0/100.0);
+    this->ba_ding.setVolume(volume*volume_sfx_multiplier);
     this->logo_offset_y = -logo_rect_final.y() - logo_rect_final.height();
     this->logo_offset_delta = -logo_offset_y/logo_slide_duration; //UI pixels/sec
 }

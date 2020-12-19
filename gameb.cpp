@@ -84,7 +84,7 @@ void GameB::init(){
     this->current_level = 0;
     
     for (uint s = 0; s < num_sound_effects; ++s){
-        this->sfx[s].setVolume(volume*1.0/100.0);
+        this->sfx[s].setVolume(volume*volume_sfx_multiplier);
     }
     
     this->destroyWorld();

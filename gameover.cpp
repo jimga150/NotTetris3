@@ -6,7 +6,7 @@ GameOver::GameOver(QObject *parent) : NT3Screen(parent)
 }
 
 void GameOver::init(){
-    this->gameover_sound.setVolume(volume*1.0/100.0);
+    this->gameover_sound.setVolume(volume*volume_sfx_multiplier);
     this->gameover_sound.play();
     
     uint score_A = ((NT3Window*)(this->parent()))->gameA_score;
