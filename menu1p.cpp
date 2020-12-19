@@ -58,6 +58,15 @@ Menu1P::Menu1P(QObject *parent) : NT3Screen(parent)
     this->highscorebeep.setSource(QUrl(this->highscorebeep_path));
 }
 
+Menu1P::~Menu1P(){
+    if (this->high_scores_file){
+        if (this->high_scores_file->isOpen()){
+            this->high_scores_file->close();
+        }
+        delete this->high_scores_file;
+    }
+}
+
 void Menu1P::init(){
     
     this->high_score_entry_mode = false;

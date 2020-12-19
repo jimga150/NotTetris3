@@ -30,6 +30,7 @@ class Menu1P : public NT3Screen
     Q_OBJECT
 public:
     explicit Menu1P(QObject *parent = nullptr);
+    ~Menu1P() override;
     
     void init() override;
     
