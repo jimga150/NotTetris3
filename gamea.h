@@ -365,31 +365,31 @@ public:
     const float32 old_g = 500;
     const float32 old_start_y = -64;
     const float32 old_game_height = 640;    
-    float32 gravity_g = old_g*(static_cast<float32>(tetris_field.height()) - piece_start.y)/(old_game_height - old_start_y);
+    const float32 gravity_g = old_g*(static_cast<float32>(tetris_field.height()) - piece_start.y)/(old_game_height - old_start_y);
     
-    float32 density = 1;//1.0f/900.0f;
+    const float32 density = 1;//1.0f/900.0f;
     
-    float32 wmax = 3.0f;
-    float32 angular_accel = 9.55342974715892f;
+    const float32 wmax = 3.0f;
+    const float32 angular_accel = 9.55342974715892f;
     
-    float32 lateral_accel = 11.25f*side_length;
+    const float32 lateral_accel = 11.25f*side_length;
     
-    float32 downward_accel = 14.441875f*side_length;
+    const float32 downward_accel = 14.441875f*side_length;
     
-    float32 upward_correcting_accel = 50.87875f*side_length; 
+    const float32 upward_correcting_accel = 50.87875f*side_length; 
     
-    float32 downward_velocity_max = 15.753125f*side_length; 
-    float32 downward_velocity_regular = 2.86853125f*side_length;
+    const float32 downward_velocity_max = 15.753125f*side_length; 
+    const float32 downward_velocity_regular = 2.86853125f*side_length;
     
-    float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
-    float32 ground_friction_k = 0.5f;
+    const float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
+    const float32 ground_friction_k = 0.5f;
     
-    float32 restitution = 0.01f;
+    const float32 restitution = 0.01f;
     
-    float32 linear_damping = 0.5f;
-    float32 angular_damping = 0.1f;
+    const float32 linear_damping = 0.5f;
+    const float32 angular_damping = 0.1f;
     
-    float32 line_clear_threshold = 8.1f*square_area;
+    const float32 line_clear_threshold = 8.1f*square_area;
     
     
     //next piece stuff
