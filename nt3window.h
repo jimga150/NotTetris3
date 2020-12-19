@@ -7,14 +7,14 @@
 
 #include "nt3screen.h"
 
-#include "logo.h"
-#include "gamea.h"
-#include "gameb.h"
-#include "credits.h"
-#include "mainmenu.h"
-#include "globaloptions.h"
-#include "menu1p.h"
-#include "gameover.h"
+#include "Screens/logo.h"
+#include "Screens/gamea.h"
+#include "Screens/gameb.h"
+#include "Screens/credits.h"
+#include "Screens/mainmenu.h"
+#include "Screens/globaloptions.h"
+#include "Screens/menu1p.h"
+#include "Screens/gameover.h"
 
 class NT3Window : public OpenGL2DWindow
 {

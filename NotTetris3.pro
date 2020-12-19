@@ -69,16 +69,16 @@ SOURCES += \
     Box2D/Dynamics/b2World.cpp \
     Box2D/Dynamics/b2WorldCallbacks.cpp \
     Box2D/Rope/b2Rope.cpp \
-    credits.cpp \
-    gamea.cpp \
-    gameb.cpp \
-    gameover.cpp \
-    globaloptions.cpp \
+    Screens/credits.cpp \
+    Screens/gamea.cpp \
+    Screens/gameb.cpp \
+    Screens/gameover.cpp \
+    Screens/globaloptions.cpp \
     imagefont.cpp \
-    logo.cpp \
+    Screens/logo.cpp \
     main.cpp \
-    mainmenu.cpp \
-    menu1p.cpp \
+    Screens/mainmenu.cpp \
+    Screens/menu1p.cpp \
     nt3contactlistener.cpp \
     nt3screen.cpp \
     nt3window.cpp \
@@ -133,15 +133,15 @@ HEADERS += \
     Box2D/Dynamics/b2WorldCallbacks.h \
     Box2D/Rope/b2Rope.h \
     common.h \
-    credits.h \
-    gamea.h \
-    gameb.h \
-    gameover.h \
-    globaloptions.h \
+    Screens/credits.h \
+    Screens/gamea.h \
+    Screens/gameb.h \
+    Screens/gameover.h \
+    Screens/globaloptions.h \
     imagefont.h \
-    logo.h \
-    mainmenu.h \
-    menu1p.h \
+    Screens/logo.h \
+    Screens/mainmenu.h \
+    Screens/menu1p.h \
     nt3contactlistener.h \
     nt3screen.h \
     nt3window.h \
