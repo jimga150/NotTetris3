@@ -9,6 +9,7 @@
 
 #include "Box2D/Box2D.h"
 
+#include "tetrisgamestuff.h"
 #include "nt3screen.h"
 #include "nt3contactlistener.h"
 #include "nt3window.h"
@@ -29,49 +30,6 @@ enum gamea_state_enum{
     num_gamea_states
 };
 
-enum tetris_piece_enum{
-    I = 0, //Long skinny piece
-    O, //2x2 square
-    G, //¬ piece, or a backwards L. G stands for capital Gamma.
-    L,
-    Z,
-    S,
-    T,
-    
-    num_tetris_pieces
-};
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-static tetris_piece_enum default_tetris_piece = I;
-#pragma GCC diagnostic push
-
-enum wall_enum{
-    GROUND = 0,
-    LEFTWALL,
-    RIGHTWALL,
-    
-    num_walls
-};
-
-enum rotate_state_enum{
-    NO_ROTATION = 0,
-    ROTATECCW,
-    ROTATECW,
-    BOTH_ROTATIONS,
-    
-    num_rotate_states
-};
-
-enum lateral_movement_state_enum{
-    NO_LATERAL_MOVEMENT = 0,
-    MOVELEFT,
-    MOVERIGHT,
-    BOTH_DIRECTIONS,
-    
-    num_lateral_movement_states
-};
-
 enum ray_cast_enum{
     TOPLEFT = 0,
     TOPRIGHT,
@@ -86,19 +44,6 @@ enum line_cut_side_enum{
     TOP,
     
     num_line_cut_sides
-};
-
-enum sound_effect_enum{
-    BLOCK_TURN = 0,
-    BLOCK_MOVE,
-    BLOCK_FALL,
-    LINE_CLEAR,
-    FOUR_LINE_CLEAR,
-    GAME_OVER_SOUND,
-    PAUSE_SOUND,
-    NEW_LEVEL,
-    
-    num_sound_effects
 };
 
 struct row_sides_struct{
@@ -123,49 +68,6 @@ struct rayCastComplete{
         t.Set(b->GetPosition(), b->GetAngle());
         this->hit = s->RayCast(&this->output, this->input, t, 0);
     }
-};
-
-struct tetrisPieceData {
-    
-    QPixmap image;
-    
-    QImage image_in_waiting;
-    
-    QRect region;
-    
-    tetrisPieceData(){}
-    
-    tetrisPieceData(QPixmap image, QRect region){
-        this->image = image;
-        this->region = region;
-    }
-    
-    bool operator==(const tetrisPieceData& other) const
-    {
-        return this->region == other.region && this->image.toImage() == other.image.toImage();
-    }
-    
-    QImage get_image(){
-        if (this->image_in_waiting.isNull()){
-            return this->image.toImage();
-        }
-        return this->image_in_waiting;
-    }
-    
-    void resolveImage(){
-        if (!this->image_in_waiting.isNull()){
-            
-            this->image = QPixmap(this->image_in_waiting.size());
-            this->image.fill(Qt::transparent);
-            
-            QPainter p(&this->image);
-            p.drawImage(this->image_in_waiting.rect(), this->image_in_waiting);
-            p.end();
-            
-            this->image_in_waiting = QImage();
-        }
-    }
-    
 };
 
 class GameA : public NT3Screen

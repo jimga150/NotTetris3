@@ -143,7 +143,8 @@ HEADERS += \
     nt3contactlistener.h \
     nt3screen.h \
     nt3window.h \
-    opengl2dwindow.h
+    opengl2dwindow.h \
+    tetrisgamestuff.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
