@@ -356,6 +356,8 @@ void Menu1P::resetBlinkTimer(){
 
 void Menu1P::save_high_scores(){
     
+    Q_ASSERT(this->high_scores_file);
+    
     this->high_scores_file->close();
     if (!this->high_scores_file->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
         fprintf(stderr, "Cannot open file at %s\n", 

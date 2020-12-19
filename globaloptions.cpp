@@ -179,6 +179,8 @@ void GlobalOptions::colorizeResources(){
 
 void GlobalOptions::save_options(){
     
+    Q_ASSERT(this->options_file);
+    
     this->options_file->close();
     if (!this->options_file->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
         fprintf(stderr, "Cannot open file at %s\n", 
