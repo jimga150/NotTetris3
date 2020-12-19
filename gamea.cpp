@@ -561,6 +561,8 @@ void GameA::keyPressEvent(QKeyEvent* ev){
             ((NT3Window*)(this->parent()))->music_player.play();
         }
         this->paused = !this->paused;
+    } else if (key == Qt::Key_Escape){
+        emit this->stateEnd(P_GAMEOPTIONS);
     }
 }
 
