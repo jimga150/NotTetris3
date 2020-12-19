@@ -380,6 +380,7 @@ public:
     
     const float32 downward_velocity_max = 15.753125f*side_length; 
     const float32 downward_velocity_regular = 2.86853125f*side_length;
+    const float32 downward_velocity_level_increment = 0.2007971875f*side_length;
     
     const float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
     const float32 ground_friction_k = 0.5f;
@@ -418,6 +419,8 @@ public:
     int current_level;
     
     bool new_level_reached;
+    
+    const int lines_per_level = 10;
     
     
     //piece params

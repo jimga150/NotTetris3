@@ -762,11 +762,14 @@ void GameA::doGameStep(){
         }
         
         float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
+        float32 downward_velocity_adjusted = 
+                this->downward_velocity_regular + 
+                this->downward_velocity_level_increment*this->current_level;
         
-        if (!this->accelDownState && qAbs(y_velocity - this->downward_velocity_regular) <= 1){
+        if (!this->accelDownState && qAbs(y_velocity - downward_velocity_adjusted) <= 1){
             linear_force_vect.y = 0;
-            this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, this->downward_velocity_regular));
-        } else if (this->accelDownState || y_velocity < this->downward_velocity_regular){
+            this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, downward_velocity_adjusted));
+        } else if (this->accelDownState || y_velocity < downward_velocity_adjusted){
             //printf("forcing downwards\n");
             linear_force_vect.y = this->downward_accel*mass;
         } else {
@@ -832,8 +835,14 @@ void GameA::doGameStep(){
             this->game_state = start_row_clear_blinking;
             
             this->lines_cleared += num_lines_removed;
-            if (this->lines_cleared/10 > this->current_level){
-                this->current_level = this->lines_cleared/10;
+            if (this->lines_cleared/this->lines_per_level > this->current_level){
+                this->current_level = this->lines_cleared/this->lines_per_level;
+                this->tetrisBodyDef.linearVelocity = 
+                        b2Vec2(
+                            0, 
+                            this->downward_velocity_regular + 
+                            this->downward_velocity_level_increment*this->current_level
+                            );
                 this->new_level_reached = true;
             }
             
