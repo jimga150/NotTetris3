@@ -80,9 +80,7 @@ public:
     
     //utilities
     bool isAWall(b2Body* b);
-    
-    QString b2Vec2String(b2Vec2 vec);
-    
+        
     tetrisPieceData getTetrisPieceData(b2Body* b);
     
     void setTetrisPieceData(b2Body* b, tetrisPieceData tpd);

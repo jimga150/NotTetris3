@@ -713,10 +713,6 @@ bool GameB::isAWall(b2Body* b){
     return false;
 }
 
-QString GameB::b2Vec2String(b2Vec2 vec){
-    return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
-}
-
 tetrisPieceData GameB::getTetrisPieceData(b2Body* b){
     
     tetrisPieceData ans = this->userData.value(b, this->default_data);
