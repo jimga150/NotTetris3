@@ -251,14 +251,6 @@ void GameA::render(QPainter& painter)
         timer.restart();
 #endif
         
-        /*painter.drawEllipse(this->next_piece_display_center*this->ui_scale, 3, 3);
-         * b2Vec2 npc = this->next_piece_for_display->GetWorldCenter();
-         * painter.setPen(QColor(0, 255, 0));
-         * painter.drawEllipse(QPointF(npc.x, npc.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);
-         * b2Vec2 npp = this->next_piece_for_display->GetWorldPoint(b2Vec2(0, 0));
-         * painter.setPen(QColor(0, 0, 255));
-         * painter.drawEllipse(QPointF(npp.x, npp.y)*physics_scale + this->scaled_tetris_field.topLeft(), 3, 3);*/
-        
         painter.setPen(Qt::NoPen);
         
         for (uint r = 0; r < this->tetris_rows; r++){
@@ -281,33 +273,6 @@ void GameA::render(QPainter& painter)
         timer.restart();
 #endif
     }
-    
-//    if (this->game_state == row_clear_blinking){
-        
-//        if (this->row_blink_on){
-            
-//            painter.setBrush(this->line_clear_color);
-            
-//            for (uint r = 0; r < this->tetris_rows; r++){
-                
-//                if (this->rows_to_clear.at(r)){
-                    
-//                    row_sides_struct sides(r, this->side_length);
-                    
-//                    painter.drawRect(
-//                                this->scaled_tetris_field.x(),
-//                                static_cast<int>(static_cast<double>(sides.bottom)*this->physics_scale) - 1,
-//                                this->scaled_tetris_field.width(),
-//                                static_cast<int>(static_cast<double>(sides.top - sides.bottom)*this->physics_scale) + 2
-//                                );
-//                }
-//            }
-//        }
-//    }
-    
-//#ifdef TIME_RENDER_STEPS
-//    printf("Row blinks: %lld ms\n", timer.elapsed());
-//#endif
 }
 
 void GameA::colorizeResources(){
