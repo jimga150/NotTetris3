@@ -279,9 +279,14 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         } else if (key == Qt::Key_Delete || key == Qt::Key_Backspace){
             curr_highscores[this->high_score_entering].name.remove(curr_highscores[this->high_score_entering].name.length()-1, 1);
         }
+        // if the key pressed implies text, and if the current high scorer's name being entered is under the character limit
         else if (text.length() > 0 && curr_highscores[this->high_score_entering].name.length() < this->max_highscore_name_length){
-            curr_highscores[this->high_score_entering].name += text;
-            this->highscorebeep.play();
+            // AND, if the image font can even handle the character requested
+            if (this->BOW_font.characters.contains(static_cast<char>(text[0].unicode()))){
+                // THEN add that character to the name
+                curr_highscores[this->high_score_entering].name += text;
+                this->highscorebeep.play();
+            }
         }
     } else {
         music_type_enum currMT = static_cast<music_type_enum>(this->option_groups[MUSIC_TYPE].current_opt);
