@@ -116,8 +116,8 @@ void GameB::init(){
 
 void GameB::freeUserDataOn(b2Body* b){
     if (!b) return;
-    int numremoved = this->userData.remove(b);
-    /*if (numremoved == 0 && !this->isAWall(b)){
+    /*int numremoved = this->userData.remove(b);
+    if (numremoved == 0 && !this->isAWall(b)){
         printf("%p had no user data!\n", (void*)b);
         Q_ASSERT(false);
     }*/

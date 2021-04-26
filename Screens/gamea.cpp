@@ -128,8 +128,8 @@ void GameA::init(){
 
 void GameA::freeUserDataOn(b2Body* b){
     if (!b) return;
-    int numremoved = this->userData.remove(b);
-    /*if (numremoved == 0 && !this->isAWall(b)){
+    /*int numremoved = this->userData.remove(b);
+    if (numremoved == 0 && !this->isAWall(b)){
         printf("%p had no user data!\n", (void*)b);
         Q_ASSERT(false);
     }*/
@@ -1154,7 +1154,7 @@ void GameA::clearSection(float32 top_y, float32 bottom_y){
         }
         
         b2FixtureDef f_def = this->tetrisFixtures.at(0).at(0);
-        for (b2PolygonShape s : shapes_to_make){
+        for (b2PolygonShape& s : shapes_to_make){
             /*printf("Adding shape to new body:\n");
             for (uint i = 0; i < s.m_count; i++){
                 printf("\t%s\n", this->b2Vec2String(b->GetWorldPoint(s.m_vertices[i])).toUtf8().constData());
@@ -1210,7 +1210,7 @@ void GameA::clearSection(float32 top_y, float32 bottom_y){
         new_body_def.angle = b->GetAngle();
         new_body_def.position = b->GetPosition();
         
-        for (vector<b2PolygonShape*> group : shape_groups){
+        for (vector<b2PolygonShape*>& group : shape_groups){
             
             //make new body
             b2Body* new_body = this->world->CreateBody(&new_body_def);

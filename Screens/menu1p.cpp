@@ -131,7 +131,7 @@ void Menu1P::init(){
         //read into array of structs
         high_score_struct high_scores_unsorted[highscores_list_length+1];
         int ind = 0;
-        for (QString s : hs_pairs){
+        for (QString& s : hs_pairs){
             QStringList pair = s.split(QChar(this->name_score_separator), Qt::SkipEmptyParts);
             if (pair.length() != 2) continue;
             

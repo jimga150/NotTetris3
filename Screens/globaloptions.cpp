@@ -244,7 +244,7 @@ void GlobalOptions::load_options(){
     QString options_file_str = stream.readAll();
     
     QStringList option_strings = options_file_str.split(QChar(this->options_separator));
-    for (QString option_string : option_strings){
+    for (QString& option_string : option_strings){
         QStringList keyvalpair = option_string.split(this->key_val_separator);
         if (keyvalpair.size() != 2) continue;
         
