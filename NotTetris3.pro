@@ -74,6 +74,7 @@ SOURCES += \
     Screens/gameb.cpp \
     Screens/gameover.cpp \
     Screens/globaloptions.cpp \
+    Screens/menu2p.cpp \
     imagefont.cpp \
     Screens/logo.cpp \
     main.cpp \
@@ -132,6 +133,7 @@ HEADERS += \
     Box2D/Dynamics/b2World.h \
     Box2D/Dynamics/b2WorldCallbacks.h \
     Box2D/Rope/b2Rope.h \
+    Screens/menu2p.h \
     common.h \
     Screens/credits.h \
     Screens/gamea.h \

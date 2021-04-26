@@ -12,4 +12,6 @@ pausesound: played at the moment the game is paused
 
 highscorebeep: played every time letter is entered in high score name entry
 
+highscoreintro: 
+
 new level: played at the moment the game continues after a line clear, IF that line clear put you into the next "level"
