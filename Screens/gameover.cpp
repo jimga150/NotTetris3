@@ -1,4 +1,5 @@
 #include "gameover.h"
+#include "nt3window.h"
 
 GameOver::GameOver(QObject *parent) : NT3Screen(parent)
 {

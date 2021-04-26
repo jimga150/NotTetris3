@@ -12,7 +12,6 @@
 #include "tetrisgamestuff.h"
 #include "nt3screen.h"
 #include "nt3contactlistener.h"
-#include "nt3window.h"
 
 //#define TIME_GAME_FRAME 1
 //#define TIME_RENDER_STEPS 1

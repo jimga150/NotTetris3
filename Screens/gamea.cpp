@@ -1,4 +1,5 @@
 #include "gamea.h"
+#include "nt3window.h"
 
 GameA::GameA(QObject *parent) : NT3Screen(parent)
 {    

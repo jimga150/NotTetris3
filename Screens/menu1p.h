@@ -1,8 +1,11 @@
 #ifndef MENU1P_H
 #define MENU1P_H
 
+#include <QStandardPaths>
+#include <QDir>
+#include <QSoundEffect>
+
 #include "nt3screen.h"
-#include "nt3window.h"
 
 enum option_group_enum {
     GAME_TYPE = 0,

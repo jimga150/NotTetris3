@@ -1,9 +1,9 @@
 #ifndef LOGO_H
 #define LOGO_H
 
-#include "nt3screen.h"
-
 #include <QSoundEffect>
+
+#include "nt3screen.h"
 
 class Logo : public NT3Screen
 {

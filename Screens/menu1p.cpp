@@ -1,4 +1,5 @@
 #include "menu1p.h"
+#include "nt3window.h"
 
 music_type_enum music_type;
 

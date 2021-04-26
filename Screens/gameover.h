@@ -1,8 +1,9 @@
 #ifndef GAMEOVER_H
 #define GAMEOVER_H
 
+#include <QSoundEffect>
+
 #include "nt3screen.h"
-#include "nt3window.h"
 
 class GameOver : public NT3Screen
 {
