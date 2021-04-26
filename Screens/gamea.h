@@ -311,6 +311,8 @@ public:
     
     bool paused;
     QPixmap pause_frame;
+
+    bool skip_falling;
     
     const float32 avgarea_divisor = square_area*10;
     

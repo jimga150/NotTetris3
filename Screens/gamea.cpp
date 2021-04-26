@@ -80,6 +80,7 @@ void GameA::init(){
     
     this->game_state = gameA;
     this->paused = false;
+    this->skip_falling = false;
     
     this->current_score = 0;
     this->score_to_add = 0;
@@ -515,7 +516,12 @@ void GameA::keyPressEvent(QKeyEvent* ev){
         this->rotateState = NO_ROTATION;
         this->accelDownState = false;
     } else if (key == Qt::Key_Enter || key == Qt::Key_Return){
-        if (!this->paused){ // NOT paused, about to pause
+
+        if (!this->paused && this->game_state == flush_blocks){
+            this->skip_falling = true;
+            return;
+        } else if (!this->paused){ // NOT paused, about to pause
+
             this->pause_frame = QPixmap(this->scaled_ui_field.size());
             QPainter painter(&this->pause_frame);
             this->render(painter);
@@ -526,7 +532,9 @@ void GameA::keyPressEvent(QKeyEvent* ev){
         } else { // already paused and about to unpause
             ((NT3Window*)(this->parent()))->music_player.play();
         }
+
         this->paused = !this->paused;
+
     } else if (key == Qt::Key_Escape){
         emit this->stateEnd(P_GAMEOPTIONS);
     }
@@ -769,7 +777,10 @@ void GameA::doGameStep(){
         }
         this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     } else {
-        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field.height()){
+        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field.height()
+                || this->skip_falling){
+
+            printf("Skip falling: %d\n", this->skip_falling);
             
             // Copy score to window object for reference by future screens
             ((NT3Window*)(this->parent()))->gameA_score = this->current_score;
