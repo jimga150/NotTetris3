@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QScreen>
 #include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "common.h"
 #include "imagefont.h"

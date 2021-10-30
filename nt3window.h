@@ -39,6 +39,7 @@ public:
     int oldVolume;
     
     QMediaPlayer music_player;
+    QAudioOutput audio_output;
     
     int expected_frame_time = 0;
     std::string frame_toolong_suffix = "!!!";
@@ -51,7 +52,7 @@ public:
 public slots:
     void stateEnd(NT3_state_enum next, bool stopMusic = true);
     
-    void restartMusic(QMediaPlayer::State newstate);
+    void restartMusic(QMediaPlayer::PlaybackState newstate);
     
     void musicChange(QUrl new_url);
     

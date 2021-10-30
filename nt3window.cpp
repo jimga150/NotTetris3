@@ -75,9 +75,10 @@ NT3Window::NT3Window()
     //load global options from file
     ((GlobalOptions*)(this->screens[GLOBAL_OPTIONS]))->load_options();
     
-    this->music_player.setVolume(volume);
+    this->music_player.setAudioOutput(&this->audio_output);
+    this->audio_output.setVolume(volume);
     
-    connect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
+    connect(&this->music_player, &QMediaPlayer::playbackStateChanged, this, &NT3Window::restartMusic);
     
     this->setupWindow();
     
@@ -128,20 +129,20 @@ void NT3Window::stateEnd(NT3_state_enum next, bool stopMusic){
     this->resizeEvent(&ev);
 }
 
-void NT3Window::restartMusic(QMediaPlayer::State newstate){
+void NT3Window::restartMusic(QMediaPlayer::PlaybackState newstate){
     if (newstate == QMediaPlayer::StoppedState){
         this->music_player.play();
     }
 }
 
 void NT3Window::musicChange(QUrl new_url){
-    disconnect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
+    disconnect(&this->music_player, &QMediaPlayer::playbackStateChanged, this, &NT3Window::restartMusic);
     
     this->music_player.stop();
-    this->music_player.setMedia(new_url);
+    this->music_player.setSource(new_url);
     this->music_player.play();
     
-    connect(&this->music_player, &QMediaPlayer::stateChanged, this, &NT3Window::restartMusic);
+    connect(&this->music_player, &QMediaPlayer::playbackStateChanged, this, &NT3Window::restartMusic);
 }
 
 void NT3Window::render(QPainter &painter){
@@ -220,7 +221,7 @@ void NT3Window::doGameStep(){
     }
     
     if (this->oldVolume != volume){
-        this->music_player.setVolume(volume);
+        this->audio_output.setVolume(volume);
         this->oldVolume = volume;
     }
     
