@@ -610,7 +610,7 @@ void GameA::doGameStep(){
         this->game_state = row_clear_blinking;
         
         //check and clear any rows that need be cleared (in another thread, resolved later)
-        this->line_clearing_thread = QtConcurrent::run(this, &GameA::clearRows);
+        this->line_clearing_thread = QtConcurrent::run(&GameA::clearRows, this);
         
         this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
     }
