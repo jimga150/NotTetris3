@@ -81,7 +81,14 @@ void OpenGL2DWindow::setAnimating(bool animating){
 bool OpenGL2DWindow::event(QEvent *event){
     switch (event->type()) {
     case QEvent::UpdateRequest:
-        this->renderNow();
+
+        if ((++frame_counter) % frame_divisor == 0){
+            this->renderNow();
+        } else {
+            // Call update to trigger event on next frame
+            if (this->m_animating) this->update();
+        }
+
         return true;
     default:
         return QWindow::event(event);

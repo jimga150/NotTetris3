@@ -100,6 +100,9 @@ protected:
     QOpenGLContext *m_context = nullptr;
     QOpenGLPaintDevice *m_device = nullptr;
 
+    int frame_divisor = 1;
+    int frame_counter = 0;
+
 #ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
     std::vector<long long> frame_times_vect;

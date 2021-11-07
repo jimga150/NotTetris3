@@ -28,7 +28,15 @@ NT3Window::NT3Window()
     };
     
     QScreen* screen = this->screen();
-    framerate = 1.0/screen->refreshRate();
+    float fps = screen->refreshRate();
+
+    float targetFPS = 60;
+    frame_divisor = qMax((int)floor(fps/targetFPS), 1);
+    fps /= frame_divisor;
+
+    framerate = 1.0/fps;
+
+    printf("Refresh rate (adjusted to between 60 and 119.999 FPS: %f FPS (%f ms)\n", fps, framerate*MILLIS_PER_SECOND);
     
     this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
     
