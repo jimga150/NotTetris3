@@ -282,6 +282,8 @@ void Menu1P::keyPressEvent(QKeyEvent* ev){
         }
         // if the key pressed implies text, and if the current high scorer's name being entered is under the character limit
         else if (text.length() > 0 && curr_highscores[this->high_score_entering].name.length() < this->max_highscore_name_length){
+            // cast to lowercase since font is supposed to be case-insensitive
+            text = text.toLower();
             // AND, if the image font can even handle the character requested
             if (this->BOW_font.characters.contains(static_cast<char>(text[0].unicode()))){
                 // THEN add that character to the name
