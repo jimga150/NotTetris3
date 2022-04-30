@@ -20,7 +20,9 @@ enum tetris_piece_enum{
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 static tetris_piece_enum default_tetris_piece = I;
-#pragma GCC diagnostic push
+
+static double powerup_chance = 0.1;
+#pragma GCC diagnostic pop
 
 enum wall_enum{
     GROUND = 0,
@@ -68,17 +70,19 @@ struct tetrisPieceData {
     QImage image_in_waiting;
     
     QRect region;
+
+    bool is_powerup;
     
     tetrisPieceData(){}
     
-    tetrisPieceData(QPixmap image, QRect region){
+    tetrisPieceData(QPixmap image, QRect region, bool is_powerup){
         this->image = image;
         this->region = region;
+        this->is_powerup = is_powerup;
     }
     
-    bool operator==(const tetrisPieceData& other) const
-    {
-        return this->region == other.region && this->image.toImage() == other.image.toImage();
+    bool operator==(const tetrisPieceData& other) const{
+        return this->is_powerup == other.is_powerup && this->region == other.region && this->image.toImage() == other.image.toImage();
     }
     
     QImage get_image(){

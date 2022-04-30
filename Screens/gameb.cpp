@@ -672,7 +672,7 @@ void GameB::makeNewTetrisPiece(){
         this->currentPiece->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type));
+    tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type), false);
     this->setTetrisPieceData(this->currentPiece, data);    
 }
 
@@ -700,7 +700,7 @@ void GameB::makeNewNextPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type));
+    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type), false);
     this->setTetrisPieceData(this->next_piece_for_display, data);
 }
 

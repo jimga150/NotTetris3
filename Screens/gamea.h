@@ -345,6 +345,7 @@ public:
     QPixmap pause_overlay = QPixmap(pause_overlay_path);
     
     vector<QPixmap> piece_images;
+    vector<QPixmap> pwu_piece_images;
     vector<QRect> piece_rects;
     
     QPixmap default_piece_image;

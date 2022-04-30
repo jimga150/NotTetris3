@@ -73,5 +73,6 @@
         <file>graphics/gamebackgroundgameb.png</file>
         <file>graphics/pausegameb.png</file>
         <file>graphics/pausegamea.png</file>
+        <file>graphics/pieces/powerup.png</file>
     </qresource>
 </RCC>

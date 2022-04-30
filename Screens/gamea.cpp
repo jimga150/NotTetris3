@@ -1539,8 +1539,15 @@ void GameA::makeNewTetrisPiece(){
         this->currentPiece->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(type), this->piece_rects.at(type));
-    this->setTetrisPieceData(this->currentPiece, data);    
+    bool is_powerup = this->rng.generateDouble() < powerup_chance;
+    QPixmap piece_img;
+    if (is_powerup){
+        piece_img = this->pwu_piece_images.at(type);
+    } else {
+        piece_img = this->piece_images.at(type);
+    }
+    tetrisPieceData data(piece_img, this->piece_rects.at(type), is_powerup);
+    this->setTetrisPieceData(this->currentPiece, data);
 }
 
 void GameA::makeNewNextPiece(){
@@ -1567,7 +1574,7 @@ void GameA::makeNewNextPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type));
+    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type), false);
     this->setTetrisPieceData(this->next_piece_for_display, data);
 }
 
@@ -1814,28 +1821,75 @@ void GameA::initializeTetrisPieceImages(){
         
         /*printf("%u: orig_pixmap: %u, this->piece_images.back(): %u\n",
                piece, orig_pixmap.hasAlphaChannel(), this->piece_images.back().hasAlphaChannel());*/
+
+        path = ":/resources/graphics/pieces/powerup.png";
+        orig_pixmap = this->colorize(QPixmap(path));
+        orig_pixmap = orig_pixmap.scaled(orig_pixmap.size()*this->piece_image_scale);
+        QImage orig_img = orig_pixmap.toImage();
+        QSize piece_size = this->piece_images.back().size();
+        QImage pwu_pieceimage = QImage(piece_size, QImage::Format_ARGB32);
+        pwu_pieceimage.fill(Qt::transparent);
+        QPainter painter(&pwu_pieceimage);
         
         switch(piece){
         case I:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*3, 0), orig_img);
             this->piece_rects.push_back(QRect(-2*side_length, -side_length/2, 4*side_length, side_length));
             break;
         case O:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
+            painter.drawImage(QPoint(0, orig_img.height()), orig_img);
             this->piece_rects.push_back(QRect(-side_length, -side_length, 2*side_length, 2*side_length));
             break;
         case G:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
+            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            break;
         case L:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
+            painter.drawImage(QPoint(0, orig_img.height()), orig_img);
+            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            break;
         case T:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
             break;
         case Z:
+            painter.drawImage(QPoint(0, 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
+            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            break;
         case S:
+            painter.drawImage(QPoint(0, orig_img.height()), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
+            painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
+            painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             this->piece_rects.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
             break;
         default:
             fprintf(stderr, "Piece not defined: %u\n", piece);
             break;
         }
+
+        painter.end();
+        pwu_piece_images.push_back(this->enableAlphaChannel(QPixmap::fromImage(pwu_pieceimage)));
     }
+
     this->default_piece_image = this->piece_images.at(default_tetris_piece);
     this->default_piece_rect = this->piece_rects.at(default_tetris_piece);
     this->default_data.image = this->default_piece_image;
