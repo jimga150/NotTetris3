@@ -1,6 +1,8 @@
 #ifndef GAMEA_H
 #define GAMEA_H
 
+#include <cmath>
+
 #include <QRandomGenerator>
 #include <QElapsedTimer>
 #include <QtConcurrent>
@@ -116,14 +118,16 @@ public:
     void clearRows();
     
     float32 getRowArea(uint row);
+
+    void clearDiagRange(float32 top_y, float32 bottom_y, float32 angle_rad);
     
-    void clearSection(float32 top_y, float32 bottom_y);
+    void clearYRange(float32 top_y, float32 bottom_y);
     
     QImage maskImage(b2Body* b, QImage orig_image, QRect region);
     
     bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
-    vector<rayCastComplete> getRayCasts(float32 top, float32 bot);
+    vector<rayCastComplete> getRayCasts(float32 top, float32 bot, float32 angle_rad);
     
     b2Vec2 hit_point(rayCastComplete ray_cast);
     
@@ -165,10 +169,10 @@ public:
     //debug
     const bool debug_framerate = true;
     
-    const bool debug_box2d = false;
+    const bool debug_box2d = true;
     
     // not const cause of the way its used but trust me, dont change it willy nilly. I'll know.
-    bool frame_review = false;
+    bool frame_review = true;
     
     
     //calculated timings    
@@ -242,6 +246,11 @@ public:
     
     const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
     double physics_scale = physics_to_ui_scale*ui_scale;
+
+    const float32 diag_cut_angle = M_PI/18.0;
+
+    const float32 raycast_left = -this->side_length;
+    const float32 raycast_right = static_cast<float32>(this->tetris_field.width()) + this->side_length;
         
     //scale used to make tetris piece cutting smooth (set later)
     double piece_image_scale = 0;
