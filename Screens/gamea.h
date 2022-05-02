@@ -247,8 +247,6 @@ public:
     const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
     double physics_scale = physics_to_ui_scale*ui_scale;
 
-    const float32 diag_cut_angle = M_PI/18.0;
-
     const float32 raycast_left = -this->side_length;
     const float32 raycast_right = static_cast<float32>(this->tetris_field.width()) + this->side_length;
         

@@ -750,10 +750,16 @@ void GameA::doGameStep(){
                 float32 angle_rad = this->currentPiece->GetAngle();
                 b2Vec2 bp = this->currentPiece->GetWorldCenter();
                 this->diag_slope = static_cast<float32>(tan(static_cast<double>(angle_rad)));
+
+                if (isnan(this->diag_slope) || isinf(this->diag_slope)){
+                    this->clear_diag_cut = false;
+                    fprintf(stderr, "Diagonal cut not performed, powerup piece landed stright up!");
+                    //TODO: maybe play a little error sound here
+                }
+
                 this->diag_top = bp.y + this->side_length/2 - this->diag_slope*bp.x;
                 this->diag_bot = bp.y - this->side_length/2 - this->diag_slope*bp.x;
 
-                printf("Powerup landed\n");
                 this->world->DestroyBody(this->currentPiece);
             }
             this->makeNewTetrisPiece();
