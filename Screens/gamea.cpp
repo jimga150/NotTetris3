@@ -101,6 +101,11 @@ void GameA::init(){
         this->rows_to_clear.push_back(false);
     }
 
+    this->clear_diag_cut = false;
+    this->diag_top = FP_NAN;
+    this->diag_bot = FP_NAN;
+    this->diag_slope = FP_NAN;
+
     this->destroyWorld();
     
     b2Vec2 gravity(0.0f, this->gravity_g);
@@ -199,33 +204,34 @@ void GameA::render(QPainter& painter)
                     // last row in contiguous block sees the top Y value
                     row_sides_struct top_row(cr - 1, this->side_length);
                     float32 top_y = top_row.top;
-
-                    float32 slope = -1.0f*static_cast<float32>(tan(static_cast<double>(this->diag_cut_angle))); //TODO
-
-                    int x1 = this->scaled_tetris_field.x();
-                    int x2 = this->scaled_tetris_field.x() + this->scaled_tetris_field.width();
-
-                    int y1 = static_cast<int>(static_cast<double>(bottom_y + slope*this->raycast_left)*this->physics_scale + slope*x1);
-                    int y2 = static_cast<int>(static_cast<double>(top_y + slope*this->raycast_left)*this->physics_scale + slope*x1);
-                    int y3 = static_cast<int>(static_cast<double>(top_y + slope*this->raycast_left)*this->physics_scale + slope*x2);
-                    int y4 = static_cast<int>(static_cast<double>(bottom_y + slope*this->raycast_left)*this->physics_scale + slope*x2);
-
-                    QList<QPoint> points;
-                    points.append(QPoint(x1, y1));
-                    points.append(QPoint(x1, y2));
-                    points.append(QPoint(x2, y3));
-                    points.append(QPoint(x2, y4));
                     
-//                    painter.drawRect(
-//                                this->scaled_tetris_field.x(),
-//                                static_cast<int>(static_cast<double>(bottom_y)*this->physics_scale),
-//                                this->scaled_tetris_field.width(),
-//                                static_cast<int>(static_cast<double>(top_y - bottom_y)*this->physics_scale)
-//                                );
-                    painter.drawPolygon(QPolygon(points));
+                    painter.drawRect(
+                                this->scaled_tetris_field.x(),
+                                static_cast<int>(static_cast<double>(bottom_y)*this->physics_scale),
+                                this->scaled_tetris_field.width(),
+                                static_cast<int>(static_cast<double>(top_y - bottom_y)*this->physics_scale)
+                                );
                     
                     r = cr - 1;
                 }
+            }
+
+            if (this->clear_diag_cut){
+                int x1 = this->scaled_tetris_field.x();
+                int x2 = this->scaled_tetris_field.x() + this->scaled_tetris_field.width();
+
+                int y1 = static_cast<int>(static_cast<double>(this->diag_bot + this->diag_slope*this->raycast_left)*this->physics_scale + this->diag_slope*x1);
+                int y2 = static_cast<int>(static_cast<double>(this->diag_top + this->diag_slope*this->raycast_left)*this->physics_scale + this->diag_slope*x1);
+                int y3 = static_cast<int>(static_cast<double>(this->diag_top + this->diag_slope*this->raycast_left)*this->physics_scale + this->diag_slope*x2);
+                int y4 = static_cast<int>(static_cast<double>(this->diag_bot + this->diag_slope*this->raycast_left)*this->physics_scale + this->diag_slope*x2);
+
+                QList<QPoint> points;
+                points.append(QPoint(x1, y1));
+                points.append(QPoint(x1, y2));
+                points.append(QPoint(x2, y3));
+                points.append(QPoint(x2, y4));
+
+                painter.drawPolygon(QPolygon(points));
             }
         }
         
@@ -339,6 +345,12 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     painter->drawText(QPoint(0, 0), ptrStr);
     
     painter->rotate(static_cast<double>(body->GetAngle())*DEG_PER_RAD);
+
+    tetrisPieceData data = this->getTetrisPieceData(body);
+    if (data.is_powerup){
+        painter->save();
+        painter->setPen(QColor(Qt::blue));
+    }
     
     for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()){
         switch(f->GetType()){
@@ -403,6 +415,9 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
             fprintf(stderr, "Fixture in body has undefined shape type!\n");
             return;
         }
+    }
+    if (data.is_powerup){
+        painter->restore();
     }
     painter->restore();
 }
@@ -653,6 +668,7 @@ void GameA::doGameStep(){
                             this->rows_to_clear.at(r) = false;
                         }
                     }
+                    this->clear_diag_cut = false;
 
                     // block until line clearing thread is done
                     //                    QElapsedTimer wff_timer;
@@ -729,6 +745,17 @@ void GameA::doGameStep(){
         if (this->game_state != flush_blocks){
             //start with making the new tetris piece and make the new next piece
             //only if we're not clearing lines (found below)
+            if (this->getTetrisPieceData(this->currentPiece).is_powerup){
+                this->clear_diag_cut = true;
+                float32 angle_rad = this->currentPiece->GetAngle();
+                b2Vec2 bp = this->currentPiece->GetWorldCenter();
+                this->diag_slope = static_cast<float32>(tan(static_cast<double>(angle_rad)));
+                this->diag_top = bp.y + this->side_length/2 - this->diag_slope*bp.x;
+                this->diag_bot = bp.y - this->side_length/2 - this->diag_slope*bp.x;
+
+                printf("Powerup landed\n");
+                this->world->DestroyBody(this->currentPiece);
+            }
             this->makeNewTetrisPiece();
         }
     }
@@ -845,7 +872,7 @@ void GameA::doGameStep(){
             }
         }
         
-        if (num_lines_removed > 0){
+        if (num_lines_removed > 0 || this->clear_diag_cut){
             
             for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
                 if (b == this->next_piece_for_display) continue;
@@ -923,13 +950,17 @@ void GameA::clearRows(){
             float32 top_y = top_row.top;
             
             // clear it
-            //this->clearYRange(top_y, bottom_y);
-            this->clearDiagRange(top_y, bottom_y, this->diag_cut_angle);
+            this->clearYRange(top_y, bottom_y);
             
             // skip to the next row after these and continue
             r = cr - 1;
         }
     }
+
+    if (this->clear_diag_cut){
+        this->clearDiagRange(this->diag_top, this->diag_bot, this->diag_slope);
+    }
+
     for (b2Body* b : this->bodies_to_destroy){
         this->destroyTetrisPiece(b);
     }
@@ -1023,12 +1054,9 @@ float32 GameA::getRowArea(uint row){
     return total_area;
 }
 
-void GameA::clearDiagRange(float32 top_y, float32 bottom_y, float32 angle_rad){
+void GameA::clearDiagRange(float32 top_y, float32 bottom_y, float32 slope){
 
-    vector<rayCastComplete> ray_casts = this->getRayCasts(top_y, bottom_y, angle_rad);
-
-    //TODO: standardize this
-    float32 slope = -1.0f*static_cast<float32>(tan(static_cast<double>(angle_rad)));
+    vector<rayCastComplete> ray_casts = this->getRayCasts(top_y, bottom_y, slope);
 
     //adjust top and bottom Y values to be where the cut sides intersect with the edge of the field
     top_y = top_y - slope*raycast_left;
@@ -1273,8 +1301,6 @@ void GameA::clearDiagRange(float32 top_y, float32 bottom_y, float32 angle_rad){
             data.image_in_waiting = masked;
 
             this->setTetrisPieceData(new_body, data);
-            //new_body->SetUserData(data);
-
         }
 
         //delete original body (later)
@@ -1373,10 +1399,8 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
     return true;
 }
 
-vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot, float32 angle_rad){
+vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot, float32 slope){
     vector<rayCastComplete> ray_casts;
-
-    float32 slope = -1.0f*static_cast<float32>(tan(static_cast<double>(angle_rad)));
 
     float32 left_top = top;
     float32 left_bot = bot;

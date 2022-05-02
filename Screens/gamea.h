@@ -374,6 +374,10 @@ public:
     uint num_blinks_so_far; //blink count accumulator
     
     vector<bool> rows_to_clear;
+    bool clear_diag_cut;
+    float32 diag_top;
+    float32 diag_bot;
+    float32 diag_slope; //pre-negated to account for flipped field
     
     double row_blink_accumulator; //seconds
     
