@@ -145,7 +145,7 @@ void GameA::freeUserDataOn(b2Body* b){
 void GameA::calcScaleFactors(){
     this->physics_to_screen_scale_px_m = this->physics_to_ui_scale_in_m*this->ui_to_screen_scale_px_in;
     this->tetris_field_px = TO_QRECT(this->tetris_field_m, this->physics_to_screen_scale_px_m);
-    printf("physics_to_screen_scale [px/m]: %f\n", this->physics_to_screen_scale_px_m);
+//    printf("physics_to_screen_scale [px/m]: %f\n", this->physics_to_screen_scale_px_m);
 }
 
 void GameA::render(QPainter& painter)
