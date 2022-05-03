@@ -123,7 +123,7 @@ public:
     
     void clearYRange(float32 top_y_m, float32 bottom_y_m);
     
-    QImage maskImage(b2Body* b, QImage orig_image, QRect region_m);
+    QImage maskImage(b2Body* b, QImage orig_image, QRectF region_m);
     
     bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
@@ -242,7 +242,7 @@ public:
                                     (tetris_cols + 0.25)*side_length_dbl_m,
                                     tetris_rows*side_length_dbl_m
                                     );
-    QRect tetris_field_px = TO_QRECT(tetris_field_m, 1);
+    QRectF tetris_field_px = SCALE_QRECTF(tetris_field_m, 1);
     
     const float32 square_area_m2 = side_length_m*side_length_m;
     
@@ -359,10 +359,10 @@ public:
     
     vector<QPixmap> piece_images;
     vector<QPixmap> pwu_piece_images;
-    vector<QRect> piece_rects_m;
+    vector<QRectF> piece_rects_m;
     
     QPixmap default_piece_image;
-    QRect default_piece_rect_m;
+    QRectF default_piece_rect_m;
     tetrisPieceData default_data;
     
     QSoundEffect sfx[num_sound_effects];

@@ -144,7 +144,7 @@ void GameA::freeUserDataOn(b2Body* b){
 
 void GameA::calcScaleFactors(){
     this->physics_to_screen_scale_px_m = this->physics_to_ui_scale_in_m*this->ui_to_screen_scale_px_in;
-    this->tetris_field_px = TO_QRECT(this->tetris_field_m, this->physics_to_screen_scale_px_m);
+    this->tetris_field_px = SCALE_QRECTF(this->tetris_field_m, this->physics_to_screen_scale_px_m);
 //    printf("physics_to_screen_scale [px/m]: %f\n", this->physics_to_screen_scale_px_m);
 }
 
@@ -153,11 +153,11 @@ void GameA::render(QPainter& painter)
     painter.setRenderHint(QPainter::Antialiasing);
     
     if (this->freeze_frame){
-        painter.drawPixmap(this->ui_field_px, this->saved_frames[this->last_frame]);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->saved_frames[this->last_frame]);
         return;
     } else if (this->frame_review){
         this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
-        this->saved_frames[this->last_frame] = QPixmap(this->ui_field_px.size());
+        this->saved_frames[this->last_frame] = QPixmap(this->ui_field_px.size().toSize());
         QPainter sf_painter(&this->saved_frames[this->last_frame]);
         
         this->frame_review = false;
@@ -168,8 +168,8 @@ void GameA::render(QPainter& painter)
     }
     
     if (this->paused){
-        painter.drawPixmap(this->ui_field_px, this->pause_frame);
-        painter.drawPixmap(this->ui_field_px, this->pause_overlay);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->pause_frame);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->pause_overlay);
         return;
     }
     
@@ -243,7 +243,7 @@ void GameA::render(QPainter& painter)
         timer.start();
 #endif
         
-        painter.drawPixmap(this->ui_field_px, this->gamebackground);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->gamebackground);
         
 #ifdef TIME_RENDER_STEPS
         printf("BG: %lld ms \t", timer.elapsed());
@@ -438,7 +438,11 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    painter->drawPixmap(body_data.region_m, body_data.image);
+    painter->drawPixmap(body_data.region_m, body_data.image, body_data.image.rect());
+
+    if (body_data.is_powerup){
+
+    }
     
     painter->restore();
 }
@@ -560,7 +564,7 @@ void GameA::keyPressEvent(QKeyEvent* ev){
             return;
         } else if (!this->paused){ // NOT paused, about to pause
 
-            this->pause_frame = QPixmap(this->ui_field_px.size());
+            this->pause_frame = QPixmap(this->ui_field_px.size().toSize());
             QPainter painter(&this->pause_frame);
             this->render(painter);
             painter.end();
@@ -639,7 +643,7 @@ void GameA::doGameStep(){
     if (this->game_state == start_row_clear_blinking){
         
         //render the current frame onto a pixmap to use later during line blinking
-        this->line_clear_freezeframe = QPixmap(this->ui_field_px.size());
+        this->line_clear_freezeframe = QPixmap(this->ui_field_px.size().toSize());
         QPainter sf_painter(&this->line_clear_freezeframe);
         this->render(sf_painter);
         sf_painter.end();
@@ -861,7 +865,7 @@ void GameA::doGameStep(){
             //printf("Re-rendering frame for gameover screen...\n");
             
             //render the current frame onto a pixmap to use later during game over screen
-            QPixmap lastframe(this->ui_field_px.size());
+            QPixmap lastframe(this->ui_field_px.size().toSize());
             QPainter sf_painter(&lastframe);
             this->render(sf_painter);
             sf_painter.end();
@@ -1341,7 +1345,7 @@ void GameA::clearYRange(float32 top_y_m, float32 bottom_y_m){
     this->clearDiagRange(top_y_m, bottom_y_m, 0);
 }
 
-QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region_m){
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRectF region_m){
     
     Q_ASSERT(orig_image.hasAlphaChannel());
     
@@ -1919,7 +1923,6 @@ void GameA::initializeTetrisPieceImages(){
     this->piece_images.clear();
     this->piece_rects_m.clear();
     
-    int side_length = static_cast<int>(this->side_length_m);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
         
         QString path = ":/resources/graphics/pieces/" + QString::number(piece) + ".png";
@@ -1946,49 +1949,49 @@ void GameA::initializeTetrisPieceImages(){
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*3, 0), orig_img);
-            this->piece_rects_m.push_back(QRect(-2*side_length, -side_length/2, 4*side_length, side_length));
+            this->piece_rects_m.push_back(QRectF(-2*this->side_length_m, -this->side_length_m/2, 4*this->side_length_m, this->side_length_m));
             break;
         case O:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
-            this->piece_rects_m.push_back(QRect(-side_length, -side_length, 2*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-this->side_length_m, -this->side_length_m, 2*this->side_length_m, 2*this->side_length_m));
             break;
         case G:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
-            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-3*this->side_length_m/2, -this->side_length_m/2, 3*this->side_length_m, 2*this->side_length_m));
             break;
         case L:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
-            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-3*this->side_length_m/2, -this->side_length_m/2, 3*this->side_length_m, 2*this->side_length_m));
             break;
         case T:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
-            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-3*this->side_length_m/2, -this->side_length_m/2, 3*this->side_length_m, 2*this->side_length_m));
             break;
         case Z:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
-            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-3*this->side_length_m/2, -this->side_length_m, 3*this->side_length_m, 2*this->side_length_m));
             break;
         case S:
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
-            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRectF(-3*this->side_length_m/2, -this->side_length_m, 3*this->side_length_m, 2*this->side_length_m));
             break;
         default:
             fprintf(stderr, "Piece not defined: %u\n", piece);

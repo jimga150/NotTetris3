@@ -69,13 +69,13 @@ struct tetrisPieceData {
     
     QImage image_in_waiting;
     
-    QRect region_m;
+    QRectF region_m;
 
     bool is_powerup;
     
     tetrisPieceData(){}
     
-    tetrisPieceData(QPixmap image, QRect region, bool is_powerup){
+    tetrisPieceData(QPixmap image, QRectF region, bool is_powerup){
         this->image = image;
         this->region_m = region;
         this->is_powerup = is_powerup;

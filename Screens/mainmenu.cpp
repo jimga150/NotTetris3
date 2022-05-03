@@ -26,7 +26,7 @@ void MainMenu::init(){
 }
 
 void MainMenu::render(QPainter& painter){
-    painter.drawPixmap(this->ui_field_px, this->background);
+    painter.drawPixmap(this->ui_field_px.toRect(), this->background);
     this->BOW_font.print(&painter, this->selectionPoints[this->currentSelection]*this->ui_to_screen_scale_px_in,
             LEFT_ALIGN, ">", this->ui_to_screen_scale_px_in);
 }

@@ -189,7 +189,7 @@ void Menu1P::init(){
 } 
 
 void Menu1P::render(QPainter& painter){
-    painter.drawPixmap(this->ui_field_px, this->background);
+    painter.drawPixmap(this->ui_field_px.toRect(), this->background);
     
     for (uint opt_group = 0; opt_group < num_option_groups; ++opt_group){
         

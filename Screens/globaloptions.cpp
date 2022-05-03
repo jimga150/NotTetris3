@@ -47,7 +47,7 @@ void GlobalOptions::init(){
 }   
 
 void GlobalOptions::render(QPainter& painter){
-    painter.drawPixmap(this->ui_field_px, this->background);
+    painter.drawPixmap(this->ui_field_px.toRect(), this->background);
     
     if (this->blink_on){
         this->BOW_font.print(&painter, 

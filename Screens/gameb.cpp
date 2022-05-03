@@ -126,7 +126,7 @@ void GameB::freeUserDataOn(b2Body* b){
 
 void GameB::calcScaleFactors(){
     this->physics_scale = this->physics_to_ui_scale*this->ui_to_screen_scale_px_in;
-    this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
+    this->tetris_field_px = SCALE_QRECTF(this->tetris_field_m, this->physics_scale);
     
     /*double var = this->physics_scale*this->tetris_field.x();
     printf("%f\n", var - static_cast<int>(var));
@@ -138,11 +138,11 @@ void GameB::render(QPainter& painter)
     painter.setRenderHint(QPainter::Antialiasing);
     
     if (this->freeze_frame){
-        painter.drawPixmap(this->ui_field_px, this->saved_frames[this->last_frame]);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->saved_frames[this->last_frame]);
         return;
     } else if (this->frame_review){
         this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
-        this->saved_frames[this->last_frame] = QPixmap(this->ui_field_px.size());
+        this->saved_frames[this->last_frame] = QPixmap(this->ui_field_px.size().toSize());
         QPainter sf_painter(&this->saved_frames[this->last_frame]);
         
         this->frame_review = false;
@@ -153,8 +153,8 @@ void GameB::render(QPainter& painter)
     }
     
     if (this->paused){
-        painter.drawPixmap(this->ui_field_px, this->pause_frame);
-        painter.drawPixmap(this->ui_field_px, this->pause_overlay);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->pause_frame);
+        painter.drawPixmap(this->ui_field_px.toRect(), this->pause_overlay);
         return;
     }
     
@@ -163,7 +163,7 @@ void GameB::render(QPainter& painter)
     timer.start();
 #endif
     
-    painter.drawPixmap(this->ui_field_px, this->gamebackground);
+    painter.drawPixmap(this->ui_field_px.toRect(), this->gamebackground);
     
 #ifdef TIME_RENDER_STEPS
     printf("BG: %lld ms \t", timer.elapsed());
@@ -218,8 +218,8 @@ void GameB::drawBodyTo(QPainter* painter, b2Body* body){
     
     painter->save();
     painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(body->GetPosition().x)*this->physics_scale,
-                this->scaled_tetris_field.y() + static_cast<double>(body->GetPosition().y)*this->physics_scale
+                this->tetris_field_px.x() + static_cast<double>(body->GetPosition().x)*this->physics_scale,
+                this->tetris_field_px.y() + static_cast<double>(body->GetPosition().y)*this->physics_scale
                 );
     
     QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
@@ -301,14 +301,14 @@ void GameB::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->save();
     
     painter->translate(
-                this->scaled_tetris_field.x() + static_cast<double>(piece_body->GetPosition().x)*this->physics_scale,
-                this->scaled_tetris_field.y() + static_cast<double>(piece_body->GetPosition().y)*this->physics_scale
+                this->tetris_field_px.x() + static_cast<double>(piece_body->GetPosition().x)*this->physics_scale,
+                this->tetris_field_px.y() + static_cast<double>(piece_body->GetPosition().y)*this->physics_scale
                 );
     painter->scale(this->physics_scale, this->physics_scale);
     painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    painter->drawPixmap(body_data.region_m, body_data.image);
+    painter->drawPixmap(body_data.region_m.toRect(), body_data.image);
     
     painter->restore();
 }
@@ -425,7 +425,7 @@ void GameB::keyPressEvent(QKeyEvent* ev){
         this->accelDownState = false;
     } else if (key == Qt::Key_Enter || key == Qt::Key_Return){
         if (!this->paused){ // NOT paused, about to pause
-            this->pause_frame = QPixmap(this->ui_field_px.size());
+            this->pause_frame = QPixmap(this->ui_field_px.size().toSize());
             QPainter painter(&this->pause_frame);
             this->render(painter);
             painter.end();
@@ -625,7 +625,7 @@ void GameB::doGameStep(){
         }
         this->currentPiece->ApplyForce(linear_force_vect, this->currentPiece->GetWorldCenter(), true);
     } else {
-        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field.height()){
+        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field_m.height()){
             
             // Copy score to window object for reference by future screens
             ((NT3Window*)(this->parent()))->gameB_score = this->current_score;
@@ -633,7 +633,7 @@ void GameB::doGameStep(){
             //printf("Re-rendering frame for gameover screen...\n");
             
             //render the current frame onto a pixmap to use later during game over screen
-            QPixmap lastframe(this->ui_field_px.size());
+            QPixmap lastframe(this->ui_field_px.size().toSize());
             QPainter sf_painter(&lastframe);
             this->render(sf_painter);
             sf_painter.end();
@@ -684,11 +684,11 @@ void GameB::makeNewNextPiece(){
     this->next_piece_bodydef.position = b2Vec2(
                                             static_cast<float32>(
                                                 this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
-                                                this->tetris_field.x()
+                                                this->tetris_field_m.x()
                                                 ), 
                                             static_cast<float32>(
                                                 this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
-                                                this->tetris_field.y()
+                                                this->tetris_field_m.y()
                                                 )
                                             ) - this->center_of_mass_offsets.at(this->next_piece_type);
     this->next_piece_bodydef.angularVelocity = this->next_piece_w;
@@ -779,11 +779,11 @@ void GameB::initializeTetrisPieceDefs(){
     this->next_piece_bodydef.position = b2Vec2(
                                             static_cast<float32>(
                                                 this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
-                                                this->tetris_field.x()
+                                                this->tetris_field_m.x()
                                                 ), 
                                             static_cast<float32>(
                                                 this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
-                                                this->tetris_field.y()
+                                                this->tetris_field_m.y()
                                                 )
                                             );
     this->next_piece_bodydef.linearVelocity.SetZero();
@@ -927,7 +927,7 @@ void GameB::initializeTetrisPieceImages(){
     // and will not handle the case where the game starts on a low res screen and moves to a higher res screen.
     // call init again?
     int screen_height = ((NT3Window*)(this->parent()))->screen()->availableGeometry().height();
-    this->piece_image_scale = screen_height*1.0/tetris_field.height();
+    this->piece_image_scale = screen_height*1.0/tetris_field_m.height();
     
     this->piece_images.clear();
     this->piece_rects.clear();
@@ -973,8 +973,8 @@ void GameB::initializeTetrisPieceImages(){
 
 void GameB::initializeWalls(){
     
-    float32 t_height = static_cast<float32>(tetris_field.height());
-    float32 t_width = static_cast<float32>(tetris_field.width());
+    float32 t_height = static_cast<float32>(tetris_field_m.height());
+    float32 t_width = static_cast<float32>(tetris_field_m.width());
     
     b2BodyDef edgeBodyDef;
     edgeBodyDef.position.Set(0, 0);

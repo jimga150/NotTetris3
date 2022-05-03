@@ -157,25 +157,25 @@ public:
     float32 side_length = 2.0f;  //meters
     double side_length_dbl = static_cast<double>(side_length);
     
-    const QRectF tetris_field = QRectF(
+    const QRectF tetris_field_m = QRectF(
                                     2*side_length_dbl, 
                                     0, 
                                     tetris_cols*side_length_dbl, 
                                     tetris_rows*side_length_dbl
                                     );
-    QRect scaled_tetris_field = TO_QRECT(tetris_field, 1);
+    QRectF tetris_field_px = SCALE_QRECTF(tetris_field_m, 1);
     
     const float32 square_area = side_length*side_length;
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
-    const double physics_to_ui_scale = ui_field_in.height()/tetris_field.height();
+    const double physics_to_ui_scale = ui_field_in.height()/tetris_field_m.height();
     double physics_scale = physics_to_ui_scale*ui_to_screen_scale_px_in;
         
     //scale used to make tetris piece cutting smooth (set later)
     double piece_image_scale = 0;
         
-    b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field.width()/2), -this->side_length*2);
+    b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field_m.width()/2), -this->side_length*2);
     
     QPoint score_display_right = QPoint(151, 24);
     
@@ -195,7 +195,7 @@ public:
     const float32 old_g = 500;
     const float32 old_start_y = -64;
     const float32 old_game_height = 640;    
-    const float32 gravity_g = old_g*(static_cast<float32>(tetris_field.height()) - piece_start.y)/(old_game_height - old_start_y);
+    const float32 gravity_g = old_g*(static_cast<float32>(tetris_field_m.height()) - piece_start.y)/(old_game_height - old_start_y);
     
     const float32 density = 1;//1.0f/900.0f;
     
@@ -270,7 +270,7 @@ public:
     vector<QRect> piece_rects;
     
     QPixmap default_piece_image;
-    QRect default_piece_rect;
+    QRectF default_piece_rect;
     tetrisPieceData default_data;
     
     QSoundEffect sfx[num_sound_effects];

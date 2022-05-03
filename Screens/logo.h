@@ -30,9 +30,9 @@ public:
     const double logo_slide_duration = 1.5; //seconds
     const double logo_delay = 1; //seconds
     
-    const QRect logo_rect_final = QRect(QPoint(7, 58), logo.size());
+    const QRect logo_rect_final_in = QRect(QPoint(7, 58), logo.size());
     
-    QRect scaled_logo_rect_final;
+    QRectF logo_rect_final_px;
     double logo_offset_y;
     double logo_offset_delta; //UI pixels/sec
     

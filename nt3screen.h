@@ -57,7 +57,7 @@ public:
                              );
     
     QRectF ui_field_in = QRectF(0, 0, 160, 144);
-    QRect ui_field_px = TO_QRECT(ui_field_in, 1);
+    QRectF ui_field_px = SCALE_QRECTF(ui_field_in, 1);
     
     double aspect_ratio = ui_field_in.width()*1.0/ui_field_in.height();
     double aspect_ratio_epsilon = aspect_ratio - (ui_field_in.width()-1)*1.0/ui_field_in.height();
