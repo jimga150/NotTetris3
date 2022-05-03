@@ -29,9 +29,9 @@ void GameOver::render(QPainter& painter){
     painter.drawPixmap(last_frame.rect(), last_frame);
     
     if (this->last_state == GAMEA){
-        painter.drawPixmap(this->scaled_ui_field, this->game_a_overlay);
+        painter.drawPixmap(this->ui_field_px, this->game_a_overlay);
     } else {
-        painter.drawPixmap(this->scaled_ui_field, this->game_b_overlay);
+        painter.drawPixmap(this->ui_field_px, this->game_b_overlay);
     }
     
 }

@@ -21,7 +21,7 @@ enum tetris_piece_enum{
 #pragma GCC diagnostic ignored "-Wunused-variable"
 static tetris_piece_enum default_tetris_piece = I;
 
-static double powerup_chance = 0.1;
+static double powerup_chance = 0.5;//0.1; //TODO
 #pragma GCC diagnostic pop
 
 enum wall_enum{

@@ -169,8 +169,8 @@ public:
     
     const float32 min_poly_area = (1.0f/40.0f)*square_area;
     
-    const double physics_to_ui_scale = ui_field.height()/tetris_field.height();
-    double physics_scale = physics_to_ui_scale*ui_scale;
+    const double physics_to_ui_scale = ui_field_in.height()/tetris_field.height();
+    double physics_scale = physics_to_ui_scale*ui_to_screen_scale_px_in;
         
     //scale used to make tetris piece cutting smooth (set later)
     double piece_image_scale = 0;

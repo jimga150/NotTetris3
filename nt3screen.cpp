@@ -33,7 +33,7 @@ void NT3Screen::keyReleaseEvent(QKeyEvent* ev){
 }
 
 void NT3Screen::doGameStep(){
-    this->blink_timer += framerate;
+    this->blink_timer += framerate_s_f;
     if (this->blink_timer > this->select_blink_rate){
         this->blink_on = !this->blink_on;
         this->blink_timer = 0;
@@ -57,16 +57,16 @@ bool NT3Screen::lockAR(QSize newSize){
     bool aspect_ratio_respected = qAbs(ar_error) < this->aspect_ratio_epsilon;
     
     if (ar_error > 0){ //screen is relatively wider than the app
-        this->ui_scale = height*1.0/this->ui_field.height();
+        this->ui_to_screen_scale_px_in = height*1.0/this->ui_field_in.height();
     } else { //screen is relatively skinnier than app
-        this->ui_scale = width*1.0/this->ui_field.width();
+        this->ui_to_screen_scale_px_in = width*1.0/this->ui_field_in.width();
     }
     
-    this->ui_scale = qMax(this->min_graphics_scale, this->ui_scale);    
-    this->scaled_ui_field = TO_QRECT(this->ui_field, this->ui_scale);
+    this->ui_to_screen_scale_px_in = qMax(this->min_graphics_scale_px_in, this->ui_to_screen_scale_px_in);
+    this->ui_field_px = TO_QRECT(this->ui_field_in, this->ui_to_screen_scale_px_in);
     
     if (!aspect_ratio_respected && !fullscreen){
-        emit this->resize(this->scaled_ui_field.size());
+        emit this->resize(this->ui_field_px.size());
         return false;
     }
     return true;

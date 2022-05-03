@@ -47,7 +47,7 @@ void GlobalOptions::init(){
 }   
 
 void GlobalOptions::render(QPainter& painter){
-    painter.drawPixmap(this->scaled_ui_field, this->background);
+    painter.drawPixmap(this->ui_field_px, this->background);
     
     if (this->blink_on){
         this->BOW_font.print(&painter, 
@@ -55,8 +55,8 @@ void GlobalOptions::render(QPainter& painter){
                                  this->option_labels_x, 
                                  this->option_labels_y_start + 
                                  static_cast<int>(this->options.current_opt)*this->option_labels_y_separation
-                                 )*this->ui_scale, 
-                             LEFT_ALIGN, this->option_strings[this->options.current_opt], this->ui_scale);
+                                 )*this->ui_to_screen_scale_px_in, 
+                             LEFT_ALIGN, this->option_strings[this->options.current_opt], this->ui_to_screen_scale_px_in);
     }
     
     painter.drawPixmap(
@@ -64,31 +64,31 @@ void GlobalOptions::render(QPainter& painter){
                     QPoint(
                         this->slider_x + static_cast<int>(this->slider_length*volume*0.01), 
                         this->volume_slider_y
-                        )*this->ui_scale, 
-                    this->volume_slider.size()*this->ui_scale
+                        )*this->ui_to_screen_scale_px_in, 
+                    this->volume_slider.size()*this->ui_to_screen_scale_px_in
                     ), 
                 this->volume_slider
                 );
     
-    painter.drawPixmap(QRect(this->gradient_pos*this->ui_scale, this->gradient.size()*this->ui_scale), this->gradient);
+    painter.drawPixmap(QRect(this->gradient_pos*this->ui_to_screen_scale_px_in, this->gradient.size()*this->ui_to_screen_scale_px_in), this->gradient);
     
     painter.drawPixmap(
                 QRect(
                     QPoint(
                         this->slider_x + static_cast<int>(this->slider_length*hue), 
                         this->hue_slider_y
-                        )*this->ui_scale, 
-                    this->volume_slider.size()*this->ui_scale
+                        )*this->ui_to_screen_scale_px_in, 
+                    this->volume_slider.size()*this->ui_to_screen_scale_px_in
                     ), 
                 this->volume_slider
                 );
     
     if (fullscreen){
-        this->BOW_font.print(&painter, QPoint(this->fullscreen_yes_x, this->fullscreen_options_y)*this->ui_scale, 
-                             LEFT_ALIGN, "yes", this->ui_scale);
+        this->BOW_font.print(&painter, QPoint(this->fullscreen_yes_x, this->fullscreen_options_y)*this->ui_to_screen_scale_px_in, 
+                             LEFT_ALIGN, "yes", this->ui_to_screen_scale_px_in);
     } else {
-        this->BOW_font.print(&painter, QPoint(this->fullscreen_no_x, this->fullscreen_options_y)*this->ui_scale, 
-                             LEFT_ALIGN, "no", this->ui_scale);
+        this->BOW_font.print(&painter, QPoint(this->fullscreen_no_x, this->fullscreen_options_y)*this->ui_to_screen_scale_px_in, 
+                             LEFT_ALIGN, "no", this->ui_to_screen_scale_px_in);
     }
 }
 
@@ -109,7 +109,7 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
             if (volume < this->volume_increment) volume = MIN_VOLUME;
             break;
         case COLOR:
-            hue -= this->hue_time_factor*framerate;
+            hue -= this->hue_time_factor*framerate_s_f;
             if (hue < MIN_HUE) hue = MIN_HUE;
             break;
         case SCALE:
@@ -130,7 +130,7 @@ void GlobalOptions::keyPressEvent(QKeyEvent* ev){
             if (volume > MAX_VOLUME) volume = MAX_VOLUME;
             break;
         case COLOR:
-            hue += this->hue_time_factor*framerate;
+            hue += this->hue_time_factor*framerate_s_f;
             if (hue > MAX_HUE) hue = MAX_HUE;
             break;
         case SCALE:

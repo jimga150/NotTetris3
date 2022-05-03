@@ -34,7 +34,7 @@ const double volume_sfx_multiplier = 1.0/100.0;
 extern double hue; //{0->1}, 0.08 is default
 extern bool fullscreen;
 
-extern double framerate;
+extern double framerate_s_f;
 
 enum NT3_state_enum{
     LOGO = 0,

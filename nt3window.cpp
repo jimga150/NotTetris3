@@ -1,6 +1,6 @@
 #include "nt3window.h"
 
-double framerate;
+double framerate_s_f;
 
 int volume;
 double hue;
@@ -34,11 +34,11 @@ NT3Window::NT3Window()
     frame_divisor = qMax((int)floor(fps/targetFPS), 1);
     fps /= frame_divisor;
 
-    framerate = 1.0/fps;
+    framerate_s_f = 1.0/fps;
 
-    printf("Refresh rate (adjusted to between 60 and 119.999 FPS: %f FPS (%f ms)\n", fps, framerate*MILLIS_PER_SECOND);
+    printf("Refresh rate (adjusted to between 60 and 119.999 FPS: %f FPS (%f ms)\n", fps, framerate_s_f*MILLIS_PER_SECOND);
     
-    this->expected_frame_time = static_cast<int>(ceil(framerate*MILLIS_PER_SECOND));
+    this->expected_frame_time = static_cast<int>(ceil(framerate_s_f*MILLIS_PER_SECOND));
     
     for (uint s = 0; s < num_nt3_states; ++s){
         switch(s){

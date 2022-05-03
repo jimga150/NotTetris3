@@ -56,15 +56,15 @@ public:
                              QImage(":/resources/graphics/fontwhite.png")
                              );
     
-    QRectF ui_field = QRectF(0, 0, 160, 144);
-    QRect scaled_ui_field = TO_QRECT(ui_field, 1);
+    QRectF ui_field_in = QRectF(0, 0, 160, 144);
+    QRect ui_field_px = TO_QRECT(ui_field_in, 1);
     
-    double aspect_ratio = ui_field.width()*1.0/ui_field.height();
-    double aspect_ratio_epsilon = aspect_ratio - (ui_field.width()-1)*1.0/ui_field.height();
+    double aspect_ratio = ui_field_in.width()*1.0/ui_field_in.height();
+    double aspect_ratio_epsilon = aspect_ratio - (ui_field_in.width()-1)*1.0/ui_field_in.height();
     
-    const double min_graphics_scale = 1;
+    const double min_graphics_scale_px_in = 1;
     
-    double ui_scale = min_graphics_scale;
+    double ui_to_screen_scale_px_in = min_graphics_scale_px_in;
     
     const QString default_option_name = "error";
         

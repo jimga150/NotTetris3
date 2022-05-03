@@ -8,8 +8,8 @@ GameB::GameB(QObject *parent) : NT3Screen(parent)
         emit this->close();
     }
     
-    double fps = 1.0/framerate;
-    this->timeStep = static_cast<float32>(framerate); //seconds
+    double fps = 1.0/framerate_s_f;
+    this->timeStep = static_cast<float32>(framerate_s_f); //seconds
     
     float32 box2d_max_velocity = b2_maxTranslation*static_cast<float32>(fps);
     
@@ -125,7 +125,7 @@ void GameB::freeUserDataOn(b2Body* b){
 
 
 void GameB::calcScaleFactors(){
-    this->physics_scale = this->physics_to_ui_scale*this->ui_scale;
+    this->physics_scale = this->physics_to_ui_scale*this->ui_to_screen_scale_px_in;
     this->scaled_tetris_field = TO_QRECT(this->tetris_field, this->physics_scale);
     
     /*double var = this->physics_scale*this->tetris_field.x();
@@ -138,11 +138,11 @@ void GameB::render(QPainter& painter)
     painter.setRenderHint(QPainter::Antialiasing);
     
     if (this->freeze_frame){
-        painter.drawPixmap(this->scaled_ui_field, this->saved_frames[this->last_frame]);
+        painter.drawPixmap(this->ui_field_px, this->saved_frames[this->last_frame]);
         return;
     } else if (this->frame_review){
         this->last_frame = (this->last_frame + 1) % NUM_FRAMES_TO_SAVE;
-        this->saved_frames[this->last_frame] = QPixmap(this->scaled_ui_field.size());
+        this->saved_frames[this->last_frame] = QPixmap(this->ui_field_px.size());
         QPainter sf_painter(&this->saved_frames[this->last_frame]);
         
         this->frame_review = false;
@@ -153,8 +153,8 @@ void GameB::render(QPainter& painter)
     }
     
     if (this->paused){
-        painter.drawPixmap(this->scaled_ui_field, this->pause_frame);
-        painter.drawPixmap(this->scaled_ui_field, this->pause_overlay);
+        painter.drawPixmap(this->ui_field_px, this->pause_frame);
+        painter.drawPixmap(this->ui_field_px, this->pause_overlay);
         return;
     }
     
@@ -163,7 +163,7 @@ void GameB::render(QPainter& painter)
     timer.start();
 #endif
     
-    painter.drawPixmap(this->scaled_ui_field, this->gamebackground);
+    painter.drawPixmap(this->ui_field_px, this->gamebackground);
     
 #ifdef TIME_RENDER_STEPS
     printf("BG: %lld ms \t", timer.elapsed());
@@ -255,7 +255,7 @@ void GameB::drawBodyTo(QPainter* painter, b2Body* body){
                         static_cast<double>(shape.m_p.y)*this->physics_scale
                         );
             double radius = static_cast<double>(shape.m_radius);
-            radius *= this->ui_scale;
+            radius *= this->ui_to_screen_scale_px_in;
             painter->drawEllipse(center, radius, radius);
         }
             break;
@@ -315,33 +315,33 @@ void GameB::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
 void GameB::drawScore(QPainter* painter){
     
-    this->BOW_font.print(painter, this->score_display_right*this->ui_scale, RIGHT_ALIGN,
-                         QString::number(this->current_score), this->ui_scale);
+    this->BOW_font.print(painter, this->score_display_right*this->ui_to_screen_scale_px_in, RIGHT_ALIGN,
+                         QString::number(this->current_score), this->ui_to_screen_scale_px_in);
     
     if (this->score_to_add > 0){
         
-        QPixmap score_add_pm(this->score_add_display.size()*this->ui_scale);
+        QPixmap score_add_pm(this->score_add_display.size()*this->ui_to_screen_scale_px_in);
         score_add_pm.fill(Qt::black);
         
         QPainter score_add_painter(&score_add_pm);
         
         score_add_painter.translate(QPoint(0, this->score_add_disp_offset));
         
-        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->ui_scale, RIGHT_ALIGN,
-                             "+" + QString::number(this->score_to_add), this->ui_scale);
+        this->WOB_font.print(&score_add_painter, this->sc_add_right_in_disp*this->ui_to_screen_scale_px_in, RIGHT_ALIGN,
+                             "+" + QString::number(this->score_to_add), this->ui_to_screen_scale_px_in);
         score_add_painter.end();
         
         painter->save();
-        painter->translate(this->score_add_display.topLeft()*this->ui_scale);
+        painter->translate(this->score_add_display.topLeft()*this->ui_to_screen_scale_px_in);
         painter->drawPixmap(score_add_pm.rect(), score_add_pm);
         painter->restore();
     }
     
-    this->BOW_font.print(painter, this->level_disp_offset*this->ui_scale, RIGHT_ALIGN,
-                         QString::number(this->current_level), this->ui_scale);
+    this->BOW_font.print(painter, this->level_disp_offset*this->ui_to_screen_scale_px_in, RIGHT_ALIGN,
+                         QString::number(this->current_level), this->ui_to_screen_scale_px_in);
     
-    this->BOW_font.print(painter, this->lines_cleared_disp_offset*this->ui_scale, RIGHT_ALIGN,
-                         QString::number(this->pieces_scored), this->ui_scale);
+    this->BOW_font.print(painter, this->lines_cleared_disp_offset*this->ui_to_screen_scale_px_in, RIGHT_ALIGN,
+                         QString::number(this->pieces_scored), this->ui_to_screen_scale_px_in);
 }
 
 
@@ -425,7 +425,7 @@ void GameB::keyPressEvent(QKeyEvent* ev){
         this->accelDownState = false;
     } else if (key == Qt::Key_Enter || key == Qt::Key_Return){
         if (!this->paused){ // NOT paused, about to pause
-            this->pause_frame = QPixmap(this->scaled_ui_field.size());
+            this->pause_frame = QPixmap(this->ui_field_px.size());
             QPainter painter(&this->pause_frame);
             this->render(painter);
             painter.end();
@@ -514,7 +514,7 @@ void GameB::doGameStep(){
 #endif
     
     if (this->score_to_add > 0){
-        if (--this->score_add_disp_offset < -10*this->ui_scale){
+        if (--this->score_add_disp_offset < -10*this->ui_to_screen_scale_px_in){
             this->score_to_add = 0;
             this->score_add_disp_offset = 0;
         }
@@ -633,7 +633,7 @@ void GameB::doGameStep(){
             //printf("Re-rendering frame for gameover screen...\n");
             
             //render the current frame onto a pixmap to use later during game over screen
-            QPixmap lastframe(this->scaled_ui_field.size());
+            QPixmap lastframe(this->ui_field_px.size());
             QPainter sf_painter(&lastframe);
             this->render(sf_painter);
             sf_painter.end();

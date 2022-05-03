@@ -189,7 +189,7 @@ void Menu1P::init(){
 } 
 
 void Menu1P::render(QPainter& painter){
-    painter.drawPixmap(this->scaled_ui_field, this->background);
+    painter.drawPixmap(this->ui_field_px, this->background);
     
     for (uint opt_group = 0; opt_group < num_option_groups; ++opt_group){
         
@@ -227,8 +227,8 @@ void Menu1P::render(QPainter& painter){
             break;
         }
         
-        this->BOW_font.print(&painter, QPoint(x, y)*this->ui_scale, LEFT_ALIGN, 
-                             this->option_names[opt_group][opt_col], this->ui_scale);
+        this->BOW_font.print(&painter, QPoint(x, y)*this->ui_to_screen_scale_px_in, LEFT_ALIGN, 
+                             this->option_names[opt_group][opt_col], this->ui_to_screen_scale_px_in);
     }
     
     uint game_type;
@@ -255,12 +255,12 @@ void Menu1P::render(QPainter& painter){
         }
         
         QPoint name_start = this->top_score_name_left + QPoint(0, 8*i);
-        name_start *= this->ui_scale;
-        this->BOW_font.print(&painter, name_start, LEFT_ALIGN, name_toprint, this->ui_scale);
+        name_start *= this->ui_to_screen_scale_px_in;
+        this->BOW_font.print(&painter, name_start, LEFT_ALIGN, name_toprint, this->ui_to_screen_scale_px_in);
         
         QPoint score_end = this->top_score_val_right + QPoint(0, 8*i);
-        score_end *= this->ui_scale;
-        this->BOW_font.print(&painter, score_end, RIGHT_ALIGN, QString::number(high_scores[i].score), this->ui_scale);
+        score_end *= this->ui_to_screen_scale_px_in;
+        this->BOW_font.print(&painter, score_end, RIGHT_ALIGN, QString::number(high_scores[i].score), this->ui_to_screen_scale_px_in);
     }
 }
 

@@ -13,14 +13,14 @@ void Logo::init(){
 }
 
 void Logo::calcScaleFactors(){
-    this->scaled_logo_rect_final = TO_QRECT(this->logo_rect_final, this->ui_scale);
+    this->scaled_logo_rect_final = TO_QRECT(this->logo_rect_final, this->ui_to_screen_scale_px_in);
 }    
 
 void Logo::render(QPainter& painter){
     painter.setBrush(QColor(255, 255, 255));
-    painter.drawRect(this->scaled_ui_field);
+    painter.drawRect(this->ui_field_px);
     
-    int offset = static_cast<int>(this->logo_offset_y*this->ui_scale);
+    int offset = static_cast<int>(this->logo_offset_y*this->ui_to_screen_scale_px_in);
     painter.drawPixmap(this->scaled_logo_rect_final.translated(0, offset), this->logo);
 }   
 
@@ -32,13 +32,13 @@ void Logo::keyPressEvent(QKeyEvent* ev){
 
 void Logo::doGameStep(){
     if (this->logo_offset_y < 0){
-        this->logo_offset_y += framerate*this->logo_offset_delta; //seconds * pixels/sec = pixels
+        this->logo_offset_y += framerate_s_f*this->logo_offset_delta; //seconds * pixels/sec = pixels
         if (this->logo_offset_y > 0){
             this->logo_offset_y = 0;
         }
     }
     
-    this->time_passed += framerate;
+    this->time_passed += framerate_s_f;
     if (this->time_passed > this->logo_slide_duration + this->logo_delay){
         emit this->stateEnd(CREDITS);
     } else if (this->time_passed > this->logo_slide_duration && !this->bd_played){
