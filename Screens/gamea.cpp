@@ -191,7 +191,7 @@ void GameA::render(QPainter& painter)
                     // This code is used very nearly exactly in clearRows()
                     // this will mark the bottom row
                     row_sides_struct bottom_row(r, this->side_length_m);
-                    float32 bottom_y_m = bottom_row.bottom;
+                    float32 bottom_y_m = bottom_row.bottom_m;
                     
                     // figure out how many more rows (in a row) need to be cleared
                     // to group them all into one call
@@ -200,7 +200,7 @@ void GameA::render(QPainter& painter)
                     
                     // last row in contiguous block sees the top Y value
                     row_sides_struct top_row(cr - 1, this->side_length_m);
-                    float32 top_y_m = top_row.top;
+                    float32 top_y_m = top_row.top_m;
                     
                     painter.drawRect(this->physRectToScrnRect(b2Vec2(0, bottom_y_m), b2Vec2(this->tetris_field_m.width(), top_y_m - bottom_y_m)));
                     
@@ -438,7 +438,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    painter->drawPixmap(body_data.region, body_data.image);
+    painter->drawPixmap(body_data.region_m, body_data.image);
     
     painter->restore();
 }
@@ -965,7 +965,7 @@ void GameA::clearRows(){
             
             // this will mark the bottom row
             row_sides_struct bottom_row(r, this->side_length_m);
-            float32 bottom_y = bottom_row.bottom;
+            float32 bottom_y = bottom_row.bottom_m;
             
             // figure out how many more rows (in a row) need to be cleared
             // to group them all into one call
@@ -974,7 +974,7 @@ void GameA::clearRows(){
             
             // last row in contiguous block sees the top Y value
             row_sides_struct top_row(cr - 1, this->side_length_m);
-            float32 top_y = top_row.top;
+            float32 top_y = top_row.top_m;
             
             // clear it
             this->clearYRange(top_y, bottom_y);
@@ -998,7 +998,7 @@ float32 GameA::getRowArea_m2(uint row){
     
     row_sides_struct sides(row, this->side_length_m);
     
-    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top, sides.bottom, 0);
+    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top_m, sides.bottom_m, 0);
     
     float32 total_area_m2 = 0;
     
@@ -1030,7 +1030,7 @@ float32 GameA::getRowArea_m2(uint row){
                 for (int i = 0; i < s->m_count; i++){
                     
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
-                    if (p.y <= sides.top && p.y >= sides.bottom){
+                    if (p.y <= sides.top_m && p.y >= sides.bottom_m){
                         new_points.push_back(p);
                     }
                     
@@ -1063,7 +1063,7 @@ float32 GameA::getRowArea_m2(uint row){
             } else { //If NEITHER of the ray casts hit
                 
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
-                if (p.y <= sides.top && p.y >= sides.bottom){
+                if (p.y <= sides.top_m && p.y >= sides.bottom_m){
                     float32 area = this->poly_area_m2(s->m_vertices, s->m_count);
                     body_area += area;
                 }
@@ -1321,7 +1321,7 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
 
             QImage tomask = data.get_image();
 
-            QImage masked = this->maskImage(new_body, tomask, data.region);
+            QImage masked = this->maskImage(new_body, tomask, data.region_m);
 
             Q_ASSERT(masked.hasAlphaChannel());
 
@@ -1340,13 +1340,13 @@ void GameA::clearYRange(float32 top_y_m, float32 bottom_y_m){
     this->clearDiagRange(top_y_m, bottom_y_m, 0);
 }
 
-QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
+QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region_m){
     
     Q_ASSERT(orig_image.hasAlphaChannel());
     
     float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale*this->physics_to_ui_scale_in_m);
     
-    b2Vec2 offset(region.x(), region.y());
+    b2Vec2 offset_m(region_m.x(), region_m.y());
     
     b2Transform t;
     t.SetIdentity();
@@ -1371,21 +1371,21 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
         s->ComputeAABB(&aabb, t, 0);
         
         //calculate start and end pixel indices based on the AABB calculated, using the rect offset and scale
-        int startx = qFloor(static_cast<double>((aabb.lowerBound.x - offset.x)/scale));
-        int endx = qCeil(static_cast<double>((aabb.upperBound.x - offset.x)/scale));
+        int startx_px = qFloor(static_cast<double>((aabb.lowerBound.x - offset_m.x)/scale));
+        int endx_px = qCeil(static_cast<double>((aabb.upperBound.x - offset_m.x)/scale));
         
-        int starty = qFloor(static_cast<double>((aabb.lowerBound.y - offset.y)/scale));
-        int endy = qCeil(static_cast<double>((aabb.upperBound.y - offset.y)/scale));
+        int starty_px = qFloor(static_cast<double>((aabb.lowerBound.y - offset_m.y)/scale));
+        int endy_px = qCeil(static_cast<double>((aabb.upperBound.y - offset_m.y)/scale));
         
         //make sure nothing runs out of image bounds
-        startx = qMax(0, startx);
-        endx = qMin(width - 1, endx);
+        startx_px = qMax(0, startx_px);
+        endx_px = qMin(width - 1, endx_px);
         
-        starty = qMax(0, starty);
-        endy = qMin(height - 1, endy);
+        starty_px = qMax(0, starty_px);
+        endy_px = qMin(height - 1, endy_px);
         
-        for (int y = starty; y < endy; y++){
-            for (int x = startx; x < endx; x++){
+        for (int y = starty_px; y < endy_px; y++){
+            for (int x = startx_px; x < endx_px; x++){
                 
                 int pix_index = x + width*y;
                 if (QColor(orig_pixels[pix_index]).alpha() == 0){
@@ -1395,7 +1395,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRect region){
                 
                 b2Vec2 center(x, y);
                 center *= scale;
-                center += offset;
+                center += offset_m;
                 
                 if (this->TestPointRadius(s, t, center)){
                     //printf("Test point pass at (%d, %d)\n", x, y);
@@ -1638,7 +1638,7 @@ void GameA::makeNewTetrisPiece(){
     } else {
         piece_img = this->piece_images.at(type);
     }
-    tetrisPieceData data(piece_img, this->piece_rects.at(type), is_powerup);
+    tetrisPieceData data(piece_img, this->piece_rects_m.at(type), is_powerup);
     this->setTetrisPieceData(this->currentPiece, data);
 }
 
@@ -1666,7 +1666,7 @@ void GameA::makeNewNextPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects.at(this->next_piece_type), false);
+    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects_m.at(this->next_piece_type), false);
     this->setTetrisPieceData(this->next_piece_for_display, data);
 }
 
@@ -1725,7 +1725,8 @@ void GameA::destroyTetrisPiece(b2Body* b){
 }
 
 QPoint GameA::physPtToScrnPt(b2Vec2 worldPoint_m){
-    //take a point in meters from the box2d world and convert it to a point in pixels in the game window
+    //take a point in meters from the playable tetris field (where (0, 0) is the top left corner of where the blocks can be)
+    //and convert it to a point in pixels in the game window
     return QPoint(
                 this->tetris_field_px.x() + static_cast<double>(worldPoint_m.x)*this->physics_to_screen_scale_px_m,
                 this->tetris_field_px.y() + static_cast<double>(worldPoint_m.y)*this->physics_to_screen_scale_px_m
@@ -1915,7 +1916,7 @@ void GameA::initializeTetrisPieceImages(){
     this->piece_image_scale = screen_height*1.0/tetris_field_m.height();
     
     this->piece_images.clear();
-    this->piece_rects.clear();
+    this->piece_rects_m.clear();
     
     int side_length = static_cast<int>(this->side_length_m);
     for (uint8 piece = 0; piece < num_tetris_pieces; piece++){
@@ -1944,49 +1945,49 @@ void GameA::initializeTetrisPieceImages(){
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*3, 0), orig_img);
-            this->piece_rects.push_back(QRect(-2*side_length, -side_length/2, 4*side_length, side_length));
+            this->piece_rects_m.push_back(QRect(-2*side_length, -side_length/2, 4*side_length, side_length));
             break;
         case O:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
-            this->piece_rects.push_back(QRect(-side_length, -side_length, 2*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-side_length, -side_length, 2*side_length, 2*side_length));
             break;
         case G:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
-            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
             break;
         case L:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
-            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
             break;
         case T:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
-            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length/2, 3*side_length, 2*side_length));
             break;
         case Z:
             painter.drawImage(QPoint(0, 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, orig_img.height()), orig_img);
-            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
             break;
         case S:
             painter.drawImage(QPoint(0, orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width(), 0), orig_img);
             painter.drawImage(QPoint(orig_img.width(), orig_img.height()), orig_img);
             painter.drawImage(QPoint(orig_img.width()*2, 0), orig_img);
-            this->piece_rects.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
+            this->piece_rects_m.push_back(QRect(-3*side_length/2, -side_length, 3*side_length, 2*side_length));
             break;
         default:
             fprintf(stderr, "Piece not defined: %u\n", piece);
@@ -1998,9 +1999,9 @@ void GameA::initializeTetrisPieceImages(){
     }
 
     this->default_piece_image = this->piece_images.at(default_tetris_piece);
-    this->default_piece_rect = this->piece_rects.at(default_tetris_piece);
+    this->default_piece_rect_m = this->piece_rects_m.at(default_tetris_piece);
     this->default_data.image = this->default_piece_image;
-    this->default_data.region = this->default_piece_rect;
+    this->default_data.region_m = this->default_piece_rect_m;
 }
 
 void GameA::initializeWalls(){

@@ -308,7 +308,7 @@ void GameB::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    painter->drawPixmap(body_data.region, body_data.image);
+    painter->drawPixmap(body_data.region_m, body_data.image);
     
     painter->restore();
 }
@@ -968,7 +968,7 @@ void GameB::initializeTetrisPieceImages(){
     this->default_piece_image = this->piece_images.at(default_tetris_piece);
     this->default_piece_rect = this->piece_rects.at(default_tetris_piece);
     this->default_data.image = this->default_piece_image;
-    this->default_data.region = this->default_piece_rect;
+    this->default_data.region_m = this->default_piece_rect;
 }
 
 void GameB::initializeWalls(){

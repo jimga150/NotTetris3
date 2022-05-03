@@ -48,14 +48,14 @@ enum line_cut_side_enum{
 };
 
 struct row_sides_struct{
-    float32 top = 0;
-    float32 bottom = 0;
+    float32 top_m = 0;
+    float32 bottom_m = 0;
     
     row_sides_struct(){}
     
-    row_sides_struct(uint row, float32 side_length){
-        this->top = (row+1)*side_length + numeric_limits<float32>::epsilon();
-        this->bottom = row*side_length - numeric_limits<float32>::epsilon();
+    row_sides_struct(uint row, float32 side_length_m){
+        this->top_m = (row+1)*side_length_m + numeric_limits<float32>::epsilon();
+        this->bottom_m = row*side_length_m - numeric_limits<float32>::epsilon();
     }
 };
 
@@ -123,7 +123,7 @@ public:
     
     void clearYRange(float32 top_y_m, float32 bottom_y_m);
     
-    QImage maskImage(b2Body* b, QImage orig_image, QRect region);
+    QImage maskImage(b2Body* b, QImage orig_image, QRect region_m);
     
     bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
@@ -359,10 +359,10 @@ public:
     
     vector<QPixmap> piece_images;
     vector<QPixmap> pwu_piece_images;
-    vector<QRect> piece_rects;
+    vector<QRect> piece_rects_m;
     
     QPixmap default_piece_image;
-    QRect default_piece_rect; //TODO: units
+    QRect default_piece_rect_m;
     tetrisPieceData default_data;
     
     QSoundEffect sfx[num_sound_effects];
