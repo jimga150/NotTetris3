@@ -173,10 +173,10 @@ public:
     //debug
     const bool debug_framerate = true;
     
-    const bool debug_box2d = true;
+    const bool debug_box2d = false;
     
     // not const cause of the way its used but trust me, dont change it willy nilly. I'll know.
-    bool frame_review = true;
+    bool frame_review = false;
     
     
     //calculated timings    
