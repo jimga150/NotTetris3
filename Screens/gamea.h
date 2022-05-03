@@ -157,6 +157,8 @@ public:
 
     QRectF physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m);
 
+    b2Vec2 scrnPtToPhysPt(QPointF screenPoint_px);
+
     
     //initialization functions
     void initializeTetrisPieceDefs();

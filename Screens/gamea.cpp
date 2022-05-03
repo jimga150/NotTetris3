@@ -1745,6 +1745,15 @@ QRectF GameA::physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m){
     return QRectF(this->physPtToScrnPt(topLeft_m), size_px);
 }
 
+b2Vec2 GameA::scrnPtToPhysPt(QPointF screenPoint_px){
+    //take a point in pixels from the game window
+    //and convert it to a point in meters in the playable tetris field (where (0, 0) is the top left corner of where the blocks can be)
+    return b2Vec2(
+                (screenPoint_px.x() - this->tetris_field_px.x())/this->physics_to_screen_scale_px_m,
+                (screenPoint_px.y() - this->tetris_field_px.y())/this->physics_to_screen_scale_px_m
+                );
+}
+
 
 void GameA::initializeTetrisPieceDefs(){
     
