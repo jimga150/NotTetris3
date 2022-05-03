@@ -421,10 +421,6 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     b2Vec2 com_m = body->GetLocalCenter();
     painter->drawEllipse(QPointF(com_m.x, com_m.y)*this->physics_to_screen_scale_px_m, 10, 5);
 
-    com_m = mdata.center;
-    QRectF cent_rect_m((com_m.x-this->side_length_m/10), (com_m.y-this->side_length_m/5), this->side_length_m/5, this->side_length_m/2.5);
-    painter->drawRect(TO_QRECT(cent_rect_m, this->physics_to_screen_scale_px_m));
-
     if (data.is_powerup){
         painter->restore();
     }
