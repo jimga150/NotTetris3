@@ -16,8 +16,8 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     Q_ASSERT(this->downward_velocity_max_m_s < box2d_max_velocity_m_s);
     Q_ASSERT(this->downward_velocity_regular_m_s < box2d_max_velocity_m_s);
     
-    //    this->rng = QRandomGenerator::securelySeeded();
-    this->rng = QRandomGenerator(9002);
+    this->rng = QRandomGenerator::securelySeeded();
+    //this->rng = QRandomGenerator(9002);
     
     //key-action mappings
     this->freeze_key = Qt::Key_Space;
@@ -217,13 +217,13 @@ void GameA::render(QPainter& painter)
 
                 vector<rayCastComplete> rcs = this->getRayCasts(this->diag_top_m, this->diag_bot_m, this->diag_slope);
 
-                float32 x1_m = rcs.at(BOTTOMLEFT).input.p1.x;
-                float32 x2_m = rcs.at(BOTTOMRIGHT).input.p1.x;
+                float32 x1_m = 0;
+                float32 x2_m = this->tetris_field_m.width();
 
-                float32 y1_m = rcs.at(BOTTOMLEFT).input.p1.y;
-                float32 y2_m = rcs.at(TOPLEFT).input.p1.y;
-                float32 y3_m = rcs.at(TOPRIGHT).input.p1.y;
-                float32 y4_m = rcs.at(BOTTOMRIGHT).input.p1.y;
+                float32 y1_m = this->diag_slope*(x1_m - rcs.at(BOTTOMLEFT).input.p1.x) + rcs.at(BOTTOMLEFT).input.p1.y;
+                float32 y2_m = this->diag_slope*(x1_m - rcs.at(TOPLEFT).input.p1.x) + rcs.at(TOPLEFT).input.p1.y;
+                float32 y3_m = this->diag_slope*(x2_m - rcs.at(TOPRIGHT).input.p1.x) + rcs.at(TOPRIGHT).input.p1.y;
+                float32 y4_m = this->diag_slope*(x2_m - rcs.at(BOTTOMRIGHT).input.p1.x) + rcs.at(BOTTOMRIGHT).input.p1.y;
 
                 vector<b2Vec2> points_m;
                 points_m.push_back(b2Vec2(x1_m, y1_m));
@@ -231,15 +231,13 @@ void GameA::render(QPainter& painter)
                 points_m.push_back(b2Vec2(x2_m, y3_m));
                 points_m.push_back(b2Vec2(x2_m, y4_m));
 
-                QList<QPoint> points_px; //TODO: row clear drawing
+                QList<QPoint> points_px;
 
                 for (uint i = 0; i < points_m.size(); ++i){
                     points_px.append(this->physPtToScrnPt(points_m.at(i)));
                 }
 
                 painter.drawPolygon(QPolygon(points_px));
-
-
             }
         }
         
@@ -345,10 +343,10 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     
     //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
     QString ptrStr = QString("0x%1").arg(reinterpret_cast<quintptr>(body),QT_POINTER_SIZE * 2, 16, QChar('0'));
-    QString coordstr = QString("(%1, %2)").arg(body->GetPosition().x).arg(body->GetPosition().y);
+    //QString coordstr = QString("(%1, %2)").arg(body->GetPosition().x).arg(body->GetPosition().y);
     //printf("\t%s: %s\n", ptrStr.toUtf8().constData(), coordstr.toUtf8().constData());
 
-    painter->drawText(QPoint(0, 0), coordstr);
+    painter->drawText(QPoint(0, 0), ptrStr);
     
     painter->rotate(static_cast<double>(body->GetAngle())*DEG_PER_RAD);
 
@@ -781,10 +779,9 @@ void GameA::doGameStep(){
                 //assume that b will always be positive, remove the abs
                 //b/sqrt(m^2+1) = sl
                 //b = sl*sqrt(m^2+1)
-                //TODO: slash calc
                 float32 y_offset_m = this->side_length_m*static_cast<float32>(sqrt(static_cast<double>(this->diag_slope*this->diag_slope + 1)));
-                this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x); //TODO: make this account for the raycast_left X coord instead of x = 0
-                this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x);
+                this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
+                this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
 
                 if (isnan(this->diag_slope) || isinf(this->diag_slope) ||
                         this->diag_top_m < -5*this->tetris_field_m.height() || this->diag_top_m > 5*this->tetris_field_m.height()){
