@@ -1097,6 +1097,7 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
         if (this->next_piece_for_display == b) continue;
+        if (this->currentPiece == b) continue;
 
         //if this body is already marked for deletion, don't bother.
         bool todestroy = false;
