@@ -263,6 +263,7 @@ void GameA::render(QPainter& painter)
         
         //printf("New frame:\n");
         for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            if (this->currentPiece == b) continue;
             if (!this->isAWall(b) /*&& b->IsAwake()*/){
                 //printf("Body: (%f, %f)\n", b->GetPosition().x, b->GetPosition().y);
                 this->drawTetrisPiece(&painter, b);
@@ -270,6 +271,12 @@ void GameA::render(QPainter& painter)
             if (debug_box2d){
                 this->drawBodyTo(&painter, b);
             }
+        }
+
+        //draw currentPiece last
+        this->drawTetrisPiece(&painter, this->currentPiece);
+        if (debug_box2d){
+            this->drawBodyTo(&painter, this->currentPiece);
         }
         
 #ifdef TIME_RENDER_STEPS
@@ -438,13 +445,43 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
-    painter->drawPixmap(body_data.region_m, body_data.image, body_data.image.rect());
+    painter->drawPixmap(body_data.region_m.toRect(), body_data.image);
+
+    painter->restore();
 
     if (body_data.is_powerup){
 
+        painter->save();
+        painter->setPen(Qt::black);
+
+        float32 dist_inc_m = 1;
+        float32 next_x_m = 0;
+
+        float32 slope = tan(piece_body->GetAngle());
+
+        b2Vec2 p1_m, next_pt_m;
+        float32 next_y_m;
+        QList<QPointF> points;
+
+        bool edge_reached = false;
+        while(!edge_reached){
+
+            if (next_x_m > this->tetris_field_m.width()){
+                next_x_m = this->tetris_field_m.width();
+                edge_reached = true;
+            }
+
+            next_y_m = slope*(next_x_m - piece_body->GetPosition().x) + piece_body->GetPosition().y;
+            next_pt_m.Set(next_x_m, next_y_m);
+
+            points.push_back(this->physPtToScrnPt(next_pt_m));
+
+            next_x_m += dist_inc_m/sqrt(slope*slope + 1);
+        }
+
+        painter->drawLines(points);
+        painter->restore();
     }
-    
-    painter->restore();
 }
 
 void GameA::drawScore(QPainter* painter){
