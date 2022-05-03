@@ -155,6 +155,8 @@ public:
 
     QPoint physPtToScrnPt(b2Vec2 worldPoint_m);
 
+    QRect physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m);
+
     
     //initialization functions
     void initializeTetrisPieceDefs();

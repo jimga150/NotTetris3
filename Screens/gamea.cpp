@@ -202,12 +202,7 @@ void GameA::render(QPainter& painter)
                     row_sides_struct top_row(cr - 1, this->side_length_m);
                     float32 top_y_m = top_row.top;
                     
-                    painter.drawRect(
-                                this->tetris_field_px.x(),
-                                static_cast<int>(static_cast<double>(bottom_y_m)*this->physics_to_screen_scale_px_m),
-                                this->tetris_field_px.width(),
-                                static_cast<int>(static_cast<double>(top_y_m - bottom_y_m)*this->physics_to_screen_scale_px_m)
-                                );
+                    painter.drawRect(this->physRectToScrnRect(b2Vec2(0, bottom_y_m), b2Vec2(this->tetris_field_m.width(), top_y_m - bottom_y_m)));
                     
                     r = cr - 1;
                 }
@@ -1739,6 +1734,13 @@ QPoint GameA::physPtToScrnPt(b2Vec2 worldPoint_m){
                 this->tetris_field_px.x() + static_cast<double>(worldPoint_m.x)*this->physics_to_screen_scale_px_m,
                 this->tetris_field_px.y() + static_cast<double>(worldPoint_m.y)*this->physics_to_screen_scale_px_m
                 );
+}
+
+QRect GameA::physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m){
+    QSize size_px;
+    size_px.setWidth(size_m.x*this->physics_to_screen_scale_px_m);
+    size_px.setHeight(size_m.y*this->physics_to_screen_scale_px_m);
+    return QRect(this->physPtToScrnPt(topLeft_m), size_px);
 }
 
 
