@@ -226,13 +226,13 @@ void GameA::render(QPainter& painter)
                 points_m.push_back(b2Vec2(x2_m, y3_m));
                 points_m.push_back(b2Vec2(x2_m, y4_m));
 
-                QList<QPoint> points_px;
+                QList<QPointF> points_px;
 
                 for (uint i = 0; i < points_m.size(); ++i){
                     points_px.append(this->physPtToScrnPt(points_m.at(i)));
                 }
 
-                painter.drawPolygon(QPolygon(points_px));
+                painter.drawPolygon(QPolygonF(points_px));
             }
         }
         
@@ -333,7 +333,7 @@ void GameA::colorizeResources(){
 void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     
     painter->save();
-    QPoint body_center_px = this->physPtToScrnPt(body->GetPosition());
+    QPointF body_center_px = this->physPtToScrnPt(body->GetPosition());
     painter->translate(body_center_px.x(), body_center_px.y());
     
     //https://stackoverflow.com/questions/8881923/how-to-convert-a-pointer-value-to-qstring
@@ -431,7 +431,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     
     painter->save();
 
-    QPoint body_center_px = this->physPtToScrnPt(piece_body->GetPosition());
+    QPointF body_center_px = this->physPtToScrnPt(piece_body->GetPosition());
     painter->translate(body_center_px.x(), body_center_px.y());
 
     painter->scale(this->physics_to_screen_scale_px_m, this->physics_to_screen_scale_px_m);
@@ -1725,20 +1725,20 @@ void GameA::destroyTetrisPiece(b2Body* b){
     this->world->DestroyBody(b);
 }
 
-QPoint GameA::physPtToScrnPt(b2Vec2 worldPoint_m){
+QPointF GameA::physPtToScrnPt(b2Vec2 worldPoint_m){
     //take a point in meters from the playable tetris field (where (0, 0) is the top left corner of where the blocks can be)
     //and convert it to a point in pixels in the game window
-    return QPoint(
+    return QPointF(
                 this->tetris_field_px.x() + static_cast<double>(worldPoint_m.x)*this->physics_to_screen_scale_px_m,
                 this->tetris_field_px.y() + static_cast<double>(worldPoint_m.y)*this->physics_to_screen_scale_px_m
                 );
 }
 
-QRect GameA::physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m){
-    QSize size_px;
+QRectF GameA::physRectToScrnRect(b2Vec2 topLeft_m, b2Vec2 size_m){
+    QSizeF size_px;
     size_px.setWidth(size_m.x*this->physics_to_screen_scale_px_m);
     size_px.setHeight(size_m.y*this->physics_to_screen_scale_px_m);
-    return QRect(this->physPtToScrnPt(topLeft_m), size_px);
+    return QRectF(this->physPtToScrnPt(topLeft_m), size_px);
 }
 
 
