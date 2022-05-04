@@ -135,7 +135,7 @@ public:
     
     
     //adding new pieces
-    void makeNewTetrisPiece();
+    void makeNewTetrisPiece(bool is_powerup);
     
     void makeNewNextPiece();
     

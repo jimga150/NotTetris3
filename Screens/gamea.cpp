@@ -126,9 +126,7 @@ void GameA::init(){
     
     this->next_piece_type = static_cast<tetris_piece_enum>(this->rng.bounded(num_tetris_pieces));
     
-    this->makeNewTetrisPiece();
-    
-    this->makeNewNextPiece();
+    this->makeNewTetrisPiece(false);
 }
 
 
@@ -739,14 +737,13 @@ void GameA::doGameStep(){
                     }
                     
                     this->game_state = gameA;
+
+                    this->makeNewTetrisPiece(this->new_level_reached);
                     
                     if (this->new_level_reached){
                         this->sfx[NEW_LEVEL].play();
                         this->new_level_reached = false;
                     }
-                    
-                    //NOW set up the next piece preview
-                    this->makeNewNextPiece();
                     
                     this->init_BDC();
                 }
@@ -830,7 +827,6 @@ void GameA::doGameStep(){
 
                 this->world->DestroyBody(this->currentPiece);
             }
-            this->makeNewTetrisPiece();
         }
     }
     
@@ -995,7 +991,7 @@ void GameA::doGameStep(){
             
         } else {
             //not clearing any lines, so carry on
-            this->makeNewNextPiece();
+            this->makeNewTetrisPiece(false);
             this->sfx[BLOCK_FALL].play();
         }
     }
@@ -1667,7 +1663,7 @@ float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
 }
 
 
-void GameA::makeNewTetrisPiece(){
+void GameA::makeNewTetrisPiece(bool is_powerup){
     
     //set up current piece
     tetris_piece_enum type = this->next_piece_type;
@@ -1679,7 +1675,6 @@ void GameA::makeNewTetrisPiece(){
         this->currentPiece->CreateFixture(&f);
     }
     
-    bool is_powerup = this->rng.generateDouble() < powerup_chance;
     QPixmap piece_img;
     if (is_powerup){
         piece_img = this->pwu_piece_images.at(type);
@@ -1688,6 +1683,8 @@ void GameA::makeNewTetrisPiece(){
     }
     tetrisPieceData data(piece_img, this->piece_rects_m.at(type), is_powerup);
     this->setTetrisPieceData(this->currentPiece, data);
+
+    this->makeNewNextPiece();
 }
 
 void GameA::makeNewNextPiece(){
