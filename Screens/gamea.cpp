@@ -464,6 +464,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
         QList<QPointF> points;
 
         bool edge_reached = false;
+        bool cancel_line = false;
         while(!edge_reached){
 
             if (next_x_m > this->tetris_field_m.width()){
@@ -472,6 +473,10 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
             }
 
             next_y_m = slope*(next_x_m - piece_body->GetPosition().x) + piece_body->GetPosition().y;
+            if (next_y_m < -5*this->tetris_field_m.height() || next_y_m > 5*this->tetris_field_m.height()){
+                cancel_line = true;
+                break;
+            }
             next_pt_m.Set(next_x_m, next_y_m);
 
             points.push_back(this->physPtToScrnPt(next_pt_m));
@@ -479,7 +484,8 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
             next_x_m += dist_inc_m/sqrt(slope*slope + 1);
         }
 
-        painter->drawLines(points);
+        if (!cancel_line) painter->drawLines(points);
+
         painter->restore();
     }
 }
