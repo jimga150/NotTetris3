@@ -822,7 +822,7 @@ void GameA::doGameStep(){
                 this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
 
                 if (isnan(this->diag_slope) || isinf(this->diag_slope) ||
-                        this->diag_top_m < -5*this->tetris_field_m.height() || this->diag_top_m > 5*this->tetris_field_m.height()){
+                        this->diag_top_m < -5*this->tetris_field_m.height() || this->diag_top_m > 5*this->tetris_field_m.height()){ //TODO: standardize this threshold
                     this->clear_diag_cut = false;
                     fprintf(stderr, "Diagonal cut not performed, powerup piece landed nearly stright up!\n");
                     //TODO: maybe play a little error sound here
