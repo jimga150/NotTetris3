@@ -26,6 +26,7 @@ enum gamea_state_enum{
     gameA = 0,
     start_row_clear_blinking,
     row_clear_blinking,
+    shake_field_state,
     flush_blocks,
     
     num_gamea_states
@@ -175,7 +176,7 @@ public:
     //debug
     const bool debug_framerate = true;
     
-    const bool debug_box2d = false;
+    const bool debug_box2d = true;
     
     // not const cause of the way its used but trust me, dont change it willy nilly. I'll know.
     bool frame_review = false;
@@ -380,10 +381,15 @@ public:
     uint num_blinks_so_far; //blink count accumulator
     
     vector<bool> rows_to_clear;
+
     bool clear_diag_cut;
     float32 diag_top_m;
     float32 diag_bot_m;
-    float32 diag_slope; //pre-negated to account for flipped field
+    float32 diag_slope;
+
+    bool shake_field;
+    double shake_time_acc_s;
+    const int shake_time_max_s = 3;
     
     double row_blink_accumulator_s;
     

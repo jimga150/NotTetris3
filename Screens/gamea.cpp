@@ -106,6 +106,9 @@ void GameA::init(){
     this->diag_bot_m = FP_NAN;
     this->diag_slope = FP_NAN;
 
+    this->shake_field = false;
+    this->shake_time_acc_s = 0;
+
     this->destroyWorld();
     
     b2Vec2 gravity_m_s2(0.0f, this->gravity_g_m_s2);
@@ -143,7 +146,7 @@ void GameA::freeUserDataOn(b2Body* b){
 void GameA::calcScaleFactors(){
     this->physics_to_screen_scale_px_m = this->physics_to_ui_scale_in_m*this->ui_to_screen_scale_px_in;
     this->tetris_field_px = SCALE_QRECTF(this->tetris_field_m, this->physics_to_screen_scale_px_m);
-//    printf("physics_to_screen_scale [px/m]: %f\n", this->physics_to_screen_scale_px_m);
+    //    printf("physics_to_screen_scale [px/m]: %f\n", this->physics_to_screen_scale_px_m);
 }
 
 void GameA::render(QPainter& painter)
@@ -351,7 +354,7 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     painter->rotate(static_cast<double>(body->GetAngle())*DEG_PER_RAD);
 
     tetrisPieceData data = this->getTetrisPieceData(body);
-    if (data.is_powerup){
+    if (data.is_powerup()){
         painter->save();
         painter->setPen(QColor(Qt::blue));
     }
@@ -426,7 +429,7 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
     b2Vec2 com_m = body->GetLocalCenter();
     painter->drawEllipse(QPointF(com_m.x, com_m.y)*this->physics_to_screen_scale_px_m, 10, 5);
 
-    if (data.is_powerup){
+    if (data.is_powerup()){
         painter->restore();
     }
     painter->restore();
@@ -447,7 +450,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
     painter->restore();
 
-    if (body_data.is_powerup){
+    if (body_data.powerup == DIAG_CUT){
 
         painter->save();
         painter->setPen(Qt::black);
@@ -735,8 +738,13 @@ void GameA::doGameStep(){
                         tpd.resolveImage();
                         this->setTetrisPieceData(b, tpd);
                     }
-                    
-                    this->game_state = gameA;
+
+                    if (this->shake_field){
+                        this->game_state = shake_field_state;
+                        this->shake_field = false;
+                    } else {
+                        this->game_state = gameA;
+                    }
 
                     this->makeNewTetrisPiece(this->new_level_reached);
                     
@@ -752,6 +760,28 @@ void GameA::doGameStep(){
         return;
     }
     
+    if (this->game_state == shake_field_state){
+
+        this->shake_time_acc_s += framerate_s_f;
+
+        float32 t_mult = 2.0*M_PI*3.0;
+        float32 side_speed = (t_mult/2.0)*sin(t_mult*this->shake_time_acc_s);
+        b2Vec2 v(side_speed, 0);
+
+        if (this->shake_time_acc_s > this->shake_time_max_s){
+            this->game_state = gameA;
+            v.Set(0, 0);
+
+            this->walls[LEFTWALL]->SetTransform(b2Vec2(0, 0), this->walls[LEFTWALL]->GetAngle());
+            this->walls[RIGHTWALL]->SetTransform(b2Vec2(0, 0), this->walls[RIGHTWALL]->GetAngle());
+            this->walls[GROUND]->SetTransform(b2Vec2(0, 0), this->walls[GROUND]->GetAngle());
+        }
+
+        this->walls[LEFTWALL]->SetLinearVelocity(v);
+        this->walls[RIGHTWALL]->SetLinearVelocity(v);
+        this->walls[GROUND]->SetLinearVelocity(v);
+    }
+
     this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
     this->next_piece_for_display->SetAngularVelocity(this->next_piece_w_rad_s);
     
@@ -793,7 +823,10 @@ void GameA::doGameStep(){
         if (this->game_state != flush_blocks){
             //start with making the new tetris piece and make the new next piece
             //only if we're not clearing lines (found below)
-            if (this->getTetrisPieceData(this->currentPiece).is_powerup){
+
+            switch(this->getTetrisPieceData(this->currentPiece).powerup){
+            case DIAG_CUT:
+            {
                 this->clear_diag_cut = true;
                 float32 angle_rad = this->currentPiece->GetAngle();
 
@@ -824,7 +857,22 @@ void GameA::doGameStep(){
                     fprintf(stderr, "Diagonal cut not performed, powerup piece landed nearly stright up!\n");
                     //TODO: maybe play a little error sound here
                 }
+            }
+                break;
+            case EARTHQUAKE:
 
+                this->shake_field = true;
+
+                break;
+            case NOT_A_POWERUP:
+                //do nothing
+                break;
+            default:
+                fprintf(stderr, "powerup enum not defined: %d\n", this->getTetrisPieceData(this->currentPiece).powerup);
+                break;
+            }
+
+            if (this->getTetrisPieceData(this->currentPiece).is_powerup()){
                 this->world->DestroyBody(this->currentPiece);
             }
         }
@@ -991,8 +1039,15 @@ void GameA::doGameStep(){
             
         } else {
             //not clearing any lines, so carry on
+
+            if (this->shake_field){
+                this->game_state = shake_field_state;
+                this->shake_field = false;
+            }
+
             this->makeNewTetrisPiece(false);
             this->sfx[BLOCK_FALL].play();
+
         }
     }
     
@@ -1673,14 +1728,19 @@ void GameA::makeNewTetrisPiece(bool is_powerup){
     for (b2FixtureDef f : this->tetrisFixtures.at(type)){
         this->currentPiece->CreateFixture(&f);
     }
+
+    powerup_type_enum powerup = NOT_A_POWERUP;
     
     QPixmap piece_img;
     if (is_powerup){
         piece_img = this->pwu_piece_images.at(type);
+        //ensure the result of this is not 0 (NOT_A_POWERUP)
+        //powerup = static_cast<powerup_type_enum>(this->rng.bounded(num_powerup_types - 1) + 1); //TODO: make powerups random again
+        powerup = EARTHQUAKE;
     } else {
         piece_img = this->piece_images.at(type);
     }
-    tetrisPieceData data(piece_img, this->piece_rects_m.at(type), is_powerup);
+    tetrisPieceData data(piece_img, this->piece_rects_m.at(type), powerup);
     this->setTetrisPieceData(this->currentPiece, data);
 
     this->makeNewNextPiece();
@@ -1710,7 +1770,7 @@ void GameA::makeNewNextPiece(){
         this->next_piece_for_display->CreateFixture(&f);
     }
     
-    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects_m.at(this->next_piece_type), false);
+    tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects_m.at(this->next_piece_type), NOT_A_POWERUP);
     this->setTetrisPieceData(this->next_piece_for_display, data);
 }
 
@@ -2062,6 +2122,7 @@ void GameA::initializeWalls(){
     float32 t_width = static_cast<float32>(tetris_field_m.width());
     
     b2BodyDef edgeBodyDef;
+    edgeBodyDef.type = b2_kinematicBody;
     edgeBodyDef.position.Set(0, 0);
     
     b2EdgeShape edge;

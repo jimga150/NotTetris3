@@ -63,6 +63,14 @@ enum sound_effect_enum{
     num_sound_effects
 };
 
+enum powerup_type_enum{
+    NOT_A_POWERUP = 0,
+    DIAG_CUT,
+    EARTHQUAKE,
+
+    num_powerup_types
+};
+
 struct tetrisPieceData {
     
     QPixmap image;
@@ -71,18 +79,18 @@ struct tetrisPieceData {
     
     QRectF region_m;
 
-    bool is_powerup;
+    powerup_type_enum powerup;
     
     tetrisPieceData(){}
     
-    tetrisPieceData(QPixmap image, QRectF region, bool is_powerup){
+    tetrisPieceData(QPixmap image, QRectF region, powerup_type_enum powerup){
         this->image = image;
         this->region_m = region;
-        this->is_powerup = is_powerup;
+        this->powerup = powerup;
     }
     
     bool operator==(const tetrisPieceData& other) const{
-        return this->is_powerup == other.is_powerup && this->region_m == other.region_m && this->image.toImage() == other.image.toImage();
+        return this->powerup == other.powerup && this->region_m == other.region_m && this->image.toImage() == other.image.toImage();
     }
     
     QImage get_image(){
@@ -104,6 +112,10 @@ struct tetrisPieceData {
             
             this->image_in_waiting = QImage();
         }
+    }
+
+    bool is_powerup(){
+        return this->powerup != NOT_A_POWERUP;
     }
     
 };
