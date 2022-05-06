@@ -109,7 +109,7 @@ public:
     
     
     //calculated timings    
-    float32 timeStep;
+    float timeStep;
         
     
     //input states/params
@@ -154,7 +154,7 @@ public:
         
     //must be an even number greater than 1 and less than 7.6175362031343
     //so basically 2, 4, or 6 meters is it right now
-    float32 side_length = 2.0f;  //meters
+    float side_length = 2.0f;  //meters
     double side_length_dbl = static_cast<double>(side_length);
     
     const QRectF tetris_field_m = QRectF(
@@ -165,9 +165,9 @@ public:
                                     );
     QRectF tetris_field_px = SCALE_QRECTF(tetris_field_m, 1);
     
-    const float32 square_area = side_length*side_length;
+    const float square_area = side_length*side_length;
     
-    const float32 min_poly_area = (1.0f/40.0f)*square_area;
+    const float min_poly_area = (1.0f/40.0f)*square_area;
     
     const double physics_to_ui_scale = ui_field_in.height()/tetris_field_m.height();
     double physics_scale = physics_to_ui_scale*ui_to_screen_scale_px_in;
@@ -175,7 +175,7 @@ public:
     //scale used to make tetris piece cutting smooth (set later)
     double piece_image_scale = 0;
         
-    b2Vec2 piece_start = b2Vec2(static_cast<float32>(this->tetris_field_m.width()/2), -this->side_length*2);
+    b2Vec2 piece_start = b2Vec2(static_cast<float>(this->tetris_field_m.width()/2), -this->side_length*2);
     
     QPoint score_display_right = QPoint(151, 24);
     
@@ -192,37 +192,37 @@ public:
     
     //physics constants
     
-    const float32 old_g = 500;
-    const float32 old_start_y = -64;
-    const float32 old_game_height = 640;    
-    const float32 gravity_g = old_g*(static_cast<float32>(tetris_field_m.height()) - piece_start.y)/(old_game_height - old_start_y);
+    const float old_g = 500;
+    const float old_start_y = -64;
+    const float old_game_height = 640;    
+    const float gravity_g = old_g*(static_cast<float>(tetris_field_m.height()) - piece_start.y)/(old_game_height - old_start_y);
     
-    const float32 density = 1;//1.0f/900.0f;
+    const float density = 1;//1.0f/900.0f;
     
-    const float32 wmax = 3.0f;
-    const float32 angular_accel = 9.55342974715892f;
+    const float wmax = 3.0f;
+    const float angular_accel = 9.55342974715892f;
     
-    const float32 lateral_accel = 11.25f*side_length;
+    const float lateral_accel = 11.25f*side_length;
     
-    const float32 downward_accel = 14.441875f*side_length;
+    const float downward_accel = 14.441875f*side_length;
     
-    const float32 upward_correcting_accel = 50.87875f*side_length; 
+    const float upward_correcting_accel = 50.87875f*side_length; 
     
-    const float32 downward_velocity_max = 15.753125f*side_length; 
-    const float32 downward_velocity_regular = 2.86853125f*side_length;
-    const float32 downward_velocity_level_increment = 0.2007971875f*side_length;
+    const float downward_velocity_max = 15.753125f*side_length; 
+    const float downward_velocity_regular = 2.86853125f*side_length;
+    const float downward_velocity_level_increment = 0.2007971875f*side_length;
     
-    const float32 piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
-    const float32 ground_friction_k = 0.5f;
+    const float piece_friction_k = 0.5f; //Box2D uses the same k for static and dynamic friction, unfortunately
+    const float ground_friction_k = 0.5f;
     
-    const float32 restitution = 0.01f;
+    const float restitution = 0.01f;
     
-    const float32 linear_damping = 0.5f;
-    const float32 angular_damping = 0.1f;
+    const float linear_damping = 0.5f;
+    const float angular_damping = 0.1f;
     
     
     //next piece stuff
-    float32 next_piece_w = 1.0; //rad/s
+    float next_piece_w = 1.0; //rad/s
     
     tetris_piece_enum next_piece_type = default_tetris_piece;
     

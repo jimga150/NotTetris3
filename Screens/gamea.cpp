@@ -11,7 +11,7 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     double fps = 1.0/framerate_s_f;
     this->timeStep_s = framerate_s_f;
     
-    float32 box2d_max_velocity_m_s = b2_maxTranslation*fps;
+    float box2d_max_velocity_m_s = b2_maxTranslation*fps;
     
     Q_ASSERT(this->downward_velocity_max_m_s < box2d_max_velocity_m_s);
     Q_ASSERT(this->downward_velocity_regular_m_s < box2d_max_velocity_m_s);
@@ -192,7 +192,7 @@ void GameA::render(QPainter& painter)
                     // This code is used very nearly exactly in clearRows()
                     // this will mark the bottom row
                     row_sides_struct bottom_row(r, this->side_length_m);
-                    float32 bottom_y_m = bottom_row.bottom_m;
+                    float bottom_y_m = bottom_row.bottom_m;
                     
                     // figure out how many more rows (in a row) need to be cleared
                     // to group them all into one call
@@ -201,7 +201,7 @@ void GameA::render(QPainter& painter)
                     
                     // last row in contiguous block sees the top Y value
                     row_sides_struct top_row(cr - 1, this->side_length_m);
-                    float32 top_y_m = top_row.top_m;
+                    float top_y_m = top_row.top_m;
                     
                     painter.drawRect(this->physRectToScrnRect(b2Vec2(0, bottom_y_m), b2Vec2(this->tetris_field_m.width(), top_y_m - bottom_y_m)));
                     
@@ -213,13 +213,13 @@ void GameA::render(QPainter& painter)
 
                 vector<rayCastComplete> rcs = this->getRayCasts(this->diag_top_m, this->diag_bot_m, this->diag_slope);
 
-                float32 x1_m = 0;
-                float32 x2_m = this->tetris_field_m.width();
+                float x1_m = 0;
+                float x2_m = this->tetris_field_m.width();
 
-                float32 y1_m = this->diag_slope*(x1_m - rcs.at(BOTTOMLEFT).input.p1.x) + rcs.at(BOTTOMLEFT).input.p1.y;
-                float32 y2_m = this->diag_slope*(x1_m - rcs.at(TOPLEFT).input.p1.x) + rcs.at(TOPLEFT).input.p1.y;
-                float32 y3_m = this->diag_slope*(x2_m - rcs.at(TOPRIGHT).input.p1.x) + rcs.at(TOPRIGHT).input.p1.y;
-                float32 y4_m = this->diag_slope*(x2_m - rcs.at(BOTTOMRIGHT).input.p1.x) + rcs.at(BOTTOMRIGHT).input.p1.y;
+                float y1_m = this->diag_slope*(x1_m - rcs.at(BOTTOMLEFT).input.p1.x) + rcs.at(BOTTOMLEFT).input.p1.y;
+                float y2_m = this->diag_slope*(x1_m - rcs.at(TOPLEFT).input.p1.x) + rcs.at(TOPLEFT).input.p1.y;
+                float y3_m = this->diag_slope*(x2_m - rcs.at(TOPRIGHT).input.p1.x) + rcs.at(TOPRIGHT).input.p1.y;
+                float y4_m = this->diag_slope*(x2_m - rcs.at(BOTTOMRIGHT).input.p1.x) + rcs.at(BOTTOMRIGHT).input.p1.y;
 
                 vector<b2Vec2> points_m;
                 points_m.push_back(b2Vec2(x1_m, y1_m));
@@ -487,13 +487,13 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
         painter->save();
         painter->setPen(Qt::black);
 
-        float32 dist_inc_m = 1;
-        float32 next_x_m = 0;
+        float dist_inc_m = 1;
+        float next_x_m = 0;
 
-        float32 slope = tan(piece_body->GetAngle());
+        float slope = tan(piece_body->GetAngle());
 
         b2Vec2 next_pt_m;
-        float32 next_y_m;
+        float next_y_m;
         QList<QPointF> points;
 
         bool edge_reached = false;
@@ -804,8 +804,8 @@ void GameA::doGameStep(){
     {
         this->shake_time_acc_s += framerate_s_f;
 
-        float32 t_mult = 2.0*M_PI*3.0;
-        float32 side_speed = (t_mult/2.0)*sin(t_mult*this->shake_time_acc_s);
+        float t_mult = 2.0*M_PI*3.0;
+        float side_speed = (t_mult/2.0)*sin(t_mult*this->shake_time_acc_s);
         b2Vec2 v(side_speed, 0);
 
         if (this->shake_time_acc_s > this->shake_time_max_s){
@@ -937,7 +937,7 @@ void GameA::pieceLanded(){
     case DIAG_CUT:
     {
         this->clear_diag_cut = true;
-        float32 angle_rad = this->currentPiece->GetAngle();
+        float angle_rad = this->currentPiece->GetAngle();
 
         b2Vec2 bp_m = this->currentPiece->GetWorldCenter();
 
@@ -956,7 +956,7 @@ void GameA::pieceLanded(){
         //assume that b will always be positive, remove the abs
         //b/sqrt(m^2+1) = sl
         //b = sl*sqrt(m^2+1)
-        float32 y_offset_m = this->side_length_m*sqrt(this->diag_slope*this->diag_slope + 1);
+        float y_offset_m = this->side_length_m*sqrt(this->diag_slope*this->diag_slope + 1);
         this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
         this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
 
@@ -985,7 +985,7 @@ void GameA::pieceLanded(){
         this->destroyTetrisPiece(this->currentPiece);
     }
 
-    float32 average_area_m2 = 0;
+    float average_area_m2 = 0;
     int num_lines_removed = 0;
 
     for (uint r = 0; r < this->tetris_rows; r++){
@@ -1062,7 +1062,7 @@ void GameA::pieceLanded(){
 
 void GameA::processControlInput(){
     //take control states for current piece (determined by key inputs earlier) and turn them into piece effects
-    float32 inertia = this->currentPiece->GetInertia();
+    float inertia = this->currentPiece->GetInertia();
 
     switch(this->rotateState){
     case NO_ROTATION:
@@ -1087,7 +1087,7 @@ void GameA::processControlInput(){
         break;
     }
 
-    float32 mass_kg = this->currentPiece->GetMass();
+    float mass_kg = this->currentPiece->GetMass();
     b2Vec2 linear_force_vect_N = b2Vec2(0, 0);
 
     switch(this->lateralMovementState){
@@ -1106,8 +1106,8 @@ void GameA::processControlInput(){
         break;
     }
 
-    float32 y_velocity_m_s = this->currentPiece->GetLinearVelocity().y;
-    float32 downward_velocity_adjusted_m_s =
+    float y_velocity_m_s = this->currentPiece->GetLinearVelocity().y;
+    float downward_velocity_adjusted_m_s =
             this->downward_velocity_regular_m_s +
             this->downward_velocity_level_increment_m_s*this->current_level;
 
@@ -1130,7 +1130,7 @@ void GameA::clearRows(){
             
             // this will mark the bottom row
             row_sides_struct bottom_row(r, this->side_length_m);
-            float32 bottom_y = bottom_row.bottom_m;
+            float bottom_y = bottom_row.bottom_m;
             
             // figure out how many more rows (in a row) need to be cleared
             // to group them all into one call
@@ -1139,7 +1139,7 @@ void GameA::clearRows(){
             
             // last row in contiguous block sees the top Y value
             row_sides_struct top_row(cr - 1, this->side_length_m);
-            float32 top_y = top_row.top_m;
+            float top_y = top_row.top_m;
             
             // clear it
             this->clearYRange(top_y, bottom_y);
@@ -1159,7 +1159,7 @@ void GameA::clearRows(){
     this->bodies_to_destroy.clear();
 }
 
-float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
+float GameA::getRowArea_m2(uint row, bool use_current_piece){
 
     RETURN_VAL_IF_COND(row < 0 || row > this->tetris_rows, "invalid row", 0.0);
     
@@ -1167,7 +1167,7 @@ float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
     
     vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top_m, sides.bottom_m, 0);
     
-    float32 total_area_m2 = 0;
+    float total_area_m2 = 0;
     
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
@@ -1182,7 +1182,7 @@ float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
             this->body_area_contributions_m2.at(row).remove(b);
         }
         
-        float32 body_area = 0;
+        float body_area = 0;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
@@ -1224,14 +1224,14 @@ float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
                 }
                 
                 int num_vertices = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
-                float32 area = this->poly_area_m2(&new_points[0], num_vertices);
+                float area = this->poly_area_m2(&new_points[0], num_vertices);
                 body_area += area;
                 
             } else { //If NEITHER of the ray casts hit
                 
                 b2Vec2 p = b->GetWorldPoint(s->m_vertices[0]);
                 if (p.y <= sides.top_m && p.y >= sides.bottom_m){
-                    float32 area = this->poly_area_m2(s->m_vertices, s->m_count);
+                    float area = this->poly_area_m2(s->m_vertices, s->m_count);
                     body_area += area;
                 }
                 
@@ -1248,7 +1248,7 @@ float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
     return total_area_m2;
 }
 
-void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
+void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
 
     RETURN_IF_FLT_INVALID(top_y_m);
     RETURN_IF_FLT_INVALID(bottom_y_m);
@@ -1284,8 +1284,8 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
 
-            float32 v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
-            float32 v0_wp_y_intersect = v0_worldpoint_y - slope*(b->GetWorldPoint(s->m_vertices[0]).x);
+            float v0_worldpoint_y = b->GetWorldPoint(s->m_vertices[0]).y;
+            float v0_wp_y_intersect = v0_worldpoint_y - slope*(b->GetWorldPoint(s->m_vertices[0]).x);
             if (v0_wp_y_intersect >= bottom_y_m && v0_wp_y_intersect <= top_y_m){
                 affected = true;
                 break;
@@ -1330,7 +1330,7 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
                 vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
-                    float32 py_intersect = p.y - slope*p.x;
+                    float py_intersect = p.y - slope*p.x;
                     bool outside;
                     switch(side){
                     case TOP:
@@ -1508,7 +1508,7 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
     } //end body separation loop
 }
 
-void GameA::clearYRange(float32 top_y_m, float32 bottom_y_m){
+void GameA::clearYRange(float top_y_m, float bottom_y_m){
     this->clearDiagRange(top_y_m, bottom_y_m, 0);
 }
 
@@ -1516,7 +1516,7 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRectF region_m){
     
     Q_ASSERT(orig_image.hasAlphaChannel());
     
-    float32 scale = 1.0f/static_cast<float32>(this->piece_image_scale*this->physics_to_ui_scale_in_m);
+    float scale = 1.0f/static_cast<float>(this->piece_image_scale*this->physics_to_ui_scale_in_m);
     
     b2Vec2 offset_m(region_m.x(), region_m.y());
     
@@ -1595,7 +1595,7 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
     b2Vec2 pLocal = b2MulT(xf.q, p - xf.p);
     
     for (int32 i = 0; i < s->m_count; ++i){
-        float32 dot = b2Dot(s->m_normals[i], pLocal - s->m_vertices[i]);
+        float dot = b2Dot(s->m_normals[i], pLocal - s->m_vertices[i]);
         if (dot > b2_polygonRadius){
             return false;
         }
@@ -1603,7 +1603,7 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
     return true;
 }
 
-vector<rayCastComplete> GameA::getRayCasts(float32 top_m, float32 bot_m, float32 slope){
+vector<rayCastComplete> GameA::getRayCasts(float top_m, float bot_m, float slope){
 
     vector<rayCastComplete> ray_casts;
 
@@ -1611,10 +1611,10 @@ vector<rayCastComplete> GameA::getRayCasts(float32 top_m, float32 bot_m, float32
     RETURN_VAL_IF_FLT_INVALID(bot_m, ray_casts);
     RETURN_VAL_IF_FLT_INVALID(slope, ray_casts);
 
-    float32 left_top_m = top_m;
-    float32 left_bot_m = bot_m;
-    float32 right_top_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_top_m;
-    float32 right_bot_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_bot_m;
+    float left_top_m = top_m;
+    float left_bot_m = bot_m;
+    float right_top_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_top_m;
+    float right_bot_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_bot_m;
 
     //    if (angle_rad != 0.0){
     //        printf("Ray casts:\n%f\t%f\n%f\t%f\n", left_top, right_top, left_bot, right_bot);
@@ -1658,7 +1658,7 @@ b2Vec2 GameA::hit_point(rayCastComplete ray_cast){
 
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
 //so that it returns 0 on error whereas the original function fails an assert, crashing the program.
-float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
+float GameA::poly_area_m2(b2Vec2* vertices, int count){
     
     if(3 > count || count > b2_maxPolygonVertices){
         //printf("Polygon count is out of range: %d\n", count);
@@ -1699,9 +1699,9 @@ float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
     
     // Find the right most point on the hull
     int32 i0 = 0;
-    float32 x0 = ps[0].x;
+    float x0 = ps[0].x;
     for (int32 i = 1; i < n; ++i){
-        float32 x = ps[i].x;
+        float x = ps[i].x;
         // In most compiliers, x == x0 will generat a warning regarding comparing floating point values with ==.
         //This warning may be safely ignored because this is a case that lies
         //outside the typical mistakes of programmers using floating point.
@@ -1731,7 +1731,7 @@ float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
             
             b2Vec2 r = ps[ie] - ps[hull[m]];
             b2Vec2 v = ps[j] - ps[hull[m]];
-            float32 c = b2Cross(r, v);
+            float c = b2Cross(r, v);
             if (c < 0.0f){
                 ie = j;
             }
@@ -1773,7 +1773,7 @@ float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
     
     count = m;
     
-    float32 area = 0.0f;
+    float area = 0.0f;
     
     // pRef is the reference point for forming triangles.
     // It's location doesn't change the result (except for rounding error).
@@ -1788,9 +1788,9 @@ float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
         b2Vec2 e1 = p2 - p1;
         b2Vec2 e2 = p3 - p1;
         
-        float32 D = b2Cross(e1, e2);
+        float D = b2Cross(e1, e2);
         
-        float32 triangleArea = 0.5f * D;
+        float triangleArea = 0.5f * D;
         area += triangleArea;
     }
     
@@ -1837,11 +1837,11 @@ void GameA::makeNewNextPiece(){
     this->destroyTetrisPiece(this->next_piece_for_display);
     
     this->next_piece_bodydef.position = b2Vec2(
-                static_cast<float32>(
+                static_cast<float>(
                     this->next_piece_display_center_in.x()*1.0/this->physics_to_ui_scale_in_m -
                     this->tetris_field_m.x()
                     ),
-                static_cast<float32>(
+                static_cast<float>(
                     this->next_piece_display_center_in.y()*1.0/this->physics_to_ui_scale_in_m -
                     this->tetris_field_m.y()
                     )
@@ -1969,11 +1969,11 @@ void GameA::initializeTetrisPieceDefs(){
     
     this->next_piece_bodydef = this->tetrisBodyDef;
     this->next_piece_bodydef.position = b2Vec2(
-                static_cast<float32>(
+                static_cast<float>(
                     this->next_piece_display_center_in.x()*1.0/this->physics_to_ui_scale_in_m -
                     this->tetris_field_m.x()
                     ),
-                static_cast<float32>(
+                static_cast<float>(
                     this->next_piece_display_center_in.y()*1.0/this->physics_to_ui_scale_in_m -
                     this->tetris_field_m.y()
                     )
@@ -1991,7 +1991,7 @@ void GameA::initializeTetrisPieceDefs(){
     
     b2PolygonShape shape_template;
     
-    float32 half_length = this->side_length_m/2;
+    float half_length = this->side_length_m/2;
     
     this->tetrisShapes.at(I).push_back(shape_template);
     this->tetrisShapes.at(I).at(0).SetAsBox(
@@ -2211,8 +2211,8 @@ void GameA::initializeTetrisPieceImages(){
 
 void GameA::initializeWalls(){
     
-    float32 t_height = tetris_field_m.height();
-    float32 t_width = tetris_field_m.width();
+    float t_height = tetris_field_m.height();
+    float t_width = tetris_field_m.width();
     
     b2BodyDef edgeBodyDef;
     edgeBodyDef.type = b2_kinematicBody;
@@ -2246,6 +2246,6 @@ void GameA::init_BDC(){
     this->body_area_contributions_m2.clear();
     for (uint r = 0; r < this->tetris_rows; r++){
         this->row_areas_m2.push_back(0.0f);
-        this->body_area_contributions_m2.push_back(QHash<b2Body*, float32>());
+        this->body_area_contributions_m2.push_back(QHash<b2Body*, float>());
     }
 }

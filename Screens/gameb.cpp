@@ -9,9 +9,9 @@ GameB::GameB(QObject *parent) : NT3Screen(parent)
     }
     
     double fps = 1.0/framerate_s_f;
-    this->timeStep = static_cast<float32>(framerate_s_f); //seconds
+    this->timeStep = static_cast<float>(framerate_s_f); //seconds
     
-    float32 box2d_max_velocity = b2_maxTranslation*static_cast<float32>(fps);
+    float box2d_max_velocity = b2_maxTranslation*static_cast<float>(fps);
     
     Q_ASSERT(this->downward_velocity_max < box2d_max_velocity);
     Q_ASSERT(this->downward_velocity_regular < box2d_max_velocity);
@@ -564,7 +564,7 @@ void GameB::doGameStep(){
     
     if (this->game_state != flush_blocksB){
         
-        float32 inertia = this->currentPiece->GetInertia();
+        float inertia = this->currentPiece->GetInertia();
         
         switch(this->rotateState){
         case NO_ROTATION:
@@ -589,7 +589,7 @@ void GameB::doGameStep(){
             break;
         }
         
-        float32 mass = this->currentPiece->GetMass();
+        float mass = this->currentPiece->GetMass();
         b2Vec2 linear_force_vect = b2Vec2(0, 0);
         
         switch(this->lateralMovementState){
@@ -608,8 +608,8 @@ void GameB::doGameStep(){
             break;
         }
         
-        float32 y_velocity = this->currentPiece->GetLinearVelocity().y;
-        float32 downward_velocity_adjusted = 
+        float y_velocity = this->currentPiece->GetLinearVelocity().y;
+        float downward_velocity_adjusted =
                 this->downward_velocity_regular + 
                 this->downward_velocity_level_increment*this->current_level;
         
@@ -682,11 +682,11 @@ void GameB::makeNewNextPiece(){
     this->destroyTetrisPiece(this->next_piece_for_display);
     
     this->next_piece_bodydef.position = b2Vec2(
-                                            static_cast<float32>(
+                                            static_cast<float>(
                                                 this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
                                                 this->tetris_field_m.x()
                                                 ), 
-                                            static_cast<float32>(
+                                            static_cast<float>(
                                                 this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
                                                 this->tetris_field_m.y()
                                                 )
@@ -777,11 +777,11 @@ void GameB::initializeTetrisPieceDefs(){
     
     this->next_piece_bodydef = this->tetrisBodyDef;
     this->next_piece_bodydef.position = b2Vec2(
-                                            static_cast<float32>(
+                                            static_cast<float>(
                                                 this->next_piece_display_center.x()*1.0/this->physics_to_ui_scale - 
                                                 this->tetris_field_m.x()
                                                 ), 
-                                            static_cast<float32>(
+                                            static_cast<float>(
                                                 this->next_piece_display_center.y()*1.0/this->physics_to_ui_scale - 
                                                 this->tetris_field_m.y()
                                                 )
@@ -799,7 +799,7 @@ void GameB::initializeTetrisPieceDefs(){
     
     b2PolygonShape shape_template;
     
-    float32 half_length = this->side_length/2;
+    float half_length = this->side_length/2;
     
     this->tetrisShapes.at(I).push_back(shape_template);
     this->tetrisShapes.at(I).at(0).SetAsBox(
@@ -973,8 +973,8 @@ void GameB::initializeTetrisPieceImages(){
 
 void GameB::initializeWalls(){
     
-    float32 t_height = static_cast<float32>(tetris_field_m.height());
-    float32 t_width = static_cast<float32>(tetris_field_m.width());
+    float t_height = static_cast<float>(tetris_field_m.height());
+    float t_width = static_cast<float>(tetris_field_m.width());
     
     b2BodyDef edgeBodyDef;
     edgeBodyDef.position.Set(0, 0);

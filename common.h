@@ -66,9 +66,6 @@
 #define RETURN_IF_NULL_NOPRINT(ptr) RETURN_VAL_IF_NULL_NOPRINT(ptr, )
 
 
-typedef float float32; //TODO: replace float32 with float everywhere
-
-
 //global options
 extern int volume; //{0->100}
 const double volume_sfx_multiplier = 1.0/100.0;
