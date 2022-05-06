@@ -340,8 +340,8 @@ void GameA::colorizeResources(){
 
 void GameA::drawBodyTo(QPainter* painter, b2Body* body){
 
-    if (!body) return;
-    if (!painter) return;
+    RETURN_IF_NULL(body);
+    RETURN_IF_NULL(painter);
     
     painter->save();
     QPointF body_center_px = this->physPtToScrnPt(body->GetPosition());
@@ -440,7 +440,8 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
 
 void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
-    if (!this->hasTetrisPieceData(piece_body)) return;
+    RETURN_IF_COND(!this->hasTetrisPieceData(piece_body), "non-tetris body");
+    RETURN_IF_NULL(painter);
     
     painter->save();
 
@@ -497,6 +498,8 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 }
 
 void GameA::drawScore(QPainter* painter){
+
+    RETURN_IF_NULL(painter);
     
     this->BOW_font.print(painter, this->score_display_right_in*this->ui_to_screen_scale_px_in, RIGHT_ALIGN,
                          QString::number(this->current_score), this->ui_to_screen_scale_px_in);
@@ -529,6 +532,9 @@ void GameA::drawScore(QPainter* painter){
 
 
 void GameA::keyPressEvent(QKeyEvent* ev){
+
+    RETURN_IF_NULL(ev);
+
     //printf("Key pressed: %s\n", ev->text().toUtf8().constData());
     //fflush(stdout);
     
@@ -632,6 +638,9 @@ void GameA::keyPressEvent(QKeyEvent* ev){
 }
 
 void GameA::keyReleaseEvent(QKeyEvent* ev){
+
+    RETURN_IF_NULL(ev);
+
     //printf("Key released: %s\n", ev->text().toUtf8().constData());
     
     int key = ev->key();
@@ -749,7 +758,7 @@ void GameA::doGameStep(){
                         this->shake_field = false;
                     } else {
                         this->game_state = gameA;
-//                        printf("making tetris piece after row clear is done, no earthquake\n");
+                        //                        printf("making tetris piece after row clear is done, no earthquake\n");
                         this->makeNewTetrisPiece(this->new_level_reached);
                     }
 
@@ -782,7 +791,7 @@ void GameA::doGameStep(){
             this->shake_time_acc_s = 0;
 
             this->game_state = gameA;
-//            printf("making tetris piece after earthquake is done\n");
+            //            printf("making tetris piece after earthquake is done\n");
             this->makeNewTetrisPiece(this->new_level_reached);
 
             //call to clear the hasCollided state, since if currentpiece is still active during the earthquake, it will have definitely made a lot of contacts
@@ -1015,7 +1024,7 @@ void GameA::pieceLanded(){
             this->shake_field = false;
         } else {
             //next state is gameA
-//            printf("making tetris piece: no row clear, no earthquake\n");
+            //            printf("making tetris piece: no row clear, no earthquake\n");
             this->makeNewTetrisPiece(false);
         }
 
@@ -1124,6 +1133,8 @@ void GameA::clearRows(){
 }
 
 float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
+
+    RETURN_VAL_IF_COND(row < 0 || row > this->tetris_rows, "invalid row", 0.0);
     
     row_sides_struct sides(row, this->side_length_m);
     
@@ -1211,6 +1222,10 @@ float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
 }
 
 void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
+
+    RETURN_IF_FLT_INVALID(top_y_m);
+    RETURN_IF_FLT_INVALID(bottom_y_m);
+    RETURN_IF_FLT_INVALID(slope);
 
     vector<rayCastComplete> ray_casts = this->getRayCasts(top_y_m, bottom_y_m, slope);
 
@@ -1485,6 +1500,8 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRectF region_m){
     
     QImage ans = QImage(orig_image.size(), orig_image.format());
     ans.fill(Qt::transparent);
+
+    RETURN_VAL_IF_NULL(b, ans);
     
     QRgb* orig_pixels = reinterpret_cast<QRgb*>(orig_image.bits());
     QRgb* anspixels = reinterpret_cast<QRgb*>(ans.bits());
@@ -1544,6 +1561,9 @@ QImage GameA::maskImage(b2Body* b, QImage orig_image, QRectF region_m){
 
 //modified from b2PolygonShape::TestPoint, this will return true if the point falls within the radius of the polygon
 bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const{
+
+    RETURN_VAL_IF_NULL(s, false);
+
     b2Vec2 pLocal = b2MulT(xf.q, p - xf.p);
     
     for (int32 i = 0; i < s->m_count; ++i){
@@ -1558,6 +1578,10 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
 vector<rayCastComplete> GameA::getRayCasts(float32 top_m, float32 bot_m, float32 slope){
 
     vector<rayCastComplete> ray_casts;
+
+    RETURN_VAL_IF_FLT_INVALID(top_m, ray_casts);
+    RETURN_VAL_IF_FLT_INVALID(bot_m, ray_casts);
+    RETURN_VAL_IF_FLT_INVALID(slope, ray_casts);
 
     float32 left_top_m = top_m;
     float32 left_bot_m = bot_m;
@@ -1607,6 +1631,8 @@ b2Vec2 GameA::hit_point(rayCastComplete ray_cast){
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
 //so that it returns 0 on error whereas the original function fails an assert, crashing the program.
 float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
+
+    RETURN_VAL_IF_NULL(vertices, 0.0);
     
     if(3 > count && count > b2_maxPolygonVertices){
         //printf("Polygon count is out of range: %d\n", count);
@@ -1838,10 +1864,7 @@ tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
 }
 
 void GameA::setTetrisPieceData(b2Body* b, tetrisPieceData tpd){
-    if (!b){
-        fprintf(stderr, "Attempted to set tetrisPieceData on null b2Body pointer\n");
-        return;
-    }
+    RETURN_IF_NULL(b);
     this->userData.remove(b);
     this->userData.insert(b, tpd);
 }
@@ -1865,7 +1888,7 @@ QPixmap GameA::enableAlphaChannel(QPixmap pixmap){
 }
 
 void GameA::destroyTetrisPiece(b2Body* b){
-    if (!b) return;
+    RETURN_IF_NULL(b);
     this->freeUserDataOn(b);
     this->world->DestroyBody(b);
 }

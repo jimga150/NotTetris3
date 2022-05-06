@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <cmath>
+
 #include <QtMath>
 #include <QString>
 
@@ -25,6 +27,33 @@
 
 #define MIN_VOLUME (0.0)
 #define MIN_HUE (0.0)
+
+//semicolon OK after these macros
+#define RETURN_VAL_IF_COND(cond, msg, ret_val) \
+    if (cond){ \
+        fprintf(stderr, "%s called with %s\n", __FUNCTION__, msg); \
+        return ret_val; \
+    }
+
+#define RETURN_IF_COND(cond, msg) RETURN_VAL_IF_COND(cond, msg, )
+
+#define RETURN_VAL_IF_FLT_INVALID(flt, ret_val) \
+    if (isnan(flt) || isinf(flt)){ \
+        fprintf(stderr, "%s called with invalid %s: %f\n", __FUNCTION__, #flt, flt); \
+        return ret_val; \
+    }
+
+#define RETURN_IF_FLT_INVALID(flt) RETURN_VAL_IF_FLT_INVALID(flt, )
+
+#define RETURN_VAL_IF_NULL(ptr, ret_val) \
+    if (!ptr){ \
+        fprintf(stderr, "%s called with null %s\n", __FUNCTION__, #ptr); \
+        return ret_val; \
+    }
+
+#define RETURN_IF_NULL(ptr) RETURN_VAL_IF_NULL(ptr, )
+
+
 
 //global options
 extern int volume; //{0->100}
