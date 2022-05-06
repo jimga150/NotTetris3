@@ -50,7 +50,7 @@ void GameOver::keyPressEvent(QKeyEvent* ev){
     case Qt::Key_Down:
     case Qt::Key_Left:
     case Qt::Key_Right:
-        this->stateEnd(P_GAMEOPTIONS);
+        emit this->stateEnd(P_GAMEOPTIONS);
         break;
     default:
         
