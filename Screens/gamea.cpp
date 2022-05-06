@@ -427,8 +427,6 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
         }
     }
 
-    b2MassData mdata;
-    body->GetMassData(&mdata);
     b2Vec2 com_m = body->GetLocalCenter();
     painter->drawEllipse(QPointF(com_m.x, com_m.y)*this->physics_to_screen_scale_px_m, 10, 5);
 
@@ -494,7 +492,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
         float32 slope = tan(piece_body->GetAngle());
 
-        b2Vec2 p1_m, next_pt_m;
+        b2Vec2 next_pt_m;
         float32 next_y_m;
         QList<QPointF> points;
 
@@ -2221,21 +2219,21 @@ void GameA::initializeWalls(){
     edgeBodyDef.position.Set(0, 0);
     
     b2EdgeShape edge;
-    edge.Set(b2Vec2(0, t_height), b2Vec2(t_width, t_height));
+    edge.SetTwoSided(b2Vec2(0, t_height), b2Vec2(t_width, t_height));
     
     this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
     this->walls[GROUND]->CreateFixture(&edge, 0.0f);
     this->walls[GROUND]->GetFixtureList()->SetFriction(this->ground_friction_k);
     this->walls[GROUND]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(0, 0), b2Vec2(0, t_height));
+    edge.SetTwoSided(b2Vec2(0, 0), b2Vec2(0, t_height));
     
     this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[LEFTWALL]->GetFixtureList()->SetFriction(0);
     this->walls[LEFTWALL]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(t_width, 0), b2Vec2(t_width, t_height));
+    edge.SetTwoSided(b2Vec2(t_width, 0), b2Vec2(t_width, t_height));
     
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);

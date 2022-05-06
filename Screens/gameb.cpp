@@ -979,22 +979,22 @@ void GameB::initializeWalls(){
     b2BodyDef edgeBodyDef;
     edgeBodyDef.position.Set(0, 0);
     
-    b2EdgeShape edge;
-    edge.Set(b2Vec2(0, t_height), b2Vec2(t_width, t_height));
+    b2EdgeShape edge; //TODO: make this one-sided since that makes more sense here
+    edge.SetTwoSided(b2Vec2(0, t_height), b2Vec2(t_width, t_height));
     
     this->walls[GROUND] = world->CreateBody(&edgeBodyDef);
     this->walls[GROUND]->CreateFixture(&edge, 0.0f);
     this->walls[GROUND]->GetFixtureList()->SetFriction(this->ground_friction_k);
     this->walls[GROUND]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(0, 0), b2Vec2(0, t_height));
+    edge.SetTwoSided(b2Vec2(0, 0), b2Vec2(0, t_height));
     
     this->walls[LEFTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[LEFTWALL]->CreateFixture(&edge, 0.0f);
     this->walls[LEFTWALL]->GetFixtureList()->SetFriction(0);
     this->walls[LEFTWALL]->GetFixtureList()->SetRestitution(this->restitution);
     
-    edge.Set(b2Vec2(t_width, 0), b2Vec2(t_width, t_height));
+    edge.SetTwoSided(b2Vec2(t_width, 0), b2Vec2(t_width, t_height));
     
     this->walls[RIGHTWALL] = world->CreateBody(&edgeBodyDef);
     this->walls[RIGHTWALL]->CreateFixture(&edge, 0.0f);

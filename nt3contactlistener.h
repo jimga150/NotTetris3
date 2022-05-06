@@ -4,8 +4,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "Box2D/Dynamics/b2WorldCallbacks.h"
-#include "Box2D/Dynamics/Contacts/b2Contact.h"
+#include "box2d/b2_world_callbacks.h"
+#include "box2d/b2_contact.h"
 
 class NT3ContactListener : public b2ContactListener
 {

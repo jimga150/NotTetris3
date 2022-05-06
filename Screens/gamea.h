@@ -9,7 +9,7 @@
 #include <QSoundEffect>
 #include <QPainterPath>
 
-#include "Box2D/Box2D.h"
+#include "box2d/box2d.h"
 
 #include "tetrisgamestuff.h"
 #include "nt3screen.h"
