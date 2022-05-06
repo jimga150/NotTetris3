@@ -122,7 +122,7 @@ public:
     //calculating/removing rows
     void clearRows();
     
-    float32 getRowArea_m2(uint row);
+    float32 getRowArea_m2(uint row, bool use_current_piece);
 
     void clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 angle_rad);
     

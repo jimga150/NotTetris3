@@ -861,12 +861,15 @@ void GameA::doGameStep(){
 #endif
 
         for (uint r = 0; r < this->tetris_rows; r++){
-            this->row_areas_m2.at(r) = this->getRowArea_m2(r);
+            this->row_areas_m2.at(r) = this->getRowArea_m2(r, false);
         }
 
 #ifdef TIME_GAME_FRAME
         printf("Row density: %lld ms\t", timer.elapsed());
         timer.restart();
+#endif
+#ifdef TIME_GAME_FRAME
+        printf("\n");
 #endif
     }
 }
@@ -942,6 +945,7 @@ void GameA::pieceLanded(){
     int num_lines_removed = 0;
 
     for (uint r = 0; r < this->tetris_rows; r++){
+        this->row_areas_m2.at(r) = this->getRowArea_m2(r, true);
         if (this->row_areas_m2.at(r) > this->line_clear_threshold){
             this->rows_to_clear.at(r) = true;
             ++num_lines_removed;
@@ -1111,7 +1115,7 @@ void GameA::clearRows(){
     this->bodies_to_destroy.clear();
 }
 
-float32 GameA::getRowArea_m2(uint row){
+float32 GameA::getRowArea_m2(uint row, bool use_current_piece){
     
     row_sides_struct sides(row, this->side_length_m);
     
@@ -1121,7 +1125,7 @@ float32 GameA::getRowArea_m2(uint row){
     
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
         if (this->isAWall(b)) continue;
-        if (b == this->currentPiece) continue;
+        if (!use_current_piece && b == this->currentPiece) continue;
         if (b == this->next_piece_for_display) continue;
         
         if (this->body_area_contributions_m2.at(row).contains(b)){
