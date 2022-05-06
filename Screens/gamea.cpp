@@ -682,38 +682,40 @@ void GameA::doGameStep(){
     
     if (this->freeze_frame) return;
     if (this->paused) return;
-    
-    //If the blinks just started
-    if (this->game_state == start_row_clear_blinking){
-        
+
+    QPainter tmp_painter;
+
+    switch(this->game_state){
+    case start_row_clear_blinking: //If the blinks just started
         //render the current frame onto a pixmap to use later during line blinking
         this->line_clear_freezeframe = QPixmap(this->ui_field_px.size().toSize());
-        QPainter sf_painter(&this->line_clear_freezeframe);
-        this->render(sf_painter);
-        sf_painter.end();
-        
+        tmp_painter.begin(&this->line_clear_freezeframe);
+        this->render(tmp_painter);
+        tmp_painter.end();
+
         // ok now set it to what it should be
         this->game_state = row_clear_blinking;
-        
+
         //check and clear any rows that need be cleared (in another thread, resolved later)
         this->line_clearing_thread = QtConcurrent::run(&GameA::clearRows, this);
-        
+
         this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
-    }
-    
-    if (this->game_state == row_clear_blinking){
-        
+
+        //dont break, continue to row_clear_blinking state
+
+    case row_clear_blinking:
+
         this->row_blink_accumulator_s += framerate_s_f;
         if (this->row_blink_accumulator_s > this->lc_blink_toggle_time_s){ //If its time to toggle
             this->row_blink_accumulator_s = 0;
-            
+
             this->row_blink_on = !this->row_blink_on;
             if (!this->row_blink_on){ //if falling edge on row blink
-                
+
                 ++this->num_blinks_so_far;
                 if (this->num_blinks_so_far >= this->num_blinks){ //if we've reached the number of prescribed blinks
                     this->num_blinks_so_far = 0;
-                    
+
                     //reset row clear vector so graphics doesnt keep drawing it
                     for (uint r = 0; r < this->tetris_rows; r++){
                         if (this->rows_to_clear.at(r)){
@@ -725,9 +727,9 @@ void GameA::doGameStep(){
                     // block until line clearing thread is done
                     //                    QElapsedTimer wff_timer;
                     //                    wff_timer.start();
-                    
+
                     this->line_clearing_thread.waitForFinished();
-                    
+
                     //                    printf("Waited %lld ms for thread to return.\n", wff_timer.elapsed());
                     //                    fflush(stdout);
 
@@ -747,21 +749,21 @@ void GameA::doGameStep(){
                     }
 
                     this->makeNewTetrisPiece(this->new_level_reached);
-                    
+
                     if (this->new_level_reached){
                         this->sfx[NEW_LEVEL].play();
                         this->new_level_reached = false;
                     }
-                    
+
                     this->init_BDC();
                 }
             }
         }
-        return;
-    }
-    
-    if (this->game_state == shake_field_state){
 
+        break;
+
+    case shake_field_state:
+    {
         this->shake_time_acc_s += framerate_s_f;
 
         float32 t_mult = 2.0*M_PI*3.0;
@@ -775,55 +777,60 @@ void GameA::doGameStep(){
             this->walls[LEFTWALL]->SetTransform(b2Vec2(0, 0), this->walls[LEFTWALL]->GetAngle());
             this->walls[RIGHTWALL]->SetTransform(b2Vec2(0, 0), this->walls[RIGHTWALL]->GetAngle());
             this->walls[GROUND]->SetTransform(b2Vec2(0, 0), this->walls[GROUND]->GetAngle());
+
+            this->shake_time_acc_s = 0;
         }
 
         this->walls[LEFTWALL]->SetLinearVelocity(v);
         this->walls[RIGHTWALL]->SetLinearVelocity(v);
         this->walls[GROUND]->SetLinearVelocity(v);
     }
+        break;
 
-    this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
-    this->next_piece_for_display->SetAngularVelocity(this->next_piece_w_rad_s);
-    
-#ifdef TIME_GAME_FRAME
-    QElapsedTimer timer;
-    timer.start();
-#endif
-    
-    this->world->Step(this->timeStep_s, this->velocityIterations, this->positionIterations);
-    
-#ifdef TIME_GAME_FRAME
-    printf("World step: %lld ms,\t", timer.elapsed());
-    timer.restart();
-#endif
-    
-    if (this->score_to_add > 0){
-        if (--this->score_add_disp_offset_in < -10*this->ui_to_screen_scale_px_in){
-            this->score_to_add = 0;
-        }
-    }
-    //printf("Score to add: %d; Offset: %d\n", this->score_to_add, this->score_add_disp_offset);
-    
-    bool touchdown = false;
-    if (this->contactlistener->hasCurrentPieceCollided() && this->game_state == gameA){
-        touchdown = true;
-        this->currentPiece->SetGravityScale(1);
-        
-        if (this->currentPiece->GetWorldCenter().y < 0){
-            
-            printf("Game lost!\n");
-            this->game_state = flush_blocks;
-            
-            this->world->DestroyBody(this->walls[GROUND]);
-            
-            emit this->changeMusic(QUrl());
-            this->sfx[GAME_OVER_SOUND].play();
-        }
-        
-        if (this->game_state != flush_blocks){
-            //start with making the new tetris piece and make the new next piece
-            //only if we're not clearing lines (found below)
+    case flush_blocks:
 
+        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field_m.height()
+                || this->skip_falling){
+
+            printf("Skip falling: %d\n", this->skip_falling);
+
+            // Copy score to window object for reference by future screens
+            ((NT3Window*)(this->parent()))->gameA_score = this->current_score;
+
+            //printf("Re-rendering frame for gameover screen...\n");
+
+            //render the current frame onto a pixmap to use later during game over screen
+            QPixmap lastframe(this->ui_field_px.size().toSize());
+            tmp_painter.begin(&lastframe);
+            this->render(tmp_painter);
+            tmp_painter.end();
+
+            ((NT3Window*)(this->parent()))->game_lastframe = lastframe;
+
+            emit this->stateEnd(GAME_LOST);
+        }
+
+        break;
+
+    case gameA:
+
+        if (this->contactlistener->hasCurrentPieceCollided()){
+            this->currentPiece->SetGravityScale(1);
+
+            if (this->currentPiece->GetWorldCenter().y < 0){
+
+                printf("Game lost!\n");
+                this->game_state = flush_blocks;
+
+                this->world->DestroyBody(this->walls[GROUND]);
+
+                emit this->changeMusic(QUrl());
+                this->sfx[GAME_OVER_SOUND].play();
+
+                break;
+            }
+
+            //prepare powerup stuff
             switch(this->getTetrisPieceData(this->currentPiece).powerup){
             case DIAG_CUT:
             {
@@ -872,16 +879,83 @@ void GameA::doGameStep(){
                 break;
             }
 
-            if (this->getTetrisPieceData(this->currentPiece).is_powerup()){
-                this->world->DestroyBody(this->currentPiece);
+            //TODO: destroy current piece?
+
+            float32 average_area_m2 = 0;
+            int num_lines_removed = 0;
+
+            for (uint r = 0; r < this->tetris_rows; r++){
+                if (this->row_areas_m2.at(r) > this->line_clear_threshold){
+                    this->rows_to_clear.at(r) = true;
+                    ++num_lines_removed;
+                    average_area_m2 += this->row_areas_m2.at(r);
+                }
+            }
+
+            if (num_lines_removed > 0 || this->clear_diag_cut){
+
+                for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+                    if (b == this->next_piece_for_display) continue;
+                    b->SetLinearVelocity(b2Vec2(0, 0));
+                    b->SetAngularVelocity(0);
+                }
+
+                this->game_state = start_row_clear_blinking;
+
+                this->lines_cleared += num_lines_removed;
+                if (this->lines_cleared/this->lines_per_level > this->current_level){
+                    this->current_level = this->lines_cleared/this->lines_per_level;
+                    this->tetrisBodyDef.linearVelocity =
+                            b2Vec2(
+                                0,
+                                this->downward_velocity_regular_m_s +
+                                this->downward_velocity_level_increment_m_s*this->current_level
+                                );
+                    this->new_level_reached = true;
+                }
+
+                average_area_m2 /= num_lines_removed*this->avgarea_divisor;
+
+                //this equation is:
+                //(where n = num_lines_removed)
+
+                //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
+
+                //(average_area^10) becomes very small typically, ~10^-19
+                //for the usual case of average area, the scores look something like this:
+                //n = 1: score += 60
+                //n = 2: score += 180
+                //n = 3: score += 380
+                this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area_m2), 10.0))*20 +
+                                           qPow(num_lines_removed, 2)*40);
+
+                this->current_score += this->score_to_add;
+
+                this->score_add_disp_offset_in = 0;
+
+                if (num_lines_removed > 3){
+                    this->sfx[FOUR_LINE_CLEAR].play();
+                } else {
+                    this->sfx[LINE_CLEAR].play();
+                }
+
+            } else {
+                //not clearing any lines, so carry on
+
+                if (this->shake_field){
+                    this->game_state = shake_field_state;
+                    this->shake_field = false;
+                }
+
+                this->makeNewTetrisPiece(false);
+                this->sfx[BLOCK_FALL].play();
+
             }
         }
-    }
-    
-    if (this->game_state != flush_blocks){
-        
+
+    { //process controls
         float32 inertia = this->currentPiece->GetInertia();
-        
+
         switch(this->rotateState){
         case NO_ROTATION:
         case BOTH_ROTATIONS:
@@ -904,10 +978,10 @@ void GameA::doGameStep(){
             fprintf(stderr, "Invalid Rotation state\n");
             break;
         }
-        
+
         float32 mass_kg = this->currentPiece->GetMass();
         b2Vec2 linear_force_vect_N = b2Vec2(0, 0);
-        
+
         switch(this->lateralMovementState){
         case NO_LATERAL_MOVEMENT:
         case BOTH_DIRECTIONS:
@@ -923,12 +997,12 @@ void GameA::doGameStep(){
             fprintf(stderr, "Invalid Lateral Movement state\n");
             break;
         }
-        
+
         float32 y_velocity_m_s = this->currentPiece->GetLinearVelocity().y;
         float32 downward_velocity_adjusted_m_s =
                 this->downward_velocity_regular_m_s +
                 this->downward_velocity_level_increment_m_s*this->current_level;
-        
+
         if (!this->accelDownState && qAbs(y_velocity_m_s - downward_velocity_adjusted_m_s) <= 1){
             linear_force_vect_N.y = 0;
             this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, downward_velocity_adjusted_m_s));
@@ -940,120 +1014,52 @@ void GameA::doGameStep(){
             linear_force_vect_N.y = -this->upward_correcting_accel_m_s2*mass_kg;
         }
         this->currentPiece->ApplyForce(linear_force_vect_N, this->currentPiece->GetWorldCenter(), true);
-    } else {
-        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field_m.height()
-                || this->skip_falling){
+    }
 
-            printf("Skip falling: %d\n", this->skip_falling);
-            
-            // Copy score to window object for reference by future screens
-            ((NT3Window*)(this->parent()))->gameA_score = this->current_score;
-            
-            //printf("Re-rendering frame for gameover screen...\n");
-            
-            //render the current frame onto a pixmap to use later during game over screen
-            QPixmap lastframe(this->ui_field_px.size().toSize());
-            QPainter sf_painter(&lastframe);
-            this->render(sf_painter);
-            sf_painter.end();
-            
-            ((NT3Window*)(this->parent()))->game_lastframe = lastframe;
-            
-            emit this->stateEnd(GAME_LOST);
+
+        break;
+
+    default:
+        fprintf(stderr, "Game state not defined: %d\n", this->game_state);
+        break;
+    }
+
+    if (this->game_state == gameA || this->game_state == shake_field_state || this->game_state == flush_blocks){
+        //step world
+
+#ifdef TIME_GAME_FRAME
+        QElapsedTimer timer;
+        timer.start();
+#endif
+
+        this->world->Step(this->timeStep_s, this->velocityIterations, this->positionIterations);
+
+#ifdef TIME_GAME_FRAME
+        printf("World step: %lld ms,\t", timer.elapsed());
+        timer.restart();
+#endif
+
+        if (this->score_to_add > 0){
+            if (--this->score_add_disp_offset_in < -10*this->ui_to_screen_scale_px_in){
+                this->score_to_add = 0;
+            }
         }
-    }
-    
+        //printf("Score to add: %d; Offset: %d\n", this->score_to_add, this->score_add_disp_offset);
+
 #ifdef TIME_GAME_FRAME
-    printf("Currpiece math: %lld ms\t", timer.elapsed());
-    timer.restart();
+        printf("Currpiece math: %lld ms\t", timer.elapsed());
+        timer.restart();
 #endif
-    
-    for (uint r = 0; r < this->tetris_rows; r++){
-        this->row_areas_m2.at(r) = this->getRowArea_m2(r);
-    }
-    
-#ifdef TIME_GAME_FRAME
-    printf("Row density: %lld ms\t", timer.elapsed());
-    timer.restart();
-#endif
-    
-    if (touchdown && this->game_state != flush_blocks){
-        
-        float32 average_area_m2 = 0;
-        int num_lines_removed = 0;
-        
+
         for (uint r = 0; r < this->tetris_rows; r++){
-            if (this->row_areas_m2.at(r) > this->line_clear_threshold){
-                this->rows_to_clear.at(r) = true;
-                ++num_lines_removed;
-                average_area_m2 += this->row_areas_m2.at(r);
-            }
+            this->row_areas_m2.at(r) = this->getRowArea_m2(r);
         }
-        
-        if (num_lines_removed > 0 || this->clear_diag_cut){
-            
-            for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-                if (b == this->next_piece_for_display) continue;
-                b->SetLinearVelocity(b2Vec2(0, 0));
-                b->SetAngularVelocity(0);
-            }
-            
-            this->game_state = start_row_clear_blinking;
-            
-            this->lines_cleared += num_lines_removed;
-            if (this->lines_cleared/this->lines_per_level > this->current_level){
-                this->current_level = this->lines_cleared/this->lines_per_level;
-                this->tetrisBodyDef.linearVelocity =
-                        b2Vec2(
-                            0,
-                            this->downward_velocity_regular_m_s +
-                            this->downward_velocity_level_increment_m_s*this->current_level
-                            );
-                this->new_level_reached = true;
-            }
-            
-            average_area_m2 /= num_lines_removed*this->avgarea_divisor;
-            
-            //this equation is:
-            //(where n = num_lines_removed)
-            
-            //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
-            
-            //(average_area^10) becomes very small typically, ~10^-19
-            //for the usual case of average area, the scores look something like this:
-            //n = 1: score += 60
-            //n = 2: score += 180
-            //n = 3: score += 380
-            this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area_m2), 10.0))*20 +
-                                       qPow(num_lines_removed, 2)*40);
-            
-            this->current_score += this->score_to_add;
-            
-            this->score_add_disp_offset_in = 0;
-            
-            if (num_lines_removed > 3){
-                this->sfx[FOUR_LINE_CLEAR].play();
-            } else {
-                this->sfx[LINE_CLEAR].play();
-            }
-            
-        } else {
-            //not clearing any lines, so carry on
 
-            if (this->shake_field){
-                this->game_state = shake_field_state;
-                this->shake_field = false;
-            }
-
-            this->makeNewTetrisPiece(false);
-            this->sfx[BLOCK_FALL].play();
-
-        }
-    }
-    
 #ifdef TIME_GAME_FRAME
-    printf("Row clears: %lld ms\n", timer.elapsed());
+        printf("Row density: %lld ms\t", timer.elapsed());
+        timer.restart();
 #endif
+    }
 }
 
 
@@ -1764,7 +1770,6 @@ void GameA::makeNewNextPiece(){
     this->next_piece_bodydef.angularVelocity = this->next_piece_w_rad_s;
     
     this->next_piece_for_display = this->world->CreateBody(&this->next_piece_bodydef);
-    this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
     
     for (b2FixtureDef f : this->tetrisFixtures.at(this->next_piece_type)){
         this->next_piece_for_display->CreateFixture(&f);
@@ -1772,6 +1777,9 @@ void GameA::makeNewNextPiece(){
     
     tetrisPieceData data(this->piece_images.at(this->next_piece_type), this->piece_rects_m.at(this->next_piece_type), NOT_A_POWERUP);
     this->setTetrisPieceData(this->next_piece_for_display, data);
+
+    this->next_piece_for_display->SetLinearVelocity(b2Vec2(0, 0));
+    this->next_piece_for_display->SetAngularVelocity(this->next_piece_w_rad_s);
 }
 
 
