@@ -1394,6 +1394,7 @@ void GameA::clearDiagRange(float32 top_y_m, float32 bottom_y_m, float32 slope){
                 //validate points: if invalid, continue to next shape. this shape is just getting destroyed.
                 int new_count = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
                 //printf("Trimming points: %ld --> %d\n", new_points.size(), new_count);
+
                 if (!(this->poly_area_m2(&new_points[0], new_count) > 0)){
                     //printf("Portion of shape outside line cut was too small, discarding\n");
                     continue;
@@ -1660,15 +1661,15 @@ b2Vec2 GameA::hit_point(rayCastComplete ray_cast){
 //This function is code modified directly from b2PolygonShape::Set() and b2PolygonShape::ComputeCentroid()
 //so that it returns 0 on error whereas the original function fails an assert, crashing the program.
 float32 GameA::poly_area_m2(b2Vec2* vertices, int count){
-
-    RETURN_VAL_IF_NULL(vertices, 0.0);
     
-    if(3 > count && count > b2_maxPolygonVertices){
+    if(3 > count || count > b2_maxPolygonVertices){
         //printf("Polygon count is out of range: %d\n", count);
         return 0;
     }
     
     int32 n = b2Min(count, b2_maxPolygonVertices);
+
+    RETURN_VAL_IF_NULL(vertices, 0.0);
     
     // Perform welding and copy vertices into local buffer.
     b2Vec2 ps[b2_maxPolygonVertices];
