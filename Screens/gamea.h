@@ -113,6 +113,8 @@ public:
     void keyReleaseEvent(QKeyEvent* ev) override;
     
     void doGameStep() override;
+
+    void processControlInput();
     
     
     //calculating/removing rows

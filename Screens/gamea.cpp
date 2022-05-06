@@ -699,8 +699,6 @@ void GameA::doGameStep(){
         //check and clear any rows that need be cleared (in another thread, resolved later)
         this->line_clearing_thread = QtConcurrent::run(&GameA::clearRows, this);
 
-        this->currentPiece->SetLinearVelocity(b2Vec2(0, 0));
-
         //dont break, continue to row_clear_blinking state
 
     case row_clear_blinking:
@@ -815,207 +813,10 @@ void GameA::doGameStep(){
     case gameA:
 
         if (this->contactlistener->hasCurrentPieceCollided()){
-            this->currentPiece->SetGravityScale(1);
-
-            if (this->currentPiece->GetWorldCenter().y < 0){
-
-                printf("Game lost!\n");
-                this->game_state = flush_blocks;
-
-                this->world->DestroyBody(this->walls[GROUND]);
-
-                emit this->changeMusic(QUrl());
-                this->sfx[GAME_OVER_SOUND].play();
-
-                break;
-            }
-
-            //prepare powerup stuff
-            switch(this->getTetrisPieceData(this->currentPiece).powerup){
-            case DIAG_CUT:
-            {
-                this->clear_diag_cut = true;
-                float32 angle_rad = this->currentPiece->GetAngle();
-
-                b2Vec2 bp_m = this->currentPiece->GetWorldCenter();
-
-                this->diag_slope = static_cast<float32>(tan(static_cast<double>(angle_rad)));
-
-                //adjust so that if a line were to be drawn perpendicular to the two cut lines,
-                //the distance between the two intersection points would be equal to the side length of a block.
-                //work:
-                //f1(x) = m*x
-                //f2(x) = m*x + b <-- b is the answer we're solving for
-                //f3(x) = tan(arctan(m) + pi/2)*x <-- the perpendicular line
-                //A = intersection of f1 and f3 = (0, 0)
-                //B = inxion of f2 and f3 = (-b*m/(m^2+1), b/(m^2+1))
-                //dist(A, B) = side length = sl
-                //dist(A, B) = sqrt(B.x^2 + B.y^2) = abs(b)/sqrt(m^2+1)
-                //assume that b will always be positive, remove the abs
-                //b/sqrt(m^2+1) = sl
-                //b = sl*sqrt(m^2+1)
-                float32 y_offset_m = this->side_length_m*static_cast<float32>(sqrt(static_cast<double>(this->diag_slope*this->diag_slope + 1)));
-                this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
-                this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
-
-                if (isnan(this->diag_slope) || isinf(this->diag_slope) ||
-                        this->diag_top_m < -5*this->tetris_field_m.height() || this->diag_top_m > 5*this->tetris_field_m.height()){ //TODO: standardize this threshold
-                    this->clear_diag_cut = false;
-                    fprintf(stderr, "Diagonal cut not performed, powerup piece landed nearly stright up!\n");
-                    //TODO: maybe play a little error sound here
-                }
-            }
-                break;
-            case EARTHQUAKE:
-
-                this->shake_field = true;
-
-                break;
-            case NOT_A_POWERUP:
-                //do nothing
-                break;
-            default:
-                fprintf(stderr, "powerup enum not defined: %d\n", this->getTetrisPieceData(this->currentPiece).powerup);
-                break;
-            }
-
-            //TODO: destroy current piece?
-
-            float32 average_area_m2 = 0;
-            int num_lines_removed = 0;
-
-            for (uint r = 0; r < this->tetris_rows; r++){
-                if (this->row_areas_m2.at(r) > this->line_clear_threshold){
-                    this->rows_to_clear.at(r) = true;
-                    ++num_lines_removed;
-                    average_area_m2 += this->row_areas_m2.at(r);
-                }
-            }
-
-            if (num_lines_removed > 0 || this->clear_diag_cut){
-
-                for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
-                    if (b == this->next_piece_for_display) continue;
-                    b->SetLinearVelocity(b2Vec2(0, 0));
-                    b->SetAngularVelocity(0);
-                }
-
-                this->game_state = start_row_clear_blinking;
-
-                this->lines_cleared += num_lines_removed;
-                if (this->lines_cleared/this->lines_per_level > this->current_level){
-                    this->current_level = this->lines_cleared/this->lines_per_level;
-                    this->tetrisBodyDef.linearVelocity =
-                            b2Vec2(
-                                0,
-                                this->downward_velocity_regular_m_s +
-                                this->downward_velocity_level_increment_m_s*this->current_level
-                                );
-                    this->new_level_reached = true;
-                }
-
-                average_area_m2 /= num_lines_removed*this->avgarea_divisor;
-
-                //this equation is:
-                //(where n = num_lines_removed)
-
-                //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
-
-                //(average_area^10) becomes very small typically, ~10^-19
-                //for the usual case of average area, the scores look something like this:
-                //n = 1: score += 60
-                //n = 2: score += 180
-                //n = 3: score += 380
-                this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area_m2), 10.0))*20 +
-                                           qPow(num_lines_removed, 2)*40);
-
-                this->current_score += this->score_to_add;
-
-                this->score_add_disp_offset_in = 0;
-
-                if (num_lines_removed > 3){
-                    this->sfx[FOUR_LINE_CLEAR].play();
-                } else {
-                    this->sfx[LINE_CLEAR].play();
-                }
-
-            } else {
-                //not clearing any lines, so carry on
-
-                if (this->shake_field){
-                    this->game_state = shake_field_state;
-                    this->shake_field = false;
-                }
-
-                this->makeNewTetrisPiece(false);
-                this->sfx[BLOCK_FALL].play();
-
-            }
+            this->pieceLanded();
         }
 
-    { //process controls
-        float32 inertia = this->currentPiece->GetInertia();
-
-        switch(this->rotateState){
-        case NO_ROTATION:
-        case BOTH_ROTATIONS:
-            //do nothing
-            //printf("Dont rotate\n");
-            break;
-        case ROTATECW:
-            //printf("Rotate CW\n");
-            if (this->currentPiece->GetAngularVelocity() < this->wmax_rad_s){
-                this->currentPiece->ApplyTorque(this->angular_accel_rad_s2*inertia, true);
-            }
-            break;
-        case ROTATECCW:
-            //printf("Rotate CCW\n");
-            if (this->currentPiece->GetAngularVelocity() > -this->wmax_rad_s){
-                this->currentPiece->ApplyTorque(-this->angular_accel_rad_s2*inertia, true);
-            }
-            break;
-        default:
-            fprintf(stderr, "Invalid Rotation state\n");
-            break;
-        }
-
-        float32 mass_kg = this->currentPiece->GetMass();
-        b2Vec2 linear_force_vect_N = b2Vec2(0, 0);
-
-        switch(this->lateralMovementState){
-        case NO_LATERAL_MOVEMENT:
-        case BOTH_DIRECTIONS:
-            //do nothing
-            break;
-        case MOVELEFT:
-            linear_force_vect_N.x = -this->lateral_accel_m_s2*mass_kg;
-            break;
-        case MOVERIGHT:
-            linear_force_vect_N.x = this->lateral_accel_m_s2*mass_kg;
-            break;
-        default:
-            fprintf(stderr, "Invalid Lateral Movement state\n");
-            break;
-        }
-
-        float32 y_velocity_m_s = this->currentPiece->GetLinearVelocity().y;
-        float32 downward_velocity_adjusted_m_s =
-                this->downward_velocity_regular_m_s +
-                this->downward_velocity_level_increment_m_s*this->current_level;
-
-        if (!this->accelDownState && qAbs(y_velocity_m_s - downward_velocity_adjusted_m_s) <= 1){
-            linear_force_vect_N.y = 0;
-            this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, downward_velocity_adjusted_m_s));
-        } else if (this->accelDownState || y_velocity_m_s < downward_velocity_adjusted_m_s){
-            //printf("forcing downwards\n");
-            linear_force_vect_N.y = this->downward_accel_m_s2*mass_kg;
-        } else {
-            //printf("slowing down...\n");
-            linear_force_vect_N.y = -this->upward_correcting_accel_m_s2*mass_kg;
-        }
-        this->currentPiece->ApplyForce(linear_force_vect_N, this->currentPiece->GetWorldCenter(), true);
-    }
-
+        this->processControlInput();
 
         break;
 
@@ -1024,6 +825,7 @@ void GameA::doGameStep(){
         break;
     }
 
+    //TODO: use switch?
     if (this->game_state == gameA || this->game_state == shake_field_state || this->game_state == flush_blocks){
         //step world
 
@@ -1062,6 +864,207 @@ void GameA::doGameStep(){
     }
 }
 
+void GameA::pieceLanded(){
+    this->currentPiece->SetGravityScale(1);
+
+    if (this->currentPiece->GetWorldCenter().y < 0){
+
+        printf("Game lost!\n");
+        this->game_state = flush_blocks;
+
+        this->world->DestroyBody(this->walls[GROUND]);
+
+        emit this->changeMusic(QUrl());
+        this->sfx[GAME_OVER_SOUND].play();
+
+        return;
+    }
+
+    //prepare powerup stuff
+    switch(this->getTetrisPieceData(this->currentPiece).powerup){
+    case DIAG_CUT:
+    {
+        this->clear_diag_cut = true;
+        float32 angle_rad = this->currentPiece->GetAngle();
+
+        b2Vec2 bp_m = this->currentPiece->GetWorldCenter();
+
+        this->diag_slope = static_cast<float32>(tan(static_cast<double>(angle_rad)));
+
+        //adjust so that if a line were to be drawn perpendicular to the two cut lines,
+        //the distance between the two intersection points would be equal to the side length of a block.
+        //work:
+        //f1(x) = m*x
+        //f2(x) = m*x + b <-- b is the answer we're solving for
+        //f3(x) = tan(arctan(m) + pi/2)*x <-- the perpendicular line
+        //A = intersection of f1 and f3 = (0, 0)
+        //B = inxion of f2 and f3 = (-b*m/(m^2+1), b/(m^2+1))
+        //dist(A, B) = side length = sl
+        //dist(A, B) = sqrt(B.x^2 + B.y^2) = abs(b)/sqrt(m^2+1)
+        //assume that b will always be positive, remove the abs
+        //b/sqrt(m^2+1) = sl
+        //b = sl*sqrt(m^2+1)
+        float32 y_offset_m = this->side_length_m*static_cast<float32>(sqrt(static_cast<double>(this->diag_slope*this->diag_slope + 1)));
+        this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
+        this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
+
+        if (isnan(this->diag_slope) || isinf(this->diag_slope) ||
+                this->diag_top_m < -5*this->tetris_field_m.height() || this->diag_top_m > 5*this->tetris_field_m.height()){ //TODO: standardize this threshold
+            this->clear_diag_cut = false;
+            fprintf(stderr, "Diagonal cut not performed, powerup piece landed nearly stright up!\n");
+            //TODO: maybe play a little error sound here
+        }
+    }
+        break;
+    case EARTHQUAKE:
+
+        this->shake_field = true;
+
+        break;
+    case NOT_A_POWERUP:
+        //do nothing
+        break;
+    default:
+        fprintf(stderr, "powerup enum not defined: %d\n", this->getTetrisPieceData(this->currentPiece).powerup);
+        break;
+    }
+
+    //TODO: destroy current piece?
+
+    float32 average_area_m2 = 0;
+    int num_lines_removed = 0;
+
+    for (uint r = 0; r < this->tetris_rows; r++){
+        if (this->row_areas_m2.at(r) > this->line_clear_threshold){
+            this->rows_to_clear.at(r) = true;
+            ++num_lines_removed;
+            average_area_m2 += this->row_areas_m2.at(r);
+        }
+    }
+
+    if (num_lines_removed > 0 || this->clear_diag_cut){
+
+        for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
+            if (b == this->next_piece_for_display) continue;
+            b->SetLinearVelocity(b2Vec2(0, 0));
+            b->SetAngularVelocity(0);
+        }
+
+        this->game_state = start_row_clear_blinking;
+
+        this->lines_cleared += num_lines_removed;
+        if (this->lines_cleared/this->lines_per_level > this->current_level){
+            this->current_level = this->lines_cleared/this->lines_per_level;
+            this->tetrisBodyDef.linearVelocity =
+                    b2Vec2(0,
+                           this->downward_velocity_regular_m_s +
+                           this->downward_velocity_level_increment_m_s*this->current_level
+                           );
+            this->new_level_reached = true;
+        }
+
+        average_area_m2 /= num_lines_removed*this->avgarea_divisor;
+
+        //this equation is:
+        //(where n = num_lines_removed)
+
+        //ceil( ( (3*n)^(average_area^10) )*20 + (n^2)*40 )
+
+        //(average_area^10) becomes very small typically, ~10^-19
+        //for the usual case of average area, the scores look something like this:
+        //n = 1: score += 60
+        //n = 2: score += 180
+        //n = 3: score += 380
+        this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area_m2), 10.0))*20 +
+                                   qPow(num_lines_removed, 2)*40);
+
+        this->current_score += this->score_to_add;
+
+        this->score_add_disp_offset_in = 0;
+
+        if (num_lines_removed > 3){
+            this->sfx[FOUR_LINE_CLEAR].play();
+        } else {
+            this->sfx[LINE_CLEAR].play();
+        }
+
+    } else {
+        //not clearing any lines, so carry on
+
+        if (this->shake_field){
+            this->game_state = shake_field_state;
+            this->shake_field = false;
+        }
+
+        this->makeNewTetrisPiece(false);
+        this->sfx[BLOCK_FALL].play();
+
+    }
+}
+
+void GameA::processControlInput(){
+    //take control states for current piece (determined by key inputs earlier) and turn them into piece effects
+    float32 inertia = this->currentPiece->GetInertia();
+
+    switch(this->rotateState){
+    case NO_ROTATION:
+    case BOTH_ROTATIONS:
+        //do nothing
+        //printf("Dont rotate\n");
+        break;
+    case ROTATECW:
+        //printf("Rotate CW\n");
+        if (this->currentPiece->GetAngularVelocity() < this->wmax_rad_s){
+            this->currentPiece->ApplyTorque(this->angular_accel_rad_s2*inertia, true);
+        }
+        break;
+    case ROTATECCW:
+        //printf("Rotate CCW\n");
+        if (this->currentPiece->GetAngularVelocity() > -this->wmax_rad_s){
+            this->currentPiece->ApplyTorque(-this->angular_accel_rad_s2*inertia, true);
+        }
+        break;
+    default:
+        fprintf(stderr, "Invalid Rotation state\n");
+        break;
+    }
+
+    float32 mass_kg = this->currentPiece->GetMass();
+    b2Vec2 linear_force_vect_N = b2Vec2(0, 0);
+
+    switch(this->lateralMovementState){
+    case NO_LATERAL_MOVEMENT:
+    case BOTH_DIRECTIONS:
+        //do nothing
+        break;
+    case MOVELEFT:
+        linear_force_vect_N.x = -this->lateral_accel_m_s2*mass_kg;
+        break;
+    case MOVERIGHT:
+        linear_force_vect_N.x = this->lateral_accel_m_s2*mass_kg;
+        break;
+    default:
+        fprintf(stderr, "Invalid Lateral Movement state\n");
+        break;
+    }
+
+    float32 y_velocity_m_s = this->currentPiece->GetLinearVelocity().y;
+    float32 downward_velocity_adjusted_m_s =
+            this->downward_velocity_regular_m_s +
+            this->downward_velocity_level_increment_m_s*this->current_level;
+
+    if (!this->accelDownState && qAbs(y_velocity_m_s - downward_velocity_adjusted_m_s) <= 1){
+        linear_force_vect_N.y = 0;
+        this->currentPiece->SetLinearVelocity(b2Vec2(this->currentPiece->GetLinearVelocity().x, downward_velocity_adjusted_m_s));
+    } else if (this->accelDownState || y_velocity_m_s < downward_velocity_adjusted_m_s){
+        //printf("forcing downwards\n");
+        linear_force_vect_N.y = this->downward_accel_m_s2*mass_kg;
+    } else {
+        //printf("slowing down...\n");
+        linear_force_vect_N.y = -this->upward_correcting_accel_m_s2*mass_kg;
+    }
+    this->currentPiece->ApplyForce(linear_force_vect_N, this->currentPiece->GetWorldCenter(), true);
+}
 
 void GameA::clearRows(){
     for (uint r = 0; r < this->tetris_rows; r++){
