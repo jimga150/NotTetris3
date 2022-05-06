@@ -824,11 +824,11 @@ void GameA::doGameStep(){
 
         this->new_level_reached = false;
 
+        this->processControlInput();
+
         if (this->contactlistener->hasCurrentPieceCollided()){
             this->pieceLanded();
         }
-
-        this->processControlInput();
 
         break;
 
@@ -896,7 +896,8 @@ void GameA::pieceLanded(){
     }
 
     //prepare powerup stuff
-    switch(this->getTetrisPieceData(this->currentPiece).powerup){
+    tetrisPieceData pdata = this->getTetrisPieceData(this->currentPiece);
+    switch(pdata.powerup){
     case DIAG_CUT:
     {
         this->clear_diag_cut = true;
@@ -944,13 +945,15 @@ void GameA::pieceLanded(){
         break;
     }
 
-    //TODO: destroy current piece?
+    if (pdata.is_powerup()){
+        this->destroyTetrisPiece(this->currentPiece);
+    }
 
     float32 average_area_m2 = 0;
     int num_lines_removed = 0;
 
     for (uint r = 0; r < this->tetris_rows; r++){
-        this->row_areas_m2.at(r) = this->getRowArea_m2(r, true);
+        this->row_areas_m2.at(r) = this->getRowArea_m2(r, !pdata.is_powerup()); //use current piece if it hasnt been destroyed
         if (this->row_areas_m2.at(r) > this->line_clear_threshold){
             this->rows_to_clear.at(r) = true;
             ++num_lines_removed;
@@ -1763,8 +1766,7 @@ void GameA::makeNewTetrisPiece(bool is_powerup){
     if (is_powerup){
         piece_img = this->pwu_piece_images.at(type);
         //ensure the result of this is not 0 (NOT_A_POWERUP)
-        //powerup = static_cast<powerup_type_enum>(this->rng.bounded(num_powerup_types - 1) + 1); //TODO: make powerups random again
-        powerup = EARTHQUAKE;
+        powerup = static_cast<powerup_type_enum>(this->rng.bounded(num_powerup_types - 1) + 1);
     } else {
         piece_img = this->piece_images.at(type);
     }
