@@ -9,9 +9,9 @@ GameA::GameA(QObject *parent) : NT3Screen(parent)
     }
     
     double fps = 1.0/framerate_s_f;
-    this->timeStep_s = static_cast<float32>(framerate_s_f);
+    this->timeStep_s = framerate_s_f;
     
-    float32 box2d_max_velocity_m_s = b2_maxTranslation*static_cast<float32>(fps);
+    float32 box2d_max_velocity_m_s = b2_maxTranslation*fps;
     
     Q_ASSERT(this->downward_velocity_max_m_s < box2d_max_velocity_m_s);
     Q_ASSERT(this->downward_velocity_regular_m_s < box2d_max_velocity_m_s);
@@ -291,12 +291,12 @@ void GameA::render(QPainter& painter)
             double height_px = this->side_length_dbl_m*this->physics_to_screen_scale_px_m;
             double top_px = height_px*r;
             
-            double fill_fraction = static_cast<double>(this->row_areas_m2.at(r)/this->line_clear_threshold);
+            double fill_fraction = this->row_areas_m2.at(r)/this->line_clear_threshold;
             //if (fill_fraction > 1.0) printf("r = %u, ff = %f\n", r, fill_fraction);
             fill_fraction = qMin(fill_fraction, 1.0);
             double width_px = fill_fraction*this->row_fill_density_col_width_in*this->ui_to_screen_scale_px_in;
             
-            int grey = static_cast<int>((1-fill_fraction)*255);
+            int grey = floor((1-fill_fraction)*255);
             painter.setBrush(QColor(grey, grey, grey));
             
             painter.drawRect(QRectF(0, top_px, width_px, height_px));
@@ -354,7 +354,7 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
 
     painter->drawText(QPoint(0, 0), ptrStr);
     
-    painter->rotate(static_cast<double>(body->GetAngle())*DEG_PER_RAD);
+    painter->rotate(body->GetAngle()*DEG_PER_RAD);
 
     tetrisPieceData data = this->getTetrisPieceData(body);
     if (data.is_powerup()){
@@ -371,8 +371,8 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
             for (int i = 0; i < numpoints; i++){
                 points.push_back(
                             QPointF(
-                                static_cast<double>(shape.m_vertices[i].x)*this->physics_to_screen_scale_px_m,
-                                static_cast<double>(shape.m_vertices[i].y)*this->physics_to_screen_scale_px_m
+                                shape.m_vertices[i].x*this->physics_to_screen_scale_px_m,
+                                shape.m_vertices[i].y*this->physics_to_screen_scale_px_m
                                 )
                             );
                 //printf("Point: (%f, %f)\n", points[i].x(), points[i].y());
@@ -384,8 +384,8 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
         case b2Shape::e_circle:{
             b2CircleShape shape = *static_cast<b2CircleShape*>(f->GetShape());
             QPointF center(
-                        static_cast<double>(shape.m_p.x)*this->physics_to_screen_scale_px_m,
-                        static_cast<double>(shape.m_p.y)*this->physics_to_screen_scale_px_m
+                        shape.m_p.x*this->physics_to_screen_scale_px_m,
+                        shape.m_p.y*this->physics_to_screen_scale_px_m
                         );
             double radius = static_cast<double>(shape.m_radius);
             radius *= this->ui_to_screen_scale_px_in;
@@ -395,12 +395,12 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
         case b2Shape::e_edge:{
             b2EdgeShape shape = *static_cast<b2EdgeShape*>(f->GetShape());
             QPointF p1 = QPointF(
-                        static_cast<double>(shape.m_vertex1.x)*this->physics_to_screen_scale_px_m,
-                        static_cast<double>(shape.m_vertex1.y)*this->physics_to_screen_scale_px_m
+                        shape.m_vertex1.x*this->physics_to_screen_scale_px_m,
+                        shape.m_vertex1.y*this->physics_to_screen_scale_px_m
                         );
             QPointF p2 = QPointF(
-                        static_cast<double>(shape.m_vertex2.x)*this->physics_to_screen_scale_px_m,
-                        static_cast<double>(shape.m_vertex2.y)*this->physics_to_screen_scale_px_m
+                        shape.m_vertex2.x*this->physics_to_screen_scale_px_m,
+                        shape.m_vertex2.y*this->physics_to_screen_scale_px_m
                         );
             painter->drawLine(p1, p2);
         }
@@ -409,13 +409,13 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
             b2ChainShape shape = *static_cast<b2ChainShape*>(f->GetShape());
             QPainterPath path;
             path.moveTo(
-                        static_cast<double>(shape.m_vertices[0].x),
-                    static_cast<double>(shape.m_vertices[0].y) //I HATE this indentation. Why, Qt?
+                        shape.m_vertices[0].x,
+                    shape.m_vertices[0].y //I HATE this indentation. Why, Qt?
                     );
             for (int i = 1; i < shape.m_count; i++){
                 path.lineTo(
-                            static_cast<double>(shape.m_vertices[i].x)*this->physics_to_screen_scale_px_m,
-                            static_cast<double>(shape.m_vertices[i].y)*this->physics_to_screen_scale_px_m
+                            shape.m_vertices[i].x*this->physics_to_screen_scale_px_m,
+                            shape.m_vertices[i].y*this->physics_to_screen_scale_px_m
                             );
             }
             painter->drawPath(path);
@@ -449,7 +449,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     painter->translate(body_center_px.x(), body_center_px.y());
 
     painter->scale(this->physics_to_screen_scale_px_m, this->physics_to_screen_scale_px_m);
-    painter->rotate(static_cast<double>(piece_body->GetAngle())*DEG_PER_RAD);
+    painter->rotate(piece_body->GetAngle()*DEG_PER_RAD);
     
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
     painter->drawPixmap(body_data.region_m.toRect(), body_data.image);
@@ -806,7 +806,7 @@ void GameA::doGameStep(){
 
     case flush_blocks:
 
-        if (static_cast<double>(this->currentPiece->GetWorldCenter().y) > this->tetris_field_m.height()
+        if (this->currentPiece->GetWorldCenter().y > this->tetris_field_m.height()
                 || this->skip_falling){
 
             printf("Skip falling: %d\n", this->skip_falling);
@@ -914,7 +914,7 @@ void GameA::pieceLanded(){
 
         b2Vec2 bp_m = this->currentPiece->GetWorldCenter();
 
-        this->diag_slope = static_cast<float32>(tan(static_cast<double>(angle_rad)));
+        this->diag_slope = tan(angle_rad);
 
         //adjust so that if a line were to be drawn perpendicular to the two cut lines,
         //the distance between the two intersection points would be equal to the side length of a block.
@@ -929,7 +929,7 @@ void GameA::pieceLanded(){
         //assume that b will always be positive, remove the abs
         //b/sqrt(m^2+1) = sl
         //b = sl*sqrt(m^2+1)
-        float32 y_offset_m = this->side_length_m*static_cast<float32>(sqrt(static_cast<double>(this->diag_slope*this->diag_slope + 1)));
+        float32 y_offset_m = this->side_length_m*sqrt(this->diag_slope*this->diag_slope + 1);
         this->diag_top_m = bp_m.y + y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
         this->diag_bot_m = bp_m.y - y_offset_m/2 - this->diag_slope*(bp_m.x - this->raycast_left_m);
 
@@ -1003,7 +1003,7 @@ void GameA::pieceLanded(){
         //n = 1: score += 60
         //n = 2: score += 180
         //n = 3: score += 380
-        this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(static_cast<double>(average_area_m2), 10.0))*20 +
+        this->score_to_add = qCeil(qPow((num_lines_removed*3), qPow(average_area_m2, 10.0))*20 +
                                    qPow(num_lines_removed, 2)*40);
 
         this->current_score += this->score_to_add;
@@ -1844,7 +1844,7 @@ bool GameA::isAWall(b2Body* b){
 }
 
 QString GameA::b2Vec2String(b2Vec2 vec){
-    return QString("(%1, %2)").arg(static_cast<double>(vec.x)).arg(static_cast<double>(vec.y));
+    return QString("(%1, %2)").arg(vec.x).arg(vec.y);
 }
 
 tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
@@ -2183,8 +2183,8 @@ void GameA::initializeTetrisPieceImages(){
 
 void GameA::initializeWalls(){
     
-    float32 t_height = static_cast<float32>(tetris_field_m.height());
-    float32 t_width = static_cast<float32>(tetris_field_m.width());
+    float32 t_height = tetris_field_m.height();
+    float32 t_width = tetris_field_m.width();
     
     b2BodyDef edgeBodyDef;
     edgeBodyDef.type = b2_kinematicBody;
