@@ -456,6 +456,32 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
     tetrisPieceData body_data = this->getTetrisPieceData(piece_body);
     painter->drawPixmap(body_data.region_m.toRect(), body_data.image);
 
+    if (body_data.powerup == EARTHQUAKE){
+
+        painter->save();
+
+        QPen pen = painter->pen();
+        pen.setWidthF(1.0/this->physics_to_screen_scale_px_m);
+        pen.setColor(Qt::black);
+        painter->setPen(pen);
+
+        for (int s = 0; s < 3; ++s){
+
+            double factor = s/4.0 + 0.5;
+
+            QRectF arc_rect(body_data.region_m);
+            QPointF new_point(arc_rect.left() - arc_rect.size().width()*factor/2, arc_rect.top() - arc_rect.size().height()*factor/2);
+            QSizeF new_size(arc_rect.size().width()*(1+factor), arc_rect.size().height()*(1+factor));
+            arc_rect.setTopLeft(new_point);
+            arc_rect.setSize(new_size);
+            painter->drawArc(arc_rect, 16*(-15), 16*30);
+            painter->drawArc(arc_rect, 16*(-15 + 180), 16*30);
+        }
+
+        painter->restore();
+
+    }
+
     painter->restore();
 
     if (body_data.powerup == DIAG_CUT){
@@ -496,6 +522,7 @@ void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
         if (!cancel_line) painter->drawLines(points);
 
         painter->restore();
+
     }
 }
 
