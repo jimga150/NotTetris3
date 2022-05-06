@@ -1555,13 +1555,14 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
     return true;
 }
 
-vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot, float32 slope){
+vector<rayCastComplete> GameA::getRayCasts(float32 top_m, float32 bot_m, float32 slope){
+
     vector<rayCastComplete> ray_casts;
 
-    float32 left_top = top;
-    float32 left_bot = bot;
-    float32 right_top = slope*(this->raycast_right_m - this->raycast_left_m) + left_top;
-    float32 right_bot = slope*(this->raycast_right_m - this->raycast_left_m) + left_bot;
+    float32 left_top_m = top_m;
+    float32 left_bot_m = bot_m;
+    float32 right_top_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_top_m;
+    float32 right_bot_m = slope*(this->raycast_right_m - this->raycast_left_m) + left_bot_m;
 
     //    if (angle_rad != 0.0){
     //        printf("Ray casts:\n%f\t%f\n%f\t%f\n", left_top, right_top, left_bot, right_bot);
@@ -1574,20 +1575,20 @@ vector<rayCastComplete> GameA::getRayCasts(float32 top, float32 bot, float32 slo
         ray_casts.at(r).input.maxFraction = 1;
         switch(r){
         case TOPLEFT:
-            ray_casts.at(r).input.p1.Set(this->raycast_left_m, left_top);
-            ray_casts.at(r).input.p2.Set(this->raycast_right_m, right_top);
+            ray_casts.at(r).input.p1.Set(this->raycast_left_m, left_top_m);
+            ray_casts.at(r).input.p2.Set(this->raycast_right_m, right_top_m);
             break;
         case TOPRIGHT:
-            ray_casts.at(r).input.p1.Set(this->raycast_right_m, right_top);
-            ray_casts.at(r).input.p2.Set(this->raycast_left_m, left_top);
+            ray_casts.at(r).input.p1.Set(this->raycast_right_m, right_top_m);
+            ray_casts.at(r).input.p2.Set(this->raycast_left_m, left_top_m);
             break;
         case BOTTOMLEFT:
-            ray_casts.at(r).input.p1.Set(this->raycast_left_m, left_bot);
-            ray_casts.at(r).input.p2.Set(this->raycast_right_m, right_bot);
+            ray_casts.at(r).input.p1.Set(this->raycast_left_m, left_bot_m);
+            ray_casts.at(r).input.p2.Set(this->raycast_right_m, right_bot_m);
             break;
         case BOTTOMRIGHT:
-            ray_casts.at(r).input.p1.Set(this->raycast_right_m, right_bot);
-            ray_casts.at(r).input.p2.Set(this->raycast_left_m, left_bot);
+            ray_casts.at(r).input.p1.Set(this->raycast_right_m, right_bot_m);
+            ray_casts.at(r).input.p2.Set(this->raycast_left_m, left_bot_m);
             break;
         default:
             fprintf(stderr, "Ray cast enum not defined\n");

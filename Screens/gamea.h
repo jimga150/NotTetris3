@@ -132,7 +132,7 @@ public:
     
     bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
-    vector<rayCastComplete> getRayCasts(float32 top, float32 bot, float32 angle_rad);
+    vector<rayCastComplete> getRayCasts(float32 top_m, float32 bot_m, float32 slope);
     
     b2Vec2 hit_point(rayCastComplete ray_cast);
     
