@@ -37,6 +37,13 @@
 
 #define RETURN_IF_COND(cond, msg) RETURN_VAL_IF_COND(cond, msg, )
 
+#define RETURN_VAL_IF_COND_NOPRINT(cond, ret_val) \
+    if (cond){ \
+        return ret_val; \
+    }
+
+#define RETURN_IF_COND_NOPRINT(cond) RETURN_VAL_IF_COND_NOPRINT(cond, )
+
 #define RETURN_VAL_IF_FLT_INVALID(flt, ret_val) \
     if (isnan(flt) || isinf(flt)){ \
         fprintf(stderr, "%s called with invalid %s: %f\n", __FUNCTION__, #flt, flt); \
@@ -51,7 +58,12 @@
         return ret_val; \
     }
 
+#define RETURN_VAL_IF_NULL_NOPRINT(ptr, ret_val) \
+    if (!ptr) return ret_val
+
 #define RETURN_IF_NULL(ptr) RETURN_VAL_IF_NULL(ptr, )
+
+#define RETURN_IF_NULL_NOPRINT(ptr) RETURN_VAL_IF_NULL_NOPRINT(ptr, )
 
 
 

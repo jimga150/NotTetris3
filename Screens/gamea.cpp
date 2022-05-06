@@ -440,8 +440,10 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
 
 void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
 
-    RETURN_IF_COND(!this->hasTetrisPieceData(piece_body), "non-tetris body");
+    RETURN_IF_NULL(piece_body);
     RETURN_IF_NULL(painter);
+
+    RETURN_IF_COND_NOPRINT(!this->hasTetrisPieceData(piece_body));
     
     painter->save();
 
@@ -1888,7 +1890,7 @@ QPixmap GameA::enableAlphaChannel(QPixmap pixmap){
 }
 
 void GameA::destroyTetrisPiece(b2Body* b){
-    RETURN_IF_NULL(b);
+    RETURN_IF_NULL_NOPRINT(b);
     this->freeUserDataOn(b);
     this->world->DestroyBody(b);
 }
