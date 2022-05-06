@@ -102,9 +102,9 @@ void GameA::init(){
     }
 
     this->clear_diag_cut = false;
-    this->diag_top_m = FP_NAN;
-    this->diag_bot_m = FP_NAN;
-    this->diag_slope = FP_NAN;
+    this->diag_top_m = NAN;
+    this->diag_bot_m = NAN;
+    this->diag_slope = NAN;
 
     this->shake_field = false;
     this->shake_time_acc_s = 0;
