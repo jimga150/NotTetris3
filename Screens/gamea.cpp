@@ -134,7 +134,7 @@ void GameA::init(){
 
 
 void GameA::freeUserDataOn(b2Body* b){
-    if (!b) return;
+    this->userData.remove(b);
     /*int numremoved = this->userData.remove(b);
     if (numremoved == 0 && !this->isAWall(b)){
         printf("%p had no user data!\n", (void*)b);
@@ -339,6 +339,9 @@ void GameA::colorizeResources(){
 }
 
 void GameA::drawBodyTo(QPainter* painter, b2Body* body){
+
+    if (!body) return;
+    if (!painter) return;
     
     painter->save();
     QPointF body_center_px = this->physPtToScrnPt(body->GetPosition());
@@ -436,6 +439,8 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
 }
 
 void GameA::drawTetrisPiece(QPainter* painter, b2Body* piece_body){
+
+    if (!this->hasTetrisPieceData(piece_body)) return;
     
     painter->save();
 
@@ -1814,7 +1819,7 @@ QString GameA::b2Vec2String(b2Vec2 vec){
 }
 
 tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
-    
+
     tetrisPieceData ans = this->userData.value(b, this->default_data);
     
     /*if (ans == this->default_data && !this->isAWall(b)){ //VERY SLOW
@@ -1830,8 +1835,17 @@ tetrisPieceData GameA::getTetrisPieceData(b2Body* b){
 }
 
 void GameA::setTetrisPieceData(b2Body* b, tetrisPieceData tpd){
+    if (!b){
+        fprintf(stderr, "Attempted to set tetrisPieceData on null b2Body pointer\n");
+        return;
+    }
     this->userData.remove(b);
     this->userData.insert(b, tpd);
+}
+
+bool GameA::hasTetrisPieceData(b2Body* b){
+    if (!b) return false;
+    return this->userData.contains(b);
 }
 
 QPixmap GameA::enableAlphaChannel(QPixmap pixmap){

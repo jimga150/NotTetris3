@@ -153,6 +153,8 @@ public:
     tetrisPieceData getTetrisPieceData(b2Body* b);
     
     void setTetrisPieceData(b2Body* b, tetrisPieceData tpd);
+
+    bool hasTetrisPieceData(b2Body *b);
     
     QPixmap enableAlphaChannel(QPixmap pixmap);
         
