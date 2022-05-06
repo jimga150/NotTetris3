@@ -24,6 +24,7 @@ void NT3ContactListener::BeginContact(b2Contact* contact){
     }
     
     if (bodyA == this->currentPiece || bodyB == this->currentPiece){
+//        printf("%p collided with %p\n", bodyA, bodyB);
         this->currentPieceCollided = true;
     }
 }

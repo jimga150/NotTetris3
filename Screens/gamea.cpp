@@ -744,13 +744,12 @@ void GameA::doGameStep(){
                         this->shake_field = false;
                     } else {
                         this->game_state = gameA;
+//                        printf("making tetris piece after row clear is done, no earthquake\n");
+                        this->makeNewTetrisPiece(this->new_level_reached);
                     }
-
-                    this->makeNewTetrisPiece(this->new_level_reached);
 
                     if (this->new_level_reached){
                         this->sfx[NEW_LEVEL].play();
-                        this->new_level_reached = false;
                     }
 
                     this->init_BDC();
@@ -769,7 +768,6 @@ void GameA::doGameStep(){
         b2Vec2 v(side_speed, 0);
 
         if (this->shake_time_acc_s > this->shake_time_max_s){
-            this->game_state = gameA;
             v.Set(0, 0);
 
             this->walls[LEFTWALL]->SetTransform(b2Vec2(0, 0), this->walls[LEFTWALL]->GetAngle());
@@ -777,6 +775,13 @@ void GameA::doGameStep(){
             this->walls[GROUND]->SetTransform(b2Vec2(0, 0), this->walls[GROUND]->GetAngle());
 
             this->shake_time_acc_s = 0;
+
+            this->game_state = gameA;
+//            printf("making tetris piece after earthquake is done\n");
+            this->makeNewTetrisPiece(this->new_level_reached);
+
+            //call to clear the hasCollided state, since if currentpiece is still active during the earthquake, it will have definitely made a lot of contacts
+            this->contactlistener->hasCurrentPieceCollided();
         }
 
         this->walls[LEFTWALL]->SetLinearVelocity(v);
@@ -811,6 +816,8 @@ void GameA::doGameStep(){
         break;
 
     case gameA:
+
+        this->new_level_reached = false;
 
         if (this->contactlistener->hasCurrentPieceCollided()){
             this->pieceLanded();
@@ -994,9 +1001,12 @@ void GameA::pieceLanded(){
         if (this->shake_field){
             this->game_state = shake_field_state;
             this->shake_field = false;
+        } else {
+            //next state is gameA
+//            printf("making tetris piece: no row clear, no earthquake\n");
+            this->makeNewTetrisPiece(false);
         }
 
-        this->makeNewTetrisPiece(false);
         this->sfx[BLOCK_FALL].play();
 
     }

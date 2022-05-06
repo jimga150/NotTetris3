@@ -114,6 +114,8 @@ public:
     
     void doGameStep() override;
 
+    void pieceLanded();
+
     void processControlInput();
     
     
