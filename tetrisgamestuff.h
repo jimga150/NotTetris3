@@ -17,11 +17,18 @@ enum tetris_piece_enum{
     num_tetris_pieces
 };
 
+#if defined(Q_CC_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
+//#elif defined(Q_CC_MSVC)
+//#pragma warning (disable: 4703)
+#endif
+
 static tetris_piece_enum default_tetris_piece = I;
 
+#if defined(Q_CC_CLANG)
 #pragma GCC diagnostic pop
+#endif
 
 enum wall_enum{
     GROUND = 0,
