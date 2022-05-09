@@ -741,7 +741,7 @@ void GameA::doGameStep(){
         this->line_clearing_thread = QtConcurrent::run(&GameA::clearRows, this);
 
         //dont break, continue to row_clear_blinking state
-
+        [[fallthrough]];
     case row_clear_blinking:
 
         this->row_blink_accumulator_s += framerate_s_f;
@@ -804,7 +804,7 @@ void GameA::doGameStep(){
     {
         this->shake_time_acc_s += framerate_s_f;
 
-        float t_mult = 2.0*M_PI*3.0;
+        float t_mult = static_cast<float>(2.0*M_PI*3.0);
         float side_speed = (t_mult/2.0)*sin(t_mult*this->shake_time_acc_s);
         b2Vec2 v(side_speed, 0);
 
@@ -1161,7 +1161,7 @@ void GameA::clearRows(){
 
 float GameA::getRowArea_m2(uint row, bool use_current_piece){
 
-    RETURN_VAL_IF_COND(row < 0 || row > this->tetris_rows, "invalid row", 0.0);
+    RETURN_VAL_IF_COND(row > this->tetris_rows, "invalid row", 0.0);
     
     row_sides_struct sides(row, this->side_length_m);
     
