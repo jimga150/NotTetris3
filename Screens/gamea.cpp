@@ -1393,7 +1393,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
                 int new_count = qMin(static_cast<int>(new_points.size()), b2_maxPolygonVertices);
                 //printf("Trimming points: %ld --> %d\n", new_points.size(), new_count);
 
-                if (!(this->poly_area_m2(&new_points[0], new_count) > 0)){
+                if (new_count == 0 || this->poly_area_m2(&new_points[0], new_count) <= 0){
                     //printf("Portion of shape outside line cut was too small, discarding\n");
                     continue;
                 }
