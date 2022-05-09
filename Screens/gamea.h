@@ -20,8 +20,6 @@
 
 #define NUM_FRAMES_TO_SAVE 120
 
-using namespace std;
-
 enum gamea_state_enum{
     gameA = 0,
     start_row_clear_blinking,
@@ -55,8 +53,8 @@ struct row_sides_struct{
     row_sides_struct(){}
     
     row_sides_struct(uint row, float side_length_m){
-        this->top_m = (row+1)*side_length_m + numeric_limits<float>::epsilon();
-        this->bottom_m = row*side_length_m - numeric_limits<float>::epsilon();
+        this->top_m = (row+1)*side_length_m + std::numeric_limits<float>::epsilon();
+        this->bottom_m = row*side_length_m - std::numeric_limits<float>::epsilon();
     }
 };
 
@@ -132,7 +130,7 @@ public:
     
     bool TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Vec2& p) const;
     
-    vector<rayCastComplete> getRayCasts(float top_m, float bot_m, float slope);
+    std::vector<rayCastComplete> getRayCasts(float top_m, float bot_m, float slope);
     
     b2Vec2 hit_point(rayCastComplete ray_cast);
     
@@ -213,9 +211,9 @@ public:
     
     //Box2d data
     b2BodyDef tetrisBodyDef;
-    vector<vector<b2FixtureDef>> tetrisFixtures;
-    vector<vector<b2PolygonShape>> tetrisShapes;
-    vector<b2Vec2> center_of_mass_offsets;
+    std::vector<std::vector<b2FixtureDef>> tetrisFixtures;
+    std::vector<std::vector<b2PolygonShape>> tetrisShapes;
+    std::vector<b2Vec2> center_of_mass_offsets;
     
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
@@ -226,11 +224,11 @@ public:
     
     b2Body* currentPiece = nullptr;
     
-    vector<b2Body*> bodies_to_destroy;
+    std::vector<b2Body*> bodies_to_destroy;
     
     //Index: Row box # (up to tetris_rows-1)
-    vector<float> row_areas_m2;
-    vector<QHash<b2Body*, float>> body_area_contributions_m2;
+    std::vector<float> row_areas_m2;
+    std::vector<QHash<b2Body*, float>> body_area_contributions_m2;
     
     
     //physical properties of graphics and world
@@ -366,9 +364,9 @@ public:
     QString pause_overlay_path = ":/resources/graphics/pausegamea.png";
     QPixmap pause_overlay = QPixmap(pause_overlay_path);
     
-    vector<QPixmap> piece_images;
-    vector<QPixmap> pwu_piece_images;
-    vector<QRectF> piece_rects_m;
+    std::vector<QPixmap> piece_images;
+    std::vector<QPixmap> pwu_piece_images;
+    std::vector<QRectF> piece_rects_m;
     
     QPixmap default_piece_image;
     QRectF default_piece_rect_m;
@@ -386,7 +384,7 @@ public:
     
     uint num_blinks_so_far; //blink count accumulator
     
-    vector<bool> rows_to_clear;
+    std::vector<bool> rows_to_clear;
 
     bool clear_diag_cut;
     float diag_top_m;

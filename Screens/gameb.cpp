@@ -234,7 +234,7 @@ void GameB::drawBodyTo(QPainter* painter, b2Body* body){
         case b2Shape::e_polygon:{
             b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
             int numpoints = shape.m_count;
-            vector<QPointF> points;
+            std::vector<QPointF> points;
             for (int i = 0; i < numpoints; i++){
                 points.push_back(
                             QPointF(
@@ -794,7 +794,7 @@ void GameB::initializeTetrisPieceDefs(){
     
     this->tetrisShapes.clear();
     for (uint8 i = 0; i < num_tetris_pieces; i++){
-        this->tetrisShapes.push_back(vector<b2PolygonShape>());
+        this->tetrisShapes.push_back(std::vector<b2PolygonShape>());
     }
     
     b2PolygonShape shape_template;
@@ -893,7 +893,7 @@ void GameB::initializeTetrisPieceDefs(){
     fixture_template.friction = this->piece_friction_k;
     fixture_template.restitution = this->restitution;
     
-    vector<b2FixtureDef> fixture_vector_template;
+    std::vector<b2FixtureDef> fixture_vector_template;
     
     this->tetrisFixtures.clear();
     this->center_of_mass_offsets.clear();

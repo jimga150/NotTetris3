@@ -211,7 +211,7 @@ void GameA::render(QPainter& painter)
 
             if (this->clear_diag_cut){
 
-                vector<rayCastComplete> rcs = this->getRayCasts(this->diag_top_m, this->diag_bot_m, this->diag_slope);
+                std::vector<rayCastComplete> rcs = this->getRayCasts(this->diag_top_m, this->diag_bot_m, this->diag_slope);
 
                 float x1_m = 0;
                 float x2_m = this->tetris_field_m.width();
@@ -221,7 +221,7 @@ void GameA::render(QPainter& painter)
                 float y3_m = this->diag_slope*(x2_m - rcs.at(TOPRIGHT).input.p1.x) + rcs.at(TOPRIGHT).input.p1.y;
                 float y4_m = this->diag_slope*(x2_m - rcs.at(BOTTOMRIGHT).input.p1.x) + rcs.at(BOTTOMRIGHT).input.p1.y;
 
-                vector<b2Vec2> points_m;
+                std::vector<b2Vec2> points_m;
                 points_m.push_back(b2Vec2(x1_m, y1_m));
                 points_m.push_back(b2Vec2(x1_m, y2_m));
                 points_m.push_back(b2Vec2(x2_m, y3_m));
@@ -367,7 +367,7 @@ void GameA::drawBodyTo(QPainter* painter, b2Body* body){
         case b2Shape::e_polygon:{
             b2PolygonShape shape = *static_cast<b2PolygonShape*>(f->GetShape());
             int numpoints = shape.m_count;
-            vector<QPointF> points;
+            std::vector<QPointF> points;
             for (int i = 0; i < numpoints; i++){
                 points.push_back(
                             QPointF(
@@ -1165,7 +1165,7 @@ float GameA::getRowArea_m2(uint row, bool use_current_piece){
     
     row_sides_struct sides(row, this->side_length_m);
     
-    vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top_m, sides.bottom_m, 0);
+    std::vector<rayCastComplete> ray_casts = this->getRayCasts(sides.top_m, sides.bottom_m, 0);
     
     float total_area_m2 = 0;
     
@@ -1192,7 +1192,7 @@ float GameA::getRowArea_m2(uint row, bool use_current_piece){
             }
             
             if(ray_casts.at(TOPLEFT).hit || ray_casts.at(BOTTOMLEFT).hit){
-                vector<b2Vec2> new_points;
+                std::vector<b2Vec2> new_points;
                 
                 for (int i = 0; i < s->m_count; i++){
                     
@@ -1254,7 +1254,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
     RETURN_IF_FLT_INVALID(bottom_y_m);
     RETURN_IF_FLT_INVALID(slope);
 
-    vector<rayCastComplete> ray_casts = this->getRayCasts(top_y_m, bottom_y_m, slope);
+    std::vector<rayCastComplete> ray_casts = this->getRayCasts(top_y_m, bottom_y_m, slope);
 
     //adjust top and bottom Y values to be where the cut sides intersect with the edge of the field
     top_y_m = top_y_m - slope*raycast_left_m;
@@ -1262,7 +1262,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
 
     //make list of bodies affected by this row clear
     //for top and bottom lines:
-    vector<b2Body*> affected_bodies;
+    std::vector<b2Body*> affected_bodies;
 
     //find all bodies with shapes that cross the line or are inside the lines
     for (b2Body* b = this->world->GetBodyList(); b; b = b->GetNext()){
@@ -1307,8 +1307,8 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
         affected_bodies.push_back(b);
 
         //for shapes in those bodies:
-        vector<b2Fixture*> fixtures_to_destroy;
-        vector<b2PolygonShape> shapes_to_make;
+        std::vector<b2Fixture*> fixtures_to_destroy;
+        std::vector<b2PolygonShape> shapes_to_make;
         for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext()){
             Q_ASSERT(f->GetShape()->GetType() == b2Shape::e_polygon);
             b2PolygonShape* s = static_cast<b2PolygonShape*>(f->GetShape());
@@ -1327,7 +1327,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
                 }*/
 
                 //get list of points on outside of row clear
-                vector<b2Vec2> new_points;
+                std::vector<b2Vec2> new_points;
                 for (int i = 0; i < s->m_count; i++){
                     b2Vec2 p = b->GetWorldPoint(s->m_vertices[i]);
                     float py_intersect = p.y - slope*p.x;
@@ -1437,7 +1437,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
     for (b2Body* b : affected_bodies){
         //each vector in shape_groups represents a number of shapes that are touching,
         //directly or indirectly via each other
-        vector<vector<b2PolygonShape*>> shape_groups;
+        std::vector<std::vector<b2PolygonShape*>> shape_groups;
 
         //transform doesnt matter when testing overlaps because all these shapes are part of one body to start
         b2Transform t;
@@ -1465,7 +1465,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
             //if shape wasn't touching any other shapes in the vector
             if (!found_touch){
                 //add shape to its own svector, add that svector to the vector
-                shape_groups.push_back(vector<b2PolygonShape*>());
+                shape_groups.push_back(std::vector<b2PolygonShape*>());
                 shape_groups.back().push_back(s);
             }
         } //end shape grouping looping
@@ -1476,7 +1476,7 @@ void GameA::clearDiagRange(float top_y_m, float bottom_y_m, float slope){
         new_body_def.angle = b->GetAngle();
         new_body_def.position = b->GetPosition();
 
-        for (vector<b2PolygonShape*>& group : shape_groups){
+        for (std::vector<b2PolygonShape*>& group : shape_groups){
 
             //make new body
             b2Body* new_body = this->world->CreateBody(&new_body_def);
@@ -1603,9 +1603,9 @@ bool GameA::TestPointRadius(b2PolygonShape* s, const b2Transform& xf, const b2Ve
     return true;
 }
 
-vector<rayCastComplete> GameA::getRayCasts(float top_m, float bot_m, float slope){
+std::vector<rayCastComplete> GameA::getRayCasts(float top_m, float bot_m, float slope){
 
-    vector<rayCastComplete> ray_casts;
+    std::vector<rayCastComplete> ray_casts;
 
     RETURN_VAL_IF_FLT_INVALID(top_m, ray_casts);
     RETURN_VAL_IF_FLT_INVALID(bot_m, ray_casts);
@@ -1986,7 +1986,7 @@ void GameA::initializeTetrisPieceDefs(){
     
     this->tetrisShapes.clear();
     for (uint8 i = 0; i < num_tetris_pieces; i++){
-        this->tetrisShapes.push_back(vector<b2PolygonShape>());
+        this->tetrisShapes.push_back(std::vector<b2PolygonShape>());
     }
     
     b2PolygonShape shape_template;
@@ -2085,7 +2085,7 @@ void GameA::initializeTetrisPieceDefs(){
     fixture_template.friction = this->piece_friction_k;
     fixture_template.restitution = this->restitution;
     
-    vector<b2FixtureDef> fixture_vector_template;
+    std::vector<b2FixtureDef> fixture_vector_template;
     
     this->tetrisFixtures.clear();
     this->center_of_mass_offsets.clear();

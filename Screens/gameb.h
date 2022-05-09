@@ -18,8 +18,6 @@
 
 #define NUM_FRAMES_TO_SAVE 120
 
-using namespace std;
-
 // TODO: merge mergable parts of game a and game b?
 enum gameb_state_enum{
     gameB = 0,
@@ -133,9 +131,9 @@ public:
     
     //Box2d data
     b2BodyDef tetrisBodyDef;
-    vector<vector<b2FixtureDef>> tetrisFixtures;
-    vector<vector<b2PolygonShape>> tetrisShapes;
-    vector<b2Vec2> center_of_mass_offsets;
+    std::vector<std::vector<b2FixtureDef>> tetrisFixtures;
+    std::vector<std::vector<b2PolygonShape>> tetrisShapes;
+    std::vector<b2Vec2> center_of_mass_offsets;
     
     b2World* world = nullptr;
     NT3ContactListener* contactlistener = nullptr;
@@ -266,8 +264,8 @@ public:
     QString pause_overlay_path = ":/resources/graphics/pausegameb.png";
     QPixmap pause_overlay = QPixmap(pause_overlay_path);
     
-    vector<QPixmap> piece_images;
-    vector<QRect> piece_rects;
+    std::vector<QPixmap> piece_images;
+    std::vector<QRect> piece_rects;
     
     QPixmap default_piece_image;
     QRectF default_piece_rect;
