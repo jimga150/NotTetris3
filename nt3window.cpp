@@ -186,25 +186,25 @@ void NT3Window::render(QPainter &painter){
         GameA* game = static_cast<GameA*>(this->screens[GAMEA]);
         if (game->debug_framerate){
             
-            painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R F");
+            painter.drawText(QPointF(game->ui_to_screen_scale_px_in, 12*game->ui_to_screen_scale_px_in), "R F");
             
             float render_time_severity = this->frame_comp_times.render_time*1.0/this->expected_frame_time;
             float frame_time_severity = this->frame_comp_times.game_frame_time*1.0/this->expected_frame_time;
             
             painter.drawRect(
                         0, 
-                        10*game->ui_scale*(1.0-render_time_severity), 
-                        game->ui_scale, 
-                        10*game->ui_scale*render_time_severity
+                        10*game->ui_to_screen_scale_px_in*(1.0-render_time_severity),
+                        game->ui_to_screen_scale_px_in,
+                        10*game->ui_to_screen_scale_px_in*render_time_severity
                         );
             painter.drawRect(
-                        3*game->ui_scale, 
-                        10*game->ui_scale*(1.0-frame_time_severity), 
-                        game->ui_scale, 
-                        10*game->ui_scale*frame_time_severity
+                        3*game->ui_to_screen_scale_px_in,
+                        10*game->ui_to_screen_scale_px_in*(1.0-frame_time_severity),
+                        game->ui_to_screen_scale_px_in,
+                        10*game->ui_to_screen_scale_px_in*frame_time_severity
                         );
-            //painter.drawText(QPointF(game->ui_scale, 12*game->ui_scale), "R: " + QString::number(this->frame_times.render_time));
-            //painter.drawText(QPointF(game->ui_scale, 14*game->ui_scale), "F: " + QString::number(this->frame_times.game_frame_time));
+            //painter.drawText(QPointF(game->ui_to_screen_scale_px_in, 12*game->ui_to_screen_scale_px_in), "R: " + QString::number(this->frame_times.render_time));
+            //painter.drawText(QPointF(game->ui_to_screen_scale_px_in, 14*game->ui_to_screen_scale_px_in), "F: " + QString::number(this->frame_times.game_frame_time));
         }
     }
 #endif
