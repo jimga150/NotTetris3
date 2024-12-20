@@ -1,5 +1,6 @@
 .DS_Store
 *.swp
+build
 
 # C++ objects and libs
 *.slo
