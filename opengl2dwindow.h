@@ -60,12 +60,10 @@
 
 #include "common.h"
 
-//#define TIME_FRAMES 1
-//#define TIME_FRAME_COMPS 1
+// #define TIME_FRAMES 1
+// #define TIME_FRAME_COMPS 1
 
-#if defined(TIME_FRAMES) || defined(TIME_FRAME_COMPS)
 #include <QElapsedTimer>
-#endif
 
 #ifdef TIME_FRAME_COMPS
 struct frame_comp_times_struct{
@@ -86,6 +84,8 @@ public:
 
     void setAnimating(bool animating);
 
+    double getAvgFramerate_ms();
+
     virtual void render(QPainter& painter);
 
     virtual void doGameStep();
@@ -103,10 +103,8 @@ protected:
     int frame_divisor = 1;
     int frame_counter = 0;
 
-#ifdef TIME_FRAMES
     QElapsedTimer frameTimer;
     std::vector<long long> frame_times_vect;
-#endif
 
 #ifdef TIME_FRAME_COMPS
     frame_comp_times_struct frame_comp_times;

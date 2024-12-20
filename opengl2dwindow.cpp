@@ -53,22 +53,16 @@
 OpenGL2DWindow::OpenGL2DWindow(){
     this->setSurfaceType(QWindow::OpenGLSurface);
     
-#ifdef TIME_FRAMES
     this->frameTimer.start();
-#endif
 }
 
 OpenGL2DWindow::~OpenGL2DWindow(){
 #ifdef TIME_FRAMES
-    quint64 numframes = this->frame_times_vect.size();
-    qint64 totalTime = 0;
-    for (qint64 ft : this->frame_times_vect){
-        totalTime += ft;
-    }
-    double de_facto_rate = totalTime*1.0/numframes;
+    double de_facto_rate = this->getAvgFramerate_ms();
     printf("Average framerate was %f ms\n", de_facto_rate);
 #endif
     delete this->m_device;
+    fflush(stdout);
 }
 
 void OpenGL2DWindow::setAnimating(bool animating){
@@ -79,13 +73,21 @@ void OpenGL2DWindow::setAnimating(bool animating){
 }
 
 bool OpenGL2DWindow::event(QEvent *event){
+
     switch (event->type()) {
     case QEvent::UpdateRequest:
 
+        // printf("Time since last render: %lld ms\n", this->frameTimer.elapsed());
+
+        // printf("Average framerate: %f ms\tTarget framerate: %f ms\n", avgFrameRate, framerate_ms_f);
+
+        // printf("Frame counter: %d\tFrame divisor: %d\n", frame_counter, frame_divisor);
         if ((++frame_counter) % frame_divisor == 0){
+            // printf("Rendering NOW\n");
             this->renderNow();
         } else {
             // Call update to trigger event on next frame
+            // printf("Skipping this frame\n");
             if (this->m_animating) this->update();
         }
 
@@ -114,11 +116,31 @@ void OpenGL2DWindow::renderNow(){
            this->frame_comp_times.game_frame_time, this->frame_comp_times.buffer_time);
 #endif
     
-#ifdef TIME_FRAMES
     long long elapsed = this->frameTimer.elapsed();
-    this->frame_times_vect.push_back(elapsed);
-    printf("Frame took %lld ms\n", elapsed);
     this->frameTimer.restart();
+
+    this->frame_times_vect.push_back(elapsed);
+    while (this->frame_times_vect.size() > 100){
+        this->frame_times_vect.erase(this->frame_times_vect.begin());
+    }
+
+    double framerate_ms_f = framerate_s_f*MILLIS_PER_SECOND;
+
+    if (elapsed < framerate_ms_f*0.5 - 1){
+        this->frame_divisor++;
+        printf("Last frame time (%lld ms) too fast! Targeting %f ms. "
+               "Incrementing Frame Divisor to slow down framerate. New frame divisor: %d\n",
+               elapsed, framerate_ms_f, this->frame_divisor);
+    }
+    if (elapsed > framerate_ms_f + 1 && this->frame_divisor > 1){
+        this->frame_divisor--;
+        printf("Last frame time (%lld ms) too slow! Targeting %f ms. "
+               "Decrementing Frame Divisor to speed up framerate. New frame divisor: %d\n",
+               elapsed, framerate_ms_f, this->frame_divisor);
+    }
+
+#ifdef TIME_FRAMES
+    printf("Frame took %lld ms\n", elapsed);
 #elif defined(TIME_FRAME_COMPS)
     //printf("\n");
 #endif
@@ -144,7 +166,7 @@ void OpenGL2DWindow::renderNow(){
     
     if (needsInitialize) {
         QOpenGLFunctions::initializeOpenGLFunctions();
-        //printf("%s\n", glGetString(GL_VERSION));
+        printf("%s\n", glGetString(GL_VERSION));
     }
     
     if (!this->m_device)
@@ -187,6 +209,15 @@ void OpenGL2DWindow::renderNow(){
 #endif
     
     if (this->m_animating) this->update();
+}
+
+double OpenGL2DWindow::getAvgFramerate_ms(){
+    quint64 numframes = this->frame_times_vect.size();
+    qint64 totalTime = 0;
+    for (qint64 ft : this->frame_times_vect){
+        totalTime += ft;
+    }
+    return totalTime*1.0/numframes;
 }
 
 void OpenGL2DWindow::render(QPainter& painter){

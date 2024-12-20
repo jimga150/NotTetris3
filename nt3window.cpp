@@ -26,7 +26,7 @@ NT3Window::NT3Window()
         "qrc:/resources/sounds/music/themeC.mp3",
         ""
     };
-    
+
     QScreen* screen = this->screen();
     float fps = screen->refreshRate();
 
@@ -37,6 +37,7 @@ NT3Window::NT3Window()
     framerate_s_f = 1.0/fps;
 
     printf("Refresh rate (adjusted to between 60 and 119.999 FPS: %f FPS (%f ms)\n", fps, framerate_s_f*MILLIS_PER_SECOND);
+    printf("Frame divisor: %d (will do game step one out of every %d frames)\n", this->frame_divisor, this->frame_divisor);
     
     this->expected_frame_time = static_cast<int>(ceil(framerate_s_f*MILLIS_PER_SECOND));
     
