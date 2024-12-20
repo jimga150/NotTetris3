@@ -60,6 +60,14 @@ int main(int argc, char **argv)
     format.setSamples(16);
     format.setVersion(4, 1);
     format.setProfile(QSurfaceFormat::CoreProfile);
+
+    // Starting at Qt 6.6.0 (it seems, based on this: https://github.com/qt/qtbase/commit/08b71d8619e2ad3dae8790e498860d3ced2b0851)
+    // The update interval timer invoked to sync up update requests to display frames now attempts to scale properly for higher refresh rates.
+    // The following is left over from an attempt to resolve this by overriding the timer set in qplatformwindow.cpp
+    // Ultimately i determined that this is a bad idea and decided to handle it dynamically in OpenGL2DWindow::renderNow(),
+    // but i'm keeping this here because i don't believe this environment variable will be easy to find later.
+    // qputenv("QT_QPA_UPDATE_IDLE_TIME", QByteArray("5"));
+    // printf("QT_QPA_UPDATE_IDLE_TIME: %s\n", qgetenv("QT_QPA_UPDATE_IDLE_TIME").constData());
     
     NT3Window gamewindow;
     gamewindow.setFormat(format);
